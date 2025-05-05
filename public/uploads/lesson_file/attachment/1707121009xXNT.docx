@@ -1,0 +1,22 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:05.000
+Welcome to the Sample Video
+
+00:00:05.000 --> 00:00:10.000
+[Music playing]
+
+00:00:10.000 --> 00:00:20.000
+Narrator: In this brief video, we'll explore the basics of WebVTT files.
+
+00:00:20.000 --> 00:00:30.000
+[Applause]
+
+00:00:30.000 --> 00:00:40.000
+Speaker: WebVTT is a format used for adding captions or subtitles to HTML5 videos.
+
+00:00:40.000 --> 00:00:50.000
+[Laughter]
+
+00:00:50.000 --> 00:01:00.000
+Remember to save your WebVTT file with the ".vtt" extension.

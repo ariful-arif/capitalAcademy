@@ -1,0 +1,4 @@
+- new column added in message table - receiver
+- new column added in users table - temp
+- New table added "newsletter_histories"
+- Social share links added for course
