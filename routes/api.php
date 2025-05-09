@@ -160,9 +160,11 @@ Route::post('ai_flashCards', [ApiController::class, 'ai_flashCards']);
 Route::post('ai_summary', [ApiController::class, 'ai_summary']);
 Route::post('generate_mcq_from_pdf', [ApiController::class, 'generate_mcq_from_pdf']);
 Route::post('generate_free_response_from_pdf', [ApiController::class, 'generate_free_response_from_pdf']);
+Route::post('audio_podcast', [ApiController::class, 'audio_podcast']);
 
 Route::get('/all_dynamic_pages', [ApiController::class, 'all_dynamic_pages']);
 Route::get('/one_dynamic_pages', [ApiController::class, 'one_dynamic_pages']);
+Route::get('/student_list', [ApiController::class, 'student_list']);
 
 // });
 

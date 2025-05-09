@@ -1,3 +1,4 @@
+//////////start 1
 {
     "title": "Empower Your Audience and Earn with Capital Academy",
     "subtitle": "Join the Capital Academy Affiliate Program and partner with a leading provider of financial education. Monetize your platform by offering your audience access to our comprehensive courses and certifications, and earn competitive commissions for every referral.",
@@ -5,6 +6,7 @@
     "whyPartner": {
         "title": "Why Partner with Capital Academy?",
         "thumbnail": "uploads/dynamic_pages/affiliate_page/affiliate_partner.png",
+        "thumbnail_1": "",
         "features": [
             {
                 "logo": "uploads/dynamic_pages/affiliate_page/com_icon.png",
@@ -72,7 +74,85 @@
     }
 }
 
-
+{
+    "title": "Empower Your Audience and Earn with Capital Academy",
+    "subtitle": "Join the Capital Academy Affiliate Program and partner with a leading provider of financial education. Monetize your platform by offering your audience access to our comprehensive courses and certifications, and earn competitive commissions for every referral.",
+    "thumbnail": "uploads\/dynamic_pages\/affiliate_page\/1746512305-FElDb61BRwCLvqYX5UHhMopPZkf7u8.jpg",
+    "whyPartner": {
+        "title": "Why Partner with Capital Academy?",
+        "thumbnail": "uploads\/dynamic_pages\/affiliate_page\/1746512305-5oJTuFrcGd6npXhtD3BUaKk7fSHQji.jpg",
+        "thumbnail_1": "",
+        "features": [
+            {
+                "title": "Competitive Commissions",
+                "description": "Earn up to 25% commission on all qualifying purchases made through your referral links.",
+                "logo": "uploads\/dynamic_pages\/affiliate_page\/1746512306-B2dx6zsGI89ifWv03lyowE4uUFSanj.png"
+            },
+            {
+                "title": "Extensive Course Library",
+                "description": "Provide a wide range of courses covering finance, investment, and personal development.",
+                "logo": "uploads\/dynamic_pages\/affiliate_page\/1746512306-ki3HEZ9hxFzXMKvYPrdV7Cng6bSuyU.png"
+            },
+            {
+                "title": "Trusted Educational Provider",
+                "description": "Align with a reputable institution known for high-quality content and recognized certifications.",
+                "logo": "uploads\/dynamic_pages\/affiliate_page\/1746512306-1U4TmuWBpYIAdVkrtE2Q5jJPwoyz76.png"
+            },
+            {
+                "title": "Marketing Support",
+                "description": "Access professionally designed banners, text links, and valuable promotional content to enhance your marketing efforts.",
+                "logo": "uploads\/dynamic_pages\/affiliate_page\/1746512306-c3MftS6Xs2eOj5prNUuDlPyahYJ0mn.png"
+            }
+        ]
+    },
+    "howItWorks": {
+        "title": "How It Works",
+        "features": [
+            {
+                "title": "Sign Up",
+                "description": "Join the Capital Academy Affiliate Program by filling out a simple application form.",
+                "logo": null
+            },
+            {
+                "title": "Promote",
+                "description": "Share your unique affiliate links on your website, blog, or social media platforms.",
+                "logo": null
+            },
+            {
+                "title": "Earn",
+                "description": "Receive commissions for every purchase made through your referral link.",
+                "logo": null
+            }
+        ]
+    },
+    "whoCanJoin": {
+        "title": "Who Can Join?",
+        "subtitle": "We welcome applications from bloggers, influencers, educators, and website owners with audiences interested in finance, investment, and professional growth. Whether you have a niche blog, a popular YouTube channel, or a professional network, partnering with Capital Academy offers value to your followers and a revenue opportunity for you."
+    },
+    "affiliateSupport": {
+        "title": "Affiliate Support and Resources",
+        "subtitle": "As a Capital Academy affiliate, you'll have access to",
+        "features": [
+            {
+                "title": "Dedicated Affiliate Management Team",
+                "description": "Receive support and guidance to maximize your success.",
+                "logo": "uploads\/dynamic_pages\/affiliate_page\/1746512550-V6rHfAFO1R9q5Wt0hTgcykLYpoUxG4.png"
+            },
+            {
+                "title": "Regular Updates",
+                "description": "Stay informed about new courses, promotions, and exclusive affiliate offers.",
+                "logo": "uploads\/dynamic_pages\/affiliate_page\/1746512550-itDqPnZebBxO9lrIkcFWS2X1pYRm0N.png"
+            },
+            {
+                "title": "Detailed Reporting",
+                "description": "Track your performance with comprehensive analytics and reporting tools. sdf",
+                "logo": "uploads\/dynamic_pages\/affiliate_page\/1746512550-FjUGbKq43YIw9oAvsLCMBgDiJxhlVu.png"
+            }
+        ]
+    }
+}
+////// //end 1
+///////// 22222222222222
 {
     "title": "Investing in Your Future",
     "subtitle": "At Capital Academy, we believe that knowledge should be accessible to everyone, no matter their financial situation. Twice a year, we offer scholarships to help passionate learners take their skills to the next level with free access to our premium courses. Scholarship recipients will receive a one-year Capital Academy membership, granting full access to our Self-Study programs, career-building resources, and mentorship opportunities.",
@@ -98,12 +178,15 @@
         "thumbnail": "uploads/dynamic_pages/scholarships_page/apply.png"
     }
 }
-
-
+///////// 33333333333
 {
     "title": "Our Commitment to Empowering Communities",
     "subtitle": "At Capital Academy, we believe that education is a powerful catalyst for social change. Our mission extends beyond providing top-tier financial education; we are dedicated to making a meaningful impact in underserved communities by offering accessible learning opportunities and resources.",
-    "thumbnail": "uploads/dynamic_pages/community_page/community_thumbnail.png",
+    "thumbnail": [
+        "uploads/dynamic_pages/community_page/community_thumbnail.png",
+        "uploads/dynamic_pages/community_page/grant_1.jpg",
+        "uploads/dynamic_pages/community_page/community_thumbnail.png"
+    ],
     "grantProgram": {
         "title": "Capital Academy Grant Program",
         "subtitle": "To bridge the educational gap, the Capital Academy Grant Program donates annual memberships to accredited charitable organizations serving communities in need. This initiative ensures that individuals, regardless of their circumstances, have the opportunity to enhance their financial literacy and professional skills.",
@@ -156,8 +239,7 @@
         ]
     }
 }
-
-
+///////// 44444444
 {
     "title": "Advance Your Finance Career with Capital Academy",
     "subtitle": "Finance is evolving, and professionals need to continuously upskill to stay ahead. Capital Academy provides comprehensive, industry-backed training for individuals looking to build expertise in trading, investment, risk management, and AI-driven finance.",
@@ -174,7 +256,17 @@
             "Blockchain-verified certifications to showcase your expertise",
             "Job placement & networking opportunities with top firms"
         ],
-        "thumbnail": "uploads/dynamic_pages/business_individuals/professional.png"
+        "thumbnail": "uploads/dynamic_pages/business_individuals/learning1.png",
+        "thumbnail_1": "uploads/dynamic_pages/business_individuals/learning2.png"
+    },
+    "professionals": {
+        "title": "Top Courses for Finance Professionals",
+        "subtitle1": "Scalable learning solutions for teams of any size.",
+        "subtitle2": "Certification programs with blockchain-verified credentials.",
+        "subtitle2_1": "Blockchain-verified Certified ",
+        "subtitle2_2": "Your recall for this certification is at 80%",
+        "subtitle3": "Exclusive networking with global finance leaders.",
+        "subtitle4": "Dedicated support and analytics to track team progress."
     },
     "increased": {
         "percentage": "353%",
@@ -213,6 +305,7 @@
 }
 
 
+///////// 5555555555
 {
     "title": "Partner with Capital Academy and Elevate Your Impact",
     "subtitle": "At Capital Academy, we are committed to delivering exceptional financial education and professional development opportunities. Our partnerships are built on mutual growth, innovation, and a shared dedication to excellence in the finance industry.",
@@ -292,8 +385,7 @@
         ]
     }
 }
-
-
+///////// 66666666666
 {
     "title": "Explore Careers at Capital Academy",
     "thumbnail": [
@@ -366,7 +458,7 @@
         ]
     }
 }
-
+///////// 77777777777
 {
     "title": "Capital Academy Full Code of Ethics",
     "subtitle": "Our Code of Ethics outlines the guiding principles that Capital Academy members, candidates, and Charter holders are expected to uphold. These principles ensure that all financial professionals maintain integrity, transparency, and accountability in their professional conduct.",
@@ -458,7 +550,7 @@
         ]
     }
 }
-
+///////// 88888888888
 {
     "title": "Elevate Your Career with Exclusive Membership Benefits",
     "subtitle": "Capital Academy Membership is designed for ambitious professionals, executives, and finance enthusiasts who demand more from their learning experience. This is not just another membership; it’s a gateway to elite knowledge, networking, and career advancement in the world of finance and investment.",
@@ -548,8 +640,7 @@
         ]
     }
 }
-
-
+///////// 9999999999999
 {
     "title": "Capital Academy Standards of Professional Conduct",
     "subtitle": "The Standards of Professional Conduct guide Capital Academy members, candidates, and Charterholders in maintaining integrity, professionalism, and accountability in all professional activities. These standards ensure fair treatment of clients, uphold industry best practices, and foster trust in global capital markets.",
@@ -743,9 +834,7 @@
         "thumbnail_1": "uploads/dynamic_pages/professional_conduct_page/ementenfore2.jpg"
     }
 }
-
-
-
+///////// 10000000000000
 {
     "title": "Our Commitment to Community & Volunteering",
     "subtitle": "At Capital Academy, we believe that education is a powerful catalyst for social change. Our mission extends beyond providing top-tier financial education; we are dedicated to making a meaningful impact in underserved communities by offering accessible learning opportunities and resources.",
@@ -787,9 +876,7 @@
         ]
     }
 }
-
-
-
+///////// 11
 {
     "title": "Empower Your Organization with Finance-Driven Learning",
     "subtitle": "Capital Academy partners with financial institutions, government agencies, and industry leaders to provide tailored training solutions that drive growth, efficiency, and expertise. Our programs are designed to equip teams with the latest skills in finance, trading, investment, and risk management, ensuring your organization stays ahead in a rapidly evolving landscape.",
@@ -849,16 +936,14 @@
         ]
     }
 }
-
-
-
+///////// 12
 {
     "thumbnail": [
-        "uploads/dynamic_pages/business_individuals/org_thumnail.jpg",
-        "uploads/dynamic_pages/business_individuals/learning1.png",
-        "uploads/dynamic_pages/business_individuals/learning2.png",
-        "uploads/dynamic_pages/business_individuals/org_thumnail.jpg",
-        "uploads/dynamic_pages/business_individuals/learning1.png"
+        "uploads/dynamic_pages/business_individuals/c1.jpg",
+        "uploads/dynamic_pages/business_individuals/c2.jpg",
+        "uploads/dynamic_pages/business_individuals/c3.jpg",
+        "uploads/dynamic_pages/business_individuals/c4.jpg",
+        "uploads/dynamic_pages/business_individuals/c5.jpg"
     ],
     "title": "Build a Future-Ready Workforce with Capital Academy",
     "subtitle": "Finance professionals need cutting-edge knowledge and real-world expertise to thrive in today’s business world. Capital Academy helps corporations train their employees with industry-leading financial education, from corporate finance and risk management to data-driven decision-making and AI in trading.",
@@ -917,7 +1002,7 @@
         "subtitle4": "Leadership Development for Executives"
     }
 }
-
+///////// 13
 {
     "title": "Your Path to a Career in Finance Starts Here",
     "subtitle": "Capital Academy empowers students with the skills, knowledge, and industry connections needed to succeed in finance, investment, and trading. Gain real-world expertise through practical courses, mentorship programs, and career development support.",
@@ -977,7 +1062,7 @@
         ]
     }
 }
-
+///////// 14
 {
     "thumbnail": "uploads/dynamic_pages/insights_career_page/university_student.png",
     "title": "Partnering with Universities to Shape the Future of Finance",

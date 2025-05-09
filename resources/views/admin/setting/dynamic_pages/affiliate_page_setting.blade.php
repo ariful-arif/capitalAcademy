@@ -44,12 +44,23 @@
         <!--  Thumbnail -->
         <div class="fpb-7 mb-3">
             <label class="form-label ol-form-label" for="why_partner_thumbnail">{{ get_phrase('Thumbnail') }}<span
-                    class="required">*</span></label>
+                    class="required"> :</span></label>
             @if (!empty($affiliate_page_settings['whyPartner']['thumbnail']))
                 <img src="{{ asset($affiliate_page_settings['whyPartner']['thumbnail']) }}" alt="Thumbnail"
                     class="img-fluid mb-3" style="width: 200px; height: 150px;">
             @endif
             <input type="file" name="why_partner_thumbnail" id="why_partner_thumbnail"
+                class="form-control ol-form-control" accept="image/*">
+        </div>
+        <!--  Thumbnail 1-->
+        <div class="fpb-7 mb-3">
+            <label class="form-label ol-form-label" for="why_partner_thumbnail_1">{{ get_phrase('Thumbnail 2') }}<span
+                    class="required"> :</span></label>
+            @if (!empty($affiliate_page_settings['whyPartner']['thumbnail_1']))
+                <img src="{{ asset($affiliate_page_settings['whyPartner']['thumbnail_1']) }}" alt="Thumbnail"
+                    class="img-fluid mb-3" style="width: 200px; height: 150px;">
+            @endif
+            <input type="file" name="why_partner_thumbnail_1" id="why_partner_thumbnail_1"
                 class="form-control ol-form-control" accept="image/*">
         </div>
 
@@ -87,8 +98,8 @@
                                                 class="img-fluid mb-3" style="width: 50px; height: 50px;">
                                         @endif
                                         <div class="custom-file">
-                                            <input name="logo" type="hidden"
-                                                value="{{ $motivational_speech['logo'] }}">
+                                            {{-- <input name="logo" type="hidden"
+                                                value="{{ $motivational_speech['logo'] }}"> --}}
                                             <input type="file" class="form-control ol-form-control" name="logos[]"
                                                 accept="image/*">
                                         </div>
@@ -327,7 +338,7 @@
                                             {{-- <input name="logo" type="hidden"
                                                 value="{{ $motivational_speech['logo'] }}"> --}}
                                             <input type="file" class="form-control ol-form-control"
-                                                name="support_logos" accept="image/*">
+                                                name="support_logos[]" accept="image/*">
                                         </div>
                                     </div>
                                 </div>

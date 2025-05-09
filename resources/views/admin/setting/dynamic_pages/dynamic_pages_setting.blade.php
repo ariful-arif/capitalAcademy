@@ -23,94 +23,82 @@
                     <div class="col-md-12 pb-3">
                         <ul class="nav nav-tabs eNav-Tabs-custom eTab" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="cHome-tab" data-bs-toggle="tab" data-bs-target="#cHome"
-                                    type="button" role="tab" aria-controls="cHome" aria-selected="true">
+                                <button class="nav-link active" id="affiliate-tab" data-bs-toggle="tab"
+                                    data-bs-target="#affiliate" type="button" role="tab" aria-controls="affiliate"
+                                    aria-selected="true">
                                     {{ get_phrase('Affiliate Page Settings') }}
                                     <span></span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="cMessage-tab" data-bs-toggle="tab" data-bs-target="#cMessage"
-                                    type="button" role="tab" aria-controls="cMessage" aria-selected="false">
-                                    {{ get_phrase('Motivational Speech') }}
+                                <button class="nav-link" id="scholarships-tab" data-bs-toggle="tab"
+                                    data-bs-target="#scholarships" type="button" role="tab"
+                                    aria-controls="scholarships" aria-selected="false">
+                                    {{ get_phrase('Scholarships Page Settings') }}
                                     <span></span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="cSettings-tab" data-bs-toggle="tab" data-bs-target="#cSettings"
-                                    type="button" role="tab" aria-controls="cSettings" aria-selected="false">
-                                    {{ get_phrase('Website FAQS') }}
+                                <button class="nav-link" id="community_initiatives-tab" data-bs-toggle="tab"
+                                    data-bs-target="#community_initiatives" type="button" role="tab"
+                                    aria-controls="community_initiatives" aria-selected="false">
+                                    {{ get_phrase('Community Initiatives Page Settings') }}
                                     <span></span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="contact_information-tab" data-bs-toggle="tab"
-                                    data-bs-target="#contact_information" type="button" role="tab"
-                                    aria-controls="contact_information" aria-selected="false">
-                                    {{ get_phrase('Contact Information') }}
+                                <button class="nav-link" id="business_individuals-tab" data-bs-toggle="tab"
+                                    data-bs-target="#business_individuals" type="button" role="tab"
+                                    aria-controls="business_individuals" aria-selected="false">
+                                    {{ get_phrase('Business Individuals Page Settings') }}
                                     <span></span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="recaptcha-tab" data-bs-toggle="tab" data-bs-target="#recaptcha"
-                                    type="button" role="tab" aria-controls="recaptcha" aria-selected="false">
-                                    {{ get_phrase('Recaptcha') }}
+                                <button class="nav-link" id="business_organization-tab" data-bs-toggle="tab"
+                                    data-bs-target="#business_organization" type="button" role="tab"
+                                    aria-controls="business_organization" aria-selected="false">
+                                    {{ get_phrase('Business Organization Page Settings') }}
                                     <span></span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="reviews" data-bs-toggle="tab" data-bs-target="#reviews-tab"
-                                    type="button" role="tab" aria-controls="reviews-tab" aria-selected="false">
-                                    {{ get_phrase('User Reviews') }}
+                                <button class="nav-link" id="business_corporate-tab" data-bs-toggle="tab"
+                                    data-bs-target="#business_corporate" type="button" role="tab"
+                                    aria-controls="business_corporate" aria-selected="false">
+                                    {{ get_phrase('Business Corporate Page Settings') }}
                                     <span></span>
                                 </button>
                             </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="logo_images-tab" data-bs-toggle="tab"
-                                    data-bs-target="#logo_images" type="button" role="tab" aria-controls="logo_images"
-                                    aria-selected="false">
-                                    {{ get_phrase('Logo & Images') }}
-                                    <span></span>
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="logo_images-tab" data-bs-toggle="tab" data-bs-target="#videos"
-                                    type="button" role="tab" aria-controls="videos" aria-selected="false">
-                                    {{ get_phrase('Videos') }}
-                                    <span></span>
-                                </button>
-                            </li>
+
                         </ul>
                         <div class="tab-content eNav-Tabs-content" id="myTabContent">
-                            <div class="tab-pane fade show active" id="cHome" role="tabpanel"
-                                aria-labelledby="cHome-tab">
+                            <div class="tab-pane fade show active" id="affiliate" role="tabpanel"
+                                aria-labelledby="affiliate-tab">
                                 <div class="tab-pane show active" id="frontendsettings">
                                     @include('admin.setting.dynamic_pages.affiliate_page_setting')
                                 </div>
                             </div>
-                            {{-- <div class="tab-pane fade" id="cMessage" role="tabpanel" aria-labelledby="cMessage-tab">
-                                @include('admin.setting.motivational')
+                            <div class="tab-pane fade" id="scholarships" role="tabpanel" aria-labelledby="scholarships-tab">
+                                @include('admin.setting.dynamic_pages.scholarships_page_setting')
                             </div>
-                            <div class="tab-pane fade" id="cSettings" role="tabpanel" aria-labelledby="cSettings-tab">
-                                @include('admin.setting.webfaqs')
+                            <div class="tab-pane fade" id="community_initiatives" role="tabpanel"
+                                aria-labelledby="community_initiatives-tab">
+                                @include('admin.setting.dynamic_pages.community_initiatives_page_setting')
                             </div>
-                            <div class="tab-pane fade" id="contact_information" role="tabpanel"
-                                aria-labelledby="contact_information-tab">
-                                @include('admin.setting.contact_information')
+                            <div class="tab-pane fade" id="business_individuals" role="tabpanel"
+                                aria-labelledby="business_individuals-tab">
+                                @include('admin.setting.dynamic_pages.business_individuals_page_setting')
                             </div>
-                            <div class="tab-pane fade" id="recaptcha" role="tabpanel" aria-labelledby="recaptcha-tab">
-                                @include('admin.setting.recaptcha')
+                            <div class="tab-pane fade" id="business_organization" role="tabpanel"
+                                aria-labelledby="business_organization-tab">
+                                @include('admin.setting.dynamic_pages.business_organization_page_setting')
                             </div>
-                            <div class="tab-pane fade" id="reviews-tab" role="tabpanel" aria-labelledby="reviews">
-                                @include('admin.setting.user_review_list')
+                            <div class="tab-pane fade" id="business_corporate" role="tabpanel"
+                                aria-labelledby="business_corporate-tab">
+                                @include('admin.setting.dynamic_pages.business_corporate_page_setting')
                             </div>
-                            <div class="tab-pane fade" id="logo_images" role="tabpanel"
-                                aria-labelledby="logo_images-tab">
-                                @include('admin.setting.logo_image')
-                            </div>
-                            <div class="tab-pane fade" id="videos" role="tabpanel" aria-labelledby="videos-tab">
-                                @include('admin.setting.videos_settings')
-                            </div> --}}
+
                         </div>
                     </div>
                 </div> <!-- end card-body-->
@@ -128,12 +116,31 @@
         let blank_motivational_speech1 = jQuery('#blank_motivational_speech_field1').html();
         let how_it_works_area1 = jQuery('#blank_how_it_works_area').html();
         let affiliateSupport_area1 = jQuery('#blank_affiliateSupport_area').html();
+        let howItWorks1 = jQuery('#blank_howItWorks').html();
+        let programHighlights1 = jQuery('#blank_programHighlights').html();
+        let getInvolved1 = jQuery('#blank_getInvolved').html();
+        let professionalChoose1 = jQuery('#blank_professionalChoose').html();
+        let company1 = jQuery('#blank_company').html();
+        let company2 = jQuery('#blank_company1').html();
+        let company3 = jQuery('#blank_company2').html();
+        let learningSolution1 = jQuery('#blank_learningSolution').html();
+        let corporateChoose1 = jQuery('#blank_corporateChoose').html();
+
         $(document).ready(function() {
 
             jQuery('#blank_faq_field').hide();
             jQuery('#blank_motivational_speech_field1').hide();
             jQuery('#blank_how_it_works_area').hide();
             jQuery('#blank_affiliateSupport_area').hide();
+            jQuery('#blank_howItWorks').hide();
+            jQuery('#blank_programHighlights').hide();
+            jQuery('#blank_getInvolved').hide();
+            jQuery('#blank_professionalChoose').hide();
+            jQuery('#blank_company').hide();
+            jQuery('#blank_company1').hide();
+            jQuery('#blank_company2').hide();
+            jQuery('#blank_learningSolution').hide();
+            jQuery('#blank_corporateChoose').hide();
 
             <?php if(isset($_GET['tab'])): ?>
             $('a[href="#<?php echo $_GET['tab']; ?>"]').trigger('click');
@@ -170,6 +177,78 @@
         }
 
         function remove_affiliateSupport_area(faqElem) {
+            jQuery(faqElem).parent().parent().remove();
+        }
+        // how it works area
+        function howItWorks() {
+            jQuery('#howItWorks_area').append(howItWorks1);
+        }
+
+        function removehowItWorks(faqElem) {
+            jQuery(faqElem).parent().parent().remove();
+        }
+
+        function programHighlights() {
+            jQuery('#programHighlights_area').append(programHighlights1);
+        }
+
+        function remove_programHighlights(faqElem) {
+            jQuery(faqElem).parent().parent().remove();
+        }
+        // program highlights area
+        function getInvolved() {
+            jQuery('#getInvolved_area').append(programHighlights1);
+        }
+
+        function remove_getInvolved(faqElem) {
+            jQuery(faqElem).parent().parent().remove();
+        }
+        // professionalChoose area
+        function professionalChoose() {
+            jQuery('#professionalChoose_area').append(professionalChoose1);
+        }
+
+        function removeprofessionalChoose(faqElem) {
+            jQuery(faqElem).parent().parent().remove();
+        }
+        // professionalChoose area
+        function appendcompany() {
+            jQuery('#company_area').append(company1);
+        }
+
+        function removecompany(faqElem) {
+            jQuery(faqElem).parent().parent().remove();
+        }
+        // professionalChoose area
+        function appendcompany1() {
+            jQuery('#company_area1').append(company2);
+        }
+
+        function removecompany1(faqElem) {
+            jQuery(faqElem).parent().parent().remove();
+        }
+        // professionalChoose area
+        function appendcompany2() {
+            jQuery('#company_area2').append(company3);
+        }
+
+        function removecompany2(faqElem) {
+            jQuery(faqElem).parent().parent().remove();
+        }
+        // professionalChoose area
+        function learningSolution() {
+            jQuery('#learningSolution_area').append(learningSolution1);
+        }
+
+        function removelearningSolution(faqElem) {
+            jQuery(faqElem).parent().parent().remove();
+        }
+        // professionalChoose area
+        function corporateChoose() {
+            jQuery('#corporateChoose_area').append(corporateChoose1);
+        }
+
+        function removecorporateChoose(faqElem) {
             jQuery(faqElem).parent().parent().remove();
         }
     </script>

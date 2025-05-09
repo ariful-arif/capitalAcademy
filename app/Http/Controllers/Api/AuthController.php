@@ -231,6 +231,7 @@ class AuthController extends Controller
                     'status' => true,
                     'status_code' => 200,
                     'message' => 'Login successful.',
+                    'redirect_url' => "",
                     'data' => [
                         'token_type' => $data['token_type'],
                         'expires_in' => $data['expires_in'],
