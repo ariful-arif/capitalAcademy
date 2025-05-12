@@ -126,6 +126,9 @@ Route::get('/courseLevels', [ApiController::class, 'courseLevels']);
 Route::post('/stripe/create-checkout', [ApiController::class, 'createCheckoutSession']);
 Route::get('/stripe/success', [ApiController::class, 'handleStripeSuccess'])->name('stripe.success');
 
+Route::post('subscription/stripe/create-checkout', [ApiController::class, 'subscriptioncreateCheckoutSession']);
+Route::get('subscription/stripe/success', [ApiController::class, 'subscriptionhandleStripeSuccess'])->name('stripe.success');
+
 
 Route::get('payment', [ApiController::class, 'payment']);
 // Route::get('payment/{token}', [ApiController::class, 'payment']);
@@ -151,6 +154,14 @@ Route::get('certificate_details', [ApiController::class, 'certificate_details'])
 Route::post('certificate_achieve', [ApiController::class, 'certificate_achieve']);
 Route::get('my_certificate', [ApiController::class, 'my_certificate']);
 
+Route::controller(ApiController::class)->group(function () {
+    Route::post('certificate_review_store', 'certificate_review_store');
+    Route::get('certificate_review_delete/{id}', 'certificate_review_delete');
+    Route::post('certificate_review_update/{id}', 'certificate_review_update');
+    Route::get('certificate_review_like/{id}', 'certificate_review_like');
+    Route::get('certificate_review_dislike/{id}', 'certificate_review_dislike');
+});
+
 Route::get('certified_members', [ApiController::class, 'certified_members']);
 Route::get('certified_members_profile', [ApiController::class, 'certified_members_profile']);
 
@@ -165,6 +176,7 @@ Route::post('audio_podcast', [ApiController::class, 'audio_podcast']);
 Route::get('/all_dynamic_pages', [ApiController::class, 'all_dynamic_pages']);
 Route::get('/one_dynamic_pages', [ApiController::class, 'one_dynamic_pages']);
 Route::get('/student_list', [ApiController::class, 'student_list']);
+Route::get('/homePage', [ApiController::class, 'homePage']);
 
 // });
 

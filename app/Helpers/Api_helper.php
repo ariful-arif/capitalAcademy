@@ -5,7 +5,7 @@ use App\Models\Addon;
 use App\Models\NotificationSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use App\Models\{CartItem, Course, Category, Live_class, Review, User};
+use App\Models\{CartItem, Course, Category, Live_class, Review, User,LikeDislikeReview};
 
 //Api related
 if (!function_exists('enroll_history')) {
@@ -582,7 +582,7 @@ if (!function_exists('course_details_by_id')) {
 
         $response = course_data_by_details($course_details);
         $response->sections = sections($course_id);
-        $response->reviews = review($course_id);
+        $response->reviews = review($course_id, "course");
         $response->is_wishlisted = is_added_to_wishlist($user_id, $course_id);
         $response->is_purchased = is_purchased($user_id, $course_id);
         $response->liveClass = live_class_schedules($course_id);
@@ -1376,10 +1376,14 @@ function live_class_schedules($course_id)
 }
 
 
-function review($course_id = "")
+function review1($course_id = "", $type = "")
 {
     $response = array();
-    $reviews = Review::where('course_id', $course_id)->get();
+    if ($type == "course") {
+        $reviews = Review::where('course_id', $course_id)->where('review_type', $type)->get();
+    } else {
+        $reviews = Review::where('certificate_id', $course_id)->where('review_type', $type)->get();
+    }
     foreach ($reviews as $key => $review) {
         $user = User::where('id', $review->user_id)->first();
         $review->photo = get_photo('user_image', $user->photo);
@@ -1388,12 +1392,44 @@ function review($course_id = "")
         $date = new DateTime($review->createdAt);
         $formattedDate = $date->format('d M, Y H:i');
 
-
         $review->createtime = $formattedDate;
     }
     $response = $reviews;
     return $response;
 }
+
+function review($course_id = "", $user_id = "", $type = "")
+{
+    
+    $response = array();
+    $userId = $user_id;
+
+    $reviews = $type === "course"
+        ? Review::where('course_id', $course_id)->where('review_type', $type)->get()
+        : Review::where('certificate_id', $course_id)->where('review_type', $type)->get();
+
+    $response = $reviews->map(function ($review) use ($userId) {
+        $user = User::find($review->user_id);
+        $review->photo = get_photo('user_image', $user->photo);
+        $review->name = $user->name;
+
+        $review->createtime = \Carbon\Carbon::parse($review->created_at)->format('d M, Y H:i');
+
+        // Like & dislike counts
+        $review->like_count = LikeDislikeReview::where('review_id', $review->id)->where('liked', 1)->count();
+        $review->dislike_count = LikeDislikeReview::where('review_id', $review->id)->where('disliked', 1)->count();
+
+        // Check if current user liked/disliked
+        $userStatus = LikeDislikeReview::where('review_id', $review->id)->where('user_id', $userId)->first();
+        $review->is_liked_by_me = $userStatus ? (bool) $userStatus->liked : false;
+        $review->is_disliked_by_me = $userStatus ? (bool) $userStatus->disliked : false;
+
+        return $review;
+    });
+
+    return $response;
+}
+
 
 
 if (!function_exists('format_text_settings')) {
