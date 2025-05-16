@@ -2777,7 +2777,7 @@ class ApiController extends Controller
 
     // update user data
 
-    
+
     public function update_userdata(Request $request)
     {
         try {
@@ -2789,7 +2789,7 @@ class ApiController extends Controller
                     'message' => 'Unauthorized. Please log in first.'
                 ], 401);
             }
-    
+
             $request->validate([
                 'name' => 'required|string|max:255',
                 'biography' => 'nullable|string',
@@ -2800,9 +2800,9 @@ class ApiController extends Controller
                 'linkedin' => 'nullable|url',
                 'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
             ]);
-    
+
             $existingUser = User::find($user->id);
-    
+
             $data = [
                 'name' => $request->filled('name') ? $request->name : $existingUser->name,
                 'biography' => $request->filled('biography') ? $request->biography : $existingUser->biography,
@@ -2815,7 +2815,7 @@ class ApiController extends Controller
                 'twitter' => $request->filled('twitter') ? htmlspecialchars($request->twitter, ENT_QUOTES, 'UTF-8') : $existingUser->twitter,
                 'linkedin' => $request->filled('linkedin') ? htmlspecialchars($request->linkedin, ENT_QUOTES, 'UTF-8') : $existingUser->linkedin,
             ];
-    
+
             if ($request->hasFile('photo')) {
                 // Delete old photo if exists
                 if (!empty($existingUser->photo)) {
@@ -2824,28 +2824,28 @@ class ApiController extends Controller
                         File::delete($oldPath);
                     }
                 }
-    
+
                 // Upload new photo
                 $file = $request->file('photo');
                 $file_name = Str::random(20) . '.' . $file->getClientOriginalExtension();
                 $path = 'uploads/users/' . $user->role . '/' . $file_name;
-    
+
                 FileUploader::upload($file, $path, null, null, 300);
                 $data['photo'] = $path;
             }
-    
+
             User::where('id', $user->id)->update($data);
-    
+
             $updated_user = User::find($user->id);
             $updated_user->photo = get_photo('user_image', $updated_user->photo);
-    
+
             return response()->json([
                 'status' => true,
                 'status_code' => 200,
                 'message' => 'User data updated successfully.',
                 'user' => $updated_user
             ], 200);
-    
+
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -2855,7 +2855,7 @@ class ApiController extends Controller
             ], 500);
         }
     }
-    
+
     // My profile
     public function my_profile(Request $request)
     {
@@ -5587,7 +5587,7 @@ class ApiController extends Controller
         $chatgpt_api_key = get_settings('chatgpt_api_key');
         $chatgpt_model = get_settings('chatgpt_model');
         $apiKey = $chatgpt_api_key;
-    
+
         $userMessage = $request->input('message');
 
         $response = Http::withHeaders([
@@ -6236,7 +6236,7 @@ class ApiController extends Controller
         foreach ($data as $key => &$value) {
             if (is_array($value)) {
                 // Check if it's an array of images
-                if (in_array($key, ['thumbnail', 'thumbnail_video', 'logo', 'thumbnail_1'])) {
+                if (in_array($key, ['thumbnail', 'thumbnail_video', 'logo','logo_1', 'thumbnail_1'])) {
                     foreach ($value as &$v) {
                         if (is_string($v)) {
                             $v = $baseUrl . ltrim($v, '/');
@@ -6246,7 +6246,7 @@ class ApiController extends Controller
                     // Recursively call if it's nested array
                     $value = $this->addPublicUrlToAssets($value);
                 }
-            } elseif (in_array($key, ['thumbnail', 'thumbnail_video', 'logo', 'thumbnail_1']) && is_string($value)) {
+            } elseif (in_array($key, ['thumbnail', 'thumbnail_video', 'logo', 'logo_1', 'thumbnail_1']) && is_string($value)) {
                 $value = $baseUrl . ltrim($value, '/');
             }
         }
@@ -6307,7 +6307,8 @@ class ApiController extends Controller
         $setting6 = FrontendSetting::where('key', "banner_sub_title")->first();
         $setting7 = FrontendSetting::where('key', "home_page_body_video")->first();
         $setting8 = FrontendSetting::where('key', "website_faqs")->first();
-    
+        $setting9 = FrontendSetting::where('key', "banner_video")->first();
+
         $certificates = [];
         $certificate = CertificateProgram::where("status","active")->get();
         foreach ($certificate as $key => $value) {
@@ -6328,7 +6329,7 @@ class ApiController extends Controller
 
         $data = User::where('role', 'instructor')->get();
         $instructors = [];
-        
+
         // Format data
         foreach ($data as $key => $user) {
             $instructors[$key] = $user;
@@ -6336,7 +6337,7 @@ class ApiController extends Controller
             $instructors[$key]['educations'] = json_decode($user->educations, true);
             $instructors[$key]['skills'] = json_decode($user->skills, true);
         }
-    
+
         // Helper function to update image URLs
         $mapImageUrls = function ($item) {
             if (isset($item['thumbnail']) && is_array($item['thumbnail'])) {
@@ -6346,14 +6347,14 @@ class ApiController extends Controller
             }
             return $item;
         };
-    
+
         $mapFeatureImages = function ($features) {
             return array_map(function ($feature) {
                 $feature['logo'] = asset($feature['logo']);
                 return $feature;
             }, $features);
         };
-    
+
         $homeData = [
             'title' => $setting5->value,
             'subtitle' => $setting6->value,
@@ -6361,16 +6362,18 @@ class ApiController extends Controller
             'work_experience' => $mapImageUrls(json_decode($setting2->value, true)),
             'certified_professionals' => $mapImageUrls(json_decode($setting3->value, true)),
             'certificates' => $certificates,
+            'certified_users' => 5000,
             'home_page_body_video' => asset($setting7->value),
+            'banner_video' => asset($setting9->value),
             'categories' => $all_categories,
             'instructors' => $instructors,
             'features' => $mapFeatureImages(json_decode($setting4->value, true)),
             'website_faqs' => json_decode($setting8->value, true),
         ];
-    
+
         return $homeData;
     }
-    
+
     public function payment2(Request $request)
     {
         if (!auth('api')->check()) {

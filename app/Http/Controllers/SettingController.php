@@ -213,7 +213,197 @@ class SettingController extends Controller
                 Session::flash('success', get_phrase('Favicon logo update successfully'));
             }
         }
+        if ($request->type == 'instructor_graduated_form') {
+            $dynamicPage = FrontendSetting::where('key', 'instructor_graduated_form')->first();
+
+            if (!$dynamicPage) {
+                $dynamicPage = new FrontendSetting();
+                $dynamicPage->key = 'instructor_graduated_form';
+            }
+
+            $existingData = $dynamicPage->value ? json_decode($dynamicPage->value, true) : [];
+            $existingThumbnails = isset($existingData['thumbnail']) ? $existingData['thumbnail'] : [];
+
+            $removedThumbnails = json_decode($request->input('removed_thumbnails', '[]'), true);
+            $updatedThumbnails = array_filter($existingThumbnails, function ($thumb) use ($removedThumbnails) {
+                return !in_array($thumb, $removedThumbnails);
+            });
+
+            // Delete physically removed images
+            foreach ($removedThumbnails as $thumbToDelete) {
+                $fullPath = public_path($thumbToDelete);
+                if (file_exists($fullPath)) {
+                    @unlink($fullPath);
+                }
+            }
+
+            // Upload new images
+            $newThumbnails = [];
+            if ($request->hasFile('thumbnail')) {
+                foreach ($request->file('thumbnail') as $file) {
+                    $uploadedPath = $this->uploadFile($file, 'home_page');
+                    $newThumbnails[] = $uploadedPath;
+                }
+            }
+
+            // Merge new and existing thumbnails
+            $finalThumbnails = array_merge($updatedThumbnails, $newThumbnails);
+
+            $data = [
+                'title' => $request->input('title', $existingData['title'] ?? ''),
+                'thumbnail' => array_values($finalThumbnails),
+            ];
+
+            $dynamicPage->value = json_encode($data);
+            $dynamicPage->save();
+
+            Session::flash('success', get_phrase('Home Initiatives Page updated successfully'));
+            return redirect()->back();
+        }
+        if ($request->type == 'work_experience') {
+            $dynamicPage = FrontendSetting::where('key', 'work_experience')->first();
+
+            if (!$dynamicPage) {
+                $dynamicPage = new FrontendSetting();
+                $dynamicPage->key = 'work_experience';
+            }
+
+            $existingData = $dynamicPage->value ? json_decode($dynamicPage->value, true) : [];
+            $existingThumbnails = isset($existingData['thumbnail']) ? $existingData['thumbnail'] : [];
+
+            $removedThumbnails = json_decode($request->input('removed_thumbnails', '[]'), true);
+            $updatedThumbnails = array_filter($existingThumbnails, function ($thumb) use ($removedThumbnails) {
+                return !in_array($thumb, $removedThumbnails);
+            });
+
+            // Delete physically removed images
+            foreach ($removedThumbnails as $thumbToDelete) {
+                $fullPath = public_path($thumbToDelete);
+                if (file_exists($fullPath)) {
+                    @unlink($fullPath);
+                }
+            }
+
+            // Upload new images
+            $newThumbnails = [];
+            if ($request->hasFile('thumbnail')) {
+                foreach ($request->file('thumbnail') as $file) {
+                    $uploadedPath = $this->uploadFile($file, 'home_page');
+                    $newThumbnails[] = $uploadedPath;
+                }
+            }
+
+            // Merge new and existing thumbnails
+            $finalThumbnails = array_merge($updatedThumbnails, $newThumbnails);
+
+            $data = [
+                'title' => $request->input('title', $existingData['title'] ?? ''),
+                'thumbnail' => array_values($finalThumbnails),
+            ];
+
+            $dynamicPage->value = json_encode($data);
+            $dynamicPage->save();
+
+            Session::flash('success', get_phrase('Home Initiatives Page updated successfully'));
+            return redirect()->back();
+        }
+        if ($request->type == 'certified_professionals') {
+            $dynamicPage = FrontendSetting::where('key', 'certified_professionals')->first();
+
+            if (!$dynamicPage) {
+                $dynamicPage = new FrontendSetting();
+                $dynamicPage->key = 'certified_professionals';
+            }
+
+            $existingData = $dynamicPage->value ? json_decode($dynamicPage->value, true) : [];
+            $existingThumbnails = isset($existingData['thumbnail']) ? $existingData['thumbnail'] : [];
+
+            $removedThumbnails = json_decode($request->input('removed_thumbnails', '[]'), true);
+            $updatedThumbnails = array_filter($existingThumbnails, function ($thumb) use ($removedThumbnails) {
+                return !in_array($thumb, $removedThumbnails);
+            });
+
+            // Delete physically removed images
+            foreach ($removedThumbnails as $thumbToDelete) {
+                $fullPath = public_path($thumbToDelete);
+                if (file_exists($fullPath)) {
+                    @unlink($fullPath);
+                }
+            }
+
+            // Upload new images
+            $newThumbnails = [];
+            if ($request->hasFile('thumbnail')) {
+                foreach ($request->file('thumbnail') as $file) {
+                    $uploadedPath = $this->uploadFile($file, 'home_page');
+                    $newThumbnails[] = $uploadedPath;
+                }
+            }
+
+            // Merge new and existing thumbnails
+            $finalThumbnails = array_merge($updatedThumbnails, $newThumbnails);
+
+            $data = [
+                'title' => $request->input('title', $existingData['title'] ?? ''),
+                'thumbnail' => array_values($finalThumbnails),
+            ];
+
+            $dynamicPage->value = json_encode($data);
+            $dynamicPage->save();
+
+            Session::flash('success', get_phrase('Home Initiatives Page updated successfully'));
+            return redirect()->back();
+        }
+        if ($request->type == 'features') {
+            array_shift($data);
+
+            $motivations = array();
+            $images      = array();
+            foreach (array_filter($data['titles']) as $key => $title) {
+                $motivations[$key]['title']       = $title;
+                $motivations[$key]['description'] = $data['descriptions'][$key];
+
+                if ($_FILES['images']['name'][$key] != "") {
+                    $motivations[$key]['logo'] = FileUploader::upload($request->images[$key], "uploads/dynamic_Pages/home_page", 500);
+                } else {
+                    $motivations[$key]['logo'] = $data['previous_images'][$key];
+                }
+                $images[$key] = $motivations[$key]['logo'];
+            }
+            $files = glob('uploads/dynamic_Pages/home_page/' . '*');
+            foreach ($files as $file) {
+                $file_name_arr = explode('/', $file);
+                $file_name     = end($file_name_arr);
+                if (!in_array($file_name, $images)) {
+                    remove_file($file);
+                }
+            }
+            $data['value'] = json_encode(array_values($motivations));
+            FrontendSetting::where('key', 'features')->update(['value' => $data['value']]);
+            Session::flash('success', get_phrase('Home page features update successfully'));
+        }
         return redirect()->back();
+    }
+
+
+    private function uploadFile($file, $folder, $oldFilePath = null)
+    {
+        if ($file) {
+            // Delete old file if it exists
+            if ($oldFilePath) {
+                $fullOldPath = public_path($oldFilePath);
+                if (file_exists($fullOldPath)) {
+                    @unlink($fullOldPath);
+                }
+            }
+
+            $uploadPath = "uploads/dynamic_pages/{$folder}";
+            $uploadedFile = FileUploader::upload($file, $uploadPath, 500); // Adjust resize width if needed
+
+            return "{$uploadPath}/" . basename($uploadedFile);
+        }
+
+        return null;
     }
 
     public function drip_content_settings()

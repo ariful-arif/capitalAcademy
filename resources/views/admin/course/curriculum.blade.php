@@ -93,7 +93,7 @@
                                         @endif
                                         <a href="#" data-bs-toggle="tooltip"
                                             title="{{ get_phrase('Generate Flashcards') }}"
-                                            onclick="ajaxModal('{{ route('modal', ['admin.course.flash_cards.generate_flashcards']) }}', '{{ get_phrase('Generate Flashcards') }}', 'modal-xl')"
+                                            onclick="ajaxModal('{{ route('modal', ['admin.course.flash_cards.generate_flashcards', 'id' => $lesson->id]) }}', '{{ get_phrase('Generate Flashcards') }}', 'modal-xl')"
                                             class="btn btn-outline-gray-small">{{ get_phrase('Flashcards') }}
                                             {{-- class="edit-delete" --}}
                                             {{-- <span class="fi fi-rr-clipboard-list-check"></span> --}}

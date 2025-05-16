@@ -7,88 +7,86 @@
         $business_corporate_page_setting = json_decode($business_corporate_page_setting, true);
     @endphp
 
-        <!-- Thumbnail Section -->
-        <div class="fpb-7 mb-3">
-            <label class="form-label ol-form-label" for="thumbnail">
-                {{ get_phrase('Thumbnail') }}<span class="required">*</span>
-            </label>
-    
-            <!-- Preview Images -->
-            <div id="thumbnail-preview1" class="d-flex flex-wrap gap-3 mb-3">
-                @if (
-                    !empty($business_corporate_page_setting['thumbnail']) &&
-                        is_array($business_corporate_page_setting['thumbnail']))
-                    @foreach ($business_corporate_page_setting['thumbnail'] as $thumb)
-                        <div class="position-relative thumb-item" data-thumb-path="{{ $thumb }}">
-                            <img src="{{ asset($thumb) }}" alt="Thumbnail" class="img-fluid border"
-                                style="width: 200px; height: 150px; object-fit: cover;">
-                            <button type="button"
-                                class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 remove-thumb-btn">&times;</button>
-                        </div>
-                    @endforeach
-                @endif
-            </div>
-    
-            <!-- Hidden input for removed DB images -->
-            <input type="hidden" name="removed_thumbnails" id="removed_thumbnails1" value="[]">
-    
-            <!-- File input for new uploads -->
-            <input type="file" name="thumbnail[]" id="thumbnail1" class="form-control ol-form-control" accept="image/*"
-                multiple>
+    <!-- Thumbnail Section -->
+    <div class="fpb-7 mb-3">
+        <label class="form-label ol-form-label" for="thumbnail">
+            {{ get_phrase('Thumbnail') }}<span class="required">*</span>
+        </label>
+
+        <!-- Preview Images -->
+        <div id="thumbnail-preview1" class="d-flex flex-wrap gap-3 mb-3">
+            @if (!empty($business_corporate_page_setting['thumbnail']) && is_array($business_corporate_page_setting['thumbnail']))
+                @foreach ($business_corporate_page_setting['thumbnail'] as $thumb)
+                    <div class="position-relative thumb-item" data-thumb-path="{{ $thumb }}">
+                        <img src="{{ asset($thumb) }}" alt="Thumbnail" class="img-fluid border"
+                            style="width: 200px; height: 150px; object-fit: cover;">
+                        <button type="button"
+                            class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 remove-thumb-btn">&times;</button>
+                    </div>
+                @endforeach
+            @endif
         </div>
-    
-        <!-- JavaScript -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const removedThumbnails = [];
-                const removedInput = document.getElementById('removed_thumbnails1');
-                const previewContainer = document.getElementById('thumbnail-preview1');
-                const fileInput = document.getElementById('thumbnail1');
-    
-                // Remove button handler
-                previewContainer.addEventListener('click', function(e) {
-                    if (e.target.classList.contains('remove-thumb-btn')) {
-                        const item = e.target.closest('.thumb-item');
-                        const path = item.getAttribute('data-thumb-path');
-                        if (path) {
-                            removedThumbnails.push(path);
-                            removedInput.value = JSON.stringify(removedThumbnails);
-                        }
-                        item.remove();
+
+        <!-- Hidden input for removed DB images -->
+        <input type="hidden" name="removed_thumbnails" id="removed_thumbnails1" value="[]">
+
+        <!-- File input for new uploads -->
+        <input type="file" name="thumbnail[]" id="thumbnail1" class="form-control ol-form-control" accept="image/*"
+            multiple>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const removedThumbnails = [];
+            const removedInput = document.getElementById('removed_thumbnails1');
+            const previewContainer = document.getElementById('thumbnail-preview1');
+            const fileInput = document.getElementById('thumbnail1');
+
+            // Remove button handler
+            previewContainer.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-thumb-btn')) {
+                    const item = e.target.closest('.thumb-item');
+                    const path = item.getAttribute('data-thumb-path');
+                    if (path) {
+                        removedThumbnails.push(path);
+                        removedInput.value = JSON.stringify(removedThumbnails);
                     }
-                });
-    
-                // Show selected files instantly
-                fileInput.addEventListener('change', function() {
-                    const files = Array.from(fileInput.files);
-    
-                    files.forEach(file => {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const img = document.createElement('img');
-                            img.src = e.target.result;
-                            img.className = 'img-fluid border';
-                            img.style = 'width: 200px; height: 150px; object-fit: cover;';
-    
-                            const wrapper = document.createElement('div');
-                            wrapper.className = 'position-relative thumb-item';
-                            wrapper.appendChild(img);
-    
-                            const btn = document.createElement('button');
-                            btn.type = 'button';
-                            btn.className =
-                                'btn btn-sm btn-danger position-absolute top-0 end-0 m-1 remove-thumb-btn';
-                            btn.textContent = '×';
-    
-                            wrapper.appendChild(btn);
-                            previewContainer.appendChild(wrapper);
-                        };
-                        reader.readAsDataURL(file);
-                    });
+                    item.remove();
+                }
+            });
+
+            // Show selected files instantly
+            fileInput.addEventListener('change', function() {
+                const files = Array.from(fileInput.files);
+
+                files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'img-fluid border';
+                        img.style = 'width: 200px; height: 150px; object-fit: cover;';
+
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'position-relative thumb-item';
+                        wrapper.appendChild(img);
+
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className =
+                            'btn btn-sm btn-danger position-absolute top-0 end-0 m-1 remove-thumb-btn';
+                        btn.textContent = '×';
+
+                        wrapper.appendChild(btn);
+                        previewContainer.appendChild(wrapper);
+                    };
+                    reader.readAsDataURL(file);
                 });
             });
-        </script>
-    
+        });
+    </script>
+
     <!--  Title -->
     <div class="fpb-7 mb-3">
         <label class="form-label ol-form-label" for="title">{{ get_phrase('Title') }}<span
@@ -103,7 +101,7 @@
                 class="required">*</span></label>
         <textarea name="sub_title" id="sub_title" class="form-control ol-form-control" rows="3">{{ $business_corporate_page_setting['subtitle'] ?? '' }}</textarea>
     </div>
-    
+
     <!-- Video Thumbnail -->
     <div class="fpb-7 mb-3 col">
         <label class="form-label ol-form-label" for="thumbnail_video">{{ get_phrase('Video thumbnail_video') }}</label>
@@ -226,7 +224,7 @@
     <!-- Why Partner Section -->
 
 
-   
+
     <!-- Who Can Join Section -->
     <div class="fpb-7 mb-3">
         <h4 class="mb-3 border-bottom">{{ $business_corporate_page_setting['increased']['title'] ?? '' }}</h4>
@@ -368,35 +366,44 @@
         </div>
     </div>
     <!-- Who Can Join Section -->
-     <!-- Who Can Join Section -->
+    <!-- Who Can Join Section -->
     <div class="fpb-7 mb-3">
         <h4 class="mb-3 border-bottom">{{ $business_corporate_page_setting['corporateTraining']['title'] ?? '' }}</h4>
 
         <div class="fpb-7 mb-3">
             <label class="form-label ol-form-label" for="corporateTraining_title">{{ get_phrase('Title') }}<span
                     class="required">*</span></label>
-            <input type="text" name="corporateTraining_title" id="corporateTraining_title" class="form-control ol-form-control"
+            <input type="text" name="corporateTraining_title" id="corporateTraining_title"
+                class="form-control ol-form-control"
                 value="{{ $business_corporate_page_setting['corporateTraining']['title'] ?? '' }}">
         </div>
         <div class="fpb-7 mb-3">
-            <label class="form-label ol-form-label" for="corporateTraining_subtitle1">{{ get_phrase('subtitle 1 ') }}<span
+            <label class="form-label ol-form-label"
+                for="corporateTraining_subtitle1">{{ get_phrase('subtitle 1 ') }}<span
                     class="required">:</span></label>
-            <textarea type="text" name="corporateTraining_subtitle1" id="corporateTraining_subtitle1" class="form-control ol-form-control">{{ $business_corporate_page_setting['corporateTraining']['subtitle1'] ?? '' }}</textarea>
+            <textarea type="text" name="corporateTraining_subtitle1" id="corporateTraining_subtitle1"
+                class="form-control ol-form-control">{{ $business_corporate_page_setting['corporateTraining']['subtitle1'] ?? '' }}</textarea>
         </div>
         <div class="fpb-7 mb-3">
-            <label class="form-label ol-form-label" for="corporateTraining_subtitle">{{ get_phrase('subtitle 2') }}<span
+            <label class="form-label ol-form-label"
+                for="corporateTraining_subtitle">{{ get_phrase('subtitle 2') }}<span
                     class="required">*</span></label>
-            <textarea type="text" name="corporateTraining_subtitle2" id="corporateTraining_subtitle" class="form-control ol-form-control">{{ $business_corporate_page_setting['corporateTraining']['subtitle2'] ?? '' }}</textarea>
+            <textarea type="text" name="corporateTraining_subtitle2" id="corporateTraining_subtitle"
+                class="form-control ol-form-control">{{ $business_corporate_page_setting['corporateTraining']['subtitle2'] ?? '' }}</textarea>
         </div>
         <div class="fpb-7 mb-3">
-            <label class="form-label ol-form-label" for="corporateTraining_subtitle">{{ get_phrase('subtitle 3') }}<span
+            <label class="form-label ol-form-label"
+                for="corporateTraining_subtitle">{{ get_phrase('subtitle 3') }}<span
                     class="required">*</span></label>
-            <textarea type="text" name="corporateTraining_subtitle3" id="corporateTraining_subtitle" class="form-control ol-form-control">{{ $business_corporate_page_setting['corporateTraining']['subtitle3'] ?? '' }}</textarea>
+            <textarea type="text" name="corporateTraining_subtitle3" id="corporateTraining_subtitle"
+                class="form-control ol-form-control">{{ $business_corporate_page_setting['corporateTraining']['subtitle3'] ?? '' }}</textarea>
         </div>
         <div class="fpb-7 mb-3">
-            <label class="form-label ol-form-label" for="corporateTraining_subtitle">{{ get_phrase('subtitle 4') }}<span
+            <label class="form-label ol-form-label"
+                for="corporateTraining_subtitle">{{ get_phrase('subtitle 4') }}<span
                     class="required">*</span></label>
-            <textarea type="text" name="corporateTraining_subtitle4" id="corporateTraining_subtitle" class="form-control ol-form-control">{{ $business_corporate_page_setting['corporateTraining']['subtitle4'] ?? '' }}</textarea>
+            <textarea type="text" name="corporateTraining_subtitle4" id="corporateTraining_subtitle"
+                class="form-control ol-form-control">{{ $business_corporate_page_setting['corporateTraining']['subtitle4'] ?? '' }}</textarea>
         </div>
     </div>
     <!-- Who Can Join Section -->

@@ -70,6 +70,18 @@
                                     <span></span>
                                 </button>
                             </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="logo_images-tab" data-bs-toggle="tab" data-bs-target="#home_page_hero_section_setting" type="button" role="tab" aria-controls="home_page_hero_section_setting" aria-selected="false">
+                                    {{ get_phrase('Home Hero Section') }}
+                                    <span></span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="logo_images-tab" data-bs-toggle="tab" data-bs-target="#home_page_features_setting" type="button" role="tab" aria-controls="home_page_features_setting" aria-selected="false">
+                                    {{ get_phrase('Home Features') }}
+                                    <span></span>
+                                </button>
+                            </li>
                         </ul>
                         <div class="tab-content eNav-Tabs-content" id="myTabContent">
                             <div class="tab-pane fade show active" id="cHome" role="tabpanel" aria-labelledby="cHome-tab">
@@ -98,6 +110,12 @@
                             <div class="tab-pane fade" id="videos" role="tabpanel" aria-labelledby="videos-tab">
                                 @include('admin.setting.videos_settings')
                             </div>
+                            <div class="tab-pane fade" id="home_page_hero_section_setting" role="tabpanel" aria-labelledby="home_page_hero_section_setting-tab">
+                                @include('admin.setting.home_page_hero_section_setting')
+                            </div>
+                            <div class="tab-pane fade" id="home_page_features_setting" role="tabpanel" aria-labelledby="home_page_features_setting-tab">
+                                @include('admin.setting.home_page_features_setting')
+                            </div>
                         </div>
                     </div>
                 </div> <!-- end card-body-->
@@ -113,10 +131,12 @@
 
         let blank_faq = jQuery('#blank_faq_field').html();
         let blank_motivational_speech = jQuery('#blank_motivational_speech_field').html();
+        let blank_features = jQuery('#blank_features_field').html();
         $(document).ready(function() {
 
             jQuery('#blank_faq_field').hide();
             jQuery('#blank_motivational_speech_field').hide();
+            jQuery('#blank_features_field').hide();
 
             <?php if(isset($_GET['tab'])): ?>
             $('a[href="#<?php echo $_GET['tab']; ?>"]').trigger('click');
@@ -136,6 +156,13 @@
         }
 
         function removeMotivational_speech(faqElem) {
+            jQuery(faqElem).parent().parent().remove();
+        }
+        function appendfeatures() {
+            jQuery('#features_area').append(blank_features);
+        }
+
+        function removefeatures(faqElem) {
             jQuery(faqElem).parent().parent().remove();
         }
     </script>
