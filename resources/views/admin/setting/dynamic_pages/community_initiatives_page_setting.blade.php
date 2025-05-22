@@ -381,7 +381,7 @@
                 </div>
             </div>
         @endif
-        <div id="blank_getInvolved_area" class="d-none">
+        <div id="blank_getInvolved" class="d-none">
             <div class="d-flex mt-2 border-top pt-2">
                 <div class="flex-grow-1 px-2 mb-3">
                     <div class="fpb-7 mb-3">

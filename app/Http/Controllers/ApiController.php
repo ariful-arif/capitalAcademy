@@ -68,6 +68,7 @@ use Stripe\Stripe;
 use App\Models\Lesson;
 use App\Models\Newsroom;
 use App\Models\Learning;
+use App\Models\Coupon;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ApiController extends Controller
@@ -2189,6 +2190,7 @@ class ApiController extends Controller
 
             // Transform user data
             $user->photo = get_photo('user_image', $user->photo);
+            $user->video_thumbnail = get_photo('video_thumbnail', $user->video_thumbnail);
             $user->paymentkeys = $user->paymentkeys ? json_decode($user->paymentkeys, true) : null;
             $user->educations = $user->educations ? json_decode($user->educations, true) : [];
             $user->skills = $user->skills ? json_decode($user->skills, true) : [];
@@ -2264,10 +2266,9 @@ class ApiController extends Controller
         }
     }
 
-
     //Protected APIs. This APIs will require Authorization.
     // My Courses API
-    public function my_courses(Request $request)
+    public function my_courses1(Request $request)
     {
         try {
             // Get the authenticated user using Passport
@@ -2330,6 +2331,96 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
+    public function my_courses(Request $request)
+    {
+        try {
+            $user = auth('api')->user();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 401,
+                    'message' => 'Unauthorized access. Invalid or missing token.',
+                    'data' => []
+                ], 401);
+            }
+
+            $user_id = $user->id;
+
+            // Get limit and page from request without default values
+            $limit = $request->input('limit');
+            $page = $request->input('page');
+
+            $query = Enrollment::where('user_id', $user_id)->orderBy('id', 'desc');
+
+            // Apply pagination if both limit and page are provided
+            if ($limit && $page) {
+                $limit = (int) $limit;
+                $page = (int) $page;
+
+                $offset = ($page - 1) * $limit;
+                $total_courses = $query->count();
+                $enrollments = $query->offset($offset)->limit($limit)->get();
+            } else {
+                // No pagination: get all
+                $enrollments = $query->get();
+                $total_courses = count($enrollments);
+            }
+
+            // Fetch course details
+            $courses = [];
+            foreach ($enrollments as $enrollment) {
+                $course = Course::find($enrollment->course_id);
+                if ($course) {
+                    $courses[] = $course;
+                }
+            }
+
+            $courses = course_data($courses);
+
+            // Add progress and lesson stats
+            foreach ($courses as $key => $course) {
+                if (isset($course['id']) && $course['id'] > 0) {
+                    $courses[$key]['completion'] = round(course_progress($course['id'], $user_id));
+                    $courses[$key]['total_number_of_lessons'] = count(get_lessons('course', $course['id']));
+                    $courses[$key]['total_number_of_completed_lessons'] = get_completed_number_of_lesson($user_id, 'course', $course['id']);
+                } else {
+                    unset($courses[$key]);
+                }
+            }
+
+            // Prepare response
+            $response = [
+                'status' => true,
+                'status_code' => 200,
+                'message' => count($courses) > 0 ? 'My Courses retrieved successfully.' : 'Your myCourse list is empty.',
+                'data' => array_values($courses),
+            ];
+
+            // Add pagination only if both are provided
+            if ($limit && $page) {
+                $response['pagination'] = [
+                    'limit' => $limit,
+                    'page' => $page,
+                    'total_course' => $total_courses,
+                    'total_page' => $limit > 0 ? ceil($total_courses / $limit) : 1
+                ];
+            }
+
+            return response()->json($response, 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 500,
+                'message' => 'An error occurred while retrieving your courses.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
 
     // Get all the sections
     public function myCourse_sections(Request $request)
@@ -2600,7 +2691,7 @@ class ApiController extends Controller
     }
 
     // My wishlist API
-    public function my_wishlist(Request $request)
+    public function my_wishlist1(Request $request)
     {
         try {
             // Authenticate user using Passport
@@ -2649,6 +2740,87 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
+    public function my_wishlist(Request $request)
+    {
+        try {
+            $user = auth('api')->user();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 401,
+                    'message' => 'Unauthorized access. Invalid or missing token.',
+                    'data' => []
+                ], 401);
+            }
+
+            $user_id = $user->id;
+
+            // Get wishlist course IDs
+            $wishlist = Wishlist::where('user_id', $user_id)->pluck('course_id')->toArray();
+
+            // If wishlist is empty, return empty data
+            if (empty($wishlist)) {
+                return response()->json([
+                    'status' => true,
+                    'status_code' => 200,
+                    'message' => 'Your wishlist is empty.',
+                    'data' => []
+                ], 200);
+            }
+
+            // Get pagination inputs (optional)
+            $limit = $request->input('limit');
+            $page = $request->input('page');
+
+            $query = Course::whereIn('id', $wishlist);
+
+            if ($limit && $page) {
+                $limit = (int) $limit;
+                $page = (int) $page;
+                $offset = ($page - 1) * $limit;
+
+                $total = $query->count();
+                $courses = $query->offset($offset)->limit($limit)->get();
+            } else {
+                $courses = $query->get();
+                $total = count($courses);
+            }
+
+            $response_data = course_data($courses);
+
+            $response = [
+                'status' => true,
+                'status_code' => 200,
+                'message' => count($response_data) > 0
+                    ? 'Wishlist retrieved successfully.'
+                    : 'Your wishlist is empty.',
+                'data' => is_array($response_data) ? array_values($response_data) : $response_data // safe handling
+            ];
+
+
+            if ($limit && $page) {
+                $response['pagination'] = [
+                    'limit' => $limit,
+                    'page' => $page,
+                    'total_course' => $total,
+                    'total_page' => $limit > 0 ? ceil($total / $limit) : 1,
+                ];
+            }
+
+            return response()->json($response, 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 500,
+                'message' => 'An error occurred while retrieving your wishlist.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 
     // Remove from wishlist
     public function toggle_wishlist_items(Request $request)
@@ -3686,7 +3858,7 @@ class ApiController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|max:255',
                 'phone' => 'required|string|max:20',
-                'address' => 'required|string|max:255',
+                // 'address' => 'required|string|max:255',
                 'message' => 'required|string|max:5000',
             ]);
 
@@ -3726,87 +3898,71 @@ class ApiController extends Controller
         ], 200);
     }
 
-    // public function certificate(Request $request)
-    // {
-    //     try {
-    //         // Get pagination parameters from request
-    //         $limit = $request->input('limit', 10); // Default limit to 10 if not provided
-    //         $page = $request->input('page', 1);    // Default page to 1 if not provided
-
-    //         // Get paginated certificate data
-    //         $certificates = CertificateProgram::where("status", "active")->paginate($limit, ['*'], 'page', $page);
-
-    //         // Modify each certificate to include images and courses
-    //         $certificates->getCollection()->transform(function ($certificate) {
-    //             $certificate->thumbnail = get_photo("certificate_thumbnail", $certificate->thumbnail);
-    //             $certificate->certificate_template = get_photo("certificate_template", $certificate->certificate_template);
-
-    //             // Fetch course details
-    //             $courseIds = json_decode($certificate->course_ids);
-    //             $certificate->courses = Course::whereIn('id', $courseIds)
-    //             // ->select('id', 'title',)
-    //             ->get();
-
-    //             return $certificate;
-    //         });
-
-    //         // Prepare response
-    //         $response = [
-    //             'status' => true,
-    //             'status_code' => 200,
-    //             'message' => 'Certificates retrieved successfully',
-    //             'data' => $certificates->items(), // Get the current page data
-    //             'pagination' => [
-    //                 'limit' => (int) $limit,
-    //                 'page' => (int) $page,
-    //                 'total' => $certificates->total(),
-    //                 'total_page' => $certificates->lastPage(),
-    //             ],
-    //         ];
-
-    //         return response()->json($response, 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'status_code' => 500,
-    //             'message' => 'Failed to retrieve certificates',
-    //             'error' => $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
-
-
     // Certificate list
     public function certificate(Request $request)
     {
         try {
-            // Get pagination parameters from request
-            $limit = $request->input('limit', 10); // Default limit to 10 if not provided
-            $page = $request->input('page', 1);    // Default page to 1 if not provided
+            $limit = $request->input('limit');
+            $page = $request->input('page');
 
-            $certificates = CertificateProgram::where("status", "active")->paginate($limit, ['*'], 'page', $page);
+            // Fields to retrieve from the database
+            // $selectedFields = ['id', 'title', 'logo', 'thumbnail', 'certificate_template'];
+
+            // If limit or page is missing, fetch all
+            if (empty($limit) || empty($page)) {
+                $certificates = CertificateProgram::where("status", "active")
+                    // ->select($selectedFields)
+                    ->get();
+
+                // Transform only selected fields + media URLs
+                $certificates->transform(function ($certificate) {
+                    return [
+                        'id' => $certificate->id,
+                        'title' => $certificate->title,
+                        'slug' => $certificate->slug,
+                        'average_rating' => $certificate->average_rating,
+                        'certificated_course_count' => $certificate->certificated_course_count,
+                        'logo' => get_photo("certificate_logo", $certificate->logo),
+                        'thumbnail' => get_photo("certificate_thumbnail", $certificate->thumbnail),
+                        'certificate_template' => get_photo("certificate_template", $certificate->certificate_template),
+                    ];
+                });
+
+                return response()->json([
+                    'status' => true,
+                    'status_code' => 200,
+                    'message' => 'All certificates retrieved successfully',
+                    'data' => $certificates,
+                ]);
+            }
+
+            // Else, paginate
+            $certificates = CertificateProgram::where("status", "active")
+                // ->select($selectedFields)
+                ->paginate($limit, ['*'], 'page', $page);
 
             $certificates->getCollection()->transform(function ($certificate) {
-                $certificate->thumbnail = get_photo("certificate_thumbnail", $certificate->thumbnail);
-                $certificate->certificate_template = get_photo("certificate_template", $certificate->certificate_template);
-
-                return $certificate;
+                return [
+                    'id' => $certificate->id,
+                    'title' => $certificate->title,
+                    'logo' => get_photo("certificate_logo", $certificate->logo),
+                    'thumbnail' => get_photo("certificate_thumbnail", $certificate->thumbnail),
+                    'certificate_template' => get_photo("certificate_template", $certificate->certificate_template),
+                ];
             });
 
-            $response = [
+            return response()->json([
                 'status' => true,
                 'status_code' => 200,
                 'message' => 'Certificates retrieved successfully',
-                'data' => $certificates->items(), // Get the current page data
+                'data' => $certificates->items(),
                 'pagination' => [
                     'limit' => (int) $limit,
                     'page' => (int) $page,
                     'total' => $certificates->total(),
                     'total_page' => $certificates->lastPage(),
                 ],
-            ];
-
-            return response()->json($response, 200);
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -3820,6 +3976,18 @@ class ApiController extends Controller
     // Certificate details
     public function certificate_details(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'certificate_id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 422,
+                'message' => 'Validation errors occurred.',
+                'errors' => $validator->errors(),
+            ], 200);
+        }
         try {
             $certificate_id = $request->certificate_id;
 
@@ -3842,8 +4010,9 @@ class ApiController extends Controller
                 'short_description' => $certificate->short_description,
                 'description' => $certificate->description,
                 'average_rating' => $certificate->average_rating,
-                'review' => review($certificate_id,"7","certificate")->count(),
-                'reviews' => review($certificate_id,"7","certificate"),
+                // 'final_question' => $certificate->final_question,
+                'review' => review($certificate_id, "7", "certificate")->count(),
+                'reviews' => review($certificate_id, "7", "certificate"),
                 'thumbnail' => get_photo("certificate_thumbnail", $certificate->thumbnail),
                 'certificate_template' => get_photo("certificate_template", $certificate->certificate_template),
             ];
@@ -3884,7 +4053,7 @@ class ApiController extends Controller
                         'price' => currency($course->price),
                         'isDiscount' => $course->discount_flag,
                         'average_review' => $course->average_rating,
-                        'review' => review($course->id,"7","course")->count(),
+                        'review' => review($course->id, "7", "course")->count(),
                         'discount_price' => currency($course->discounted_price),
                         'minute' => get_total_duration_of_lesson_by_course_id($course->id),
                         'lessons' => $lessonCount,
@@ -3907,43 +4076,7 @@ class ApiController extends Controller
             // Store total counts in the certificate object
             $certificateDetails['total_courses'] = $totalCourses;
             $certificateDetails['total_lessons'] = $totalLessons;
-            // $certificateDetails['reviews'] = review($certificate_id,"7","certificate");
-            // $certificateDetails['reviews'] = [
-            //     [
-            //         "id" => 8,
-            //         "user_id" => 7,
-            //         "course_id" => 1,
-            //         "rating" => 3,
-            //         "review_type" => "course",
-            //         "review" => "this course is really nice",
-            //         "created_at" => "2025-05-07T03:14:07.000000Z",
-            //         "updated_at" => "2025-05-07T03:14:07.000000Z",
-            //         "photo" => "https://demo.creativeitem.com/capital-academy/public/uploads/users/student/josel-vosus-1716716132.jpg",
-            //         "name" => "student",
-            //         "createtime" => "10 May, 2025 13:26",
-            //         "like_count" => 0,
-            //         "dislike_count" => 0,
-            //         "is_liked_by_me" => false,
-            //         "is_disliked_by_me" => false
-            //     ],
-            //     [
-            //         "id" => 9,
-            //         "user_id" => 7,
-            //         "course_id" => 1,
-            //         "rating" => 4,
-            //         "review_type" => "course",
-            //         "review" => "this is awesome really",
-            //         "created_at" => "2025-05-07T03:14:07.000000Z",
-            //         "updated_at" => "2025-05-07T03:14:07.000000Z",
-            //         "photo" => "https://demo.creativeitem.com/capital-academy/public/uploads/users/student/josel-vosus-1716716132.jpg",
-            //         "name" => "student",
-            //         "createtime" => "10 May, 2025 13:26",
-            //         "like_count" => 0,
-            //         "dislike_count" => 0,
-            //         "is_liked_by_me" => false,
-            //         "is_disliked_by_me" => false
-            //     ]
-            // ];
+
             $certificateDetails['faq'] = [
                 [
                     "title" => "What prerequisites do I need for this course?",
@@ -4045,6 +4178,60 @@ class ApiController extends Controller
             ], 500);
         }
     }
+    public function final_exam_question(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'certificate_id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 422,
+                'message' => 'Validation errors occurred.',
+                'errors' => $validator->errors(),
+            ], 200);
+        }
+        try {
+            $certificate_id = $request->certificate_id;
+
+            // Fetch the certificate with the given ID
+            $certificate = CertificateProgram::where("status", "active")->where("id", $certificate_id)->first();
+
+            // Check if certificate exists
+            if (!$certificate) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 404,
+                    'message' => 'Certificate not found',
+                ], 404);
+            }
+
+            // Transform certificate details
+            $certificateDetails = [
+                'id' => $certificate->id,
+                'title' => $certificate->title,
+                'average_rating' => $certificate->average_rating,
+                'final_question' => $certificate->final_question,
+            ];
+
+            // Prepare response
+            return response()->json([
+                'status' => true,
+                'status_code' => 200,
+                'message' => 'Certificate details retrieved successfully',
+                'data' => $certificateDetails,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 500,
+                'message' => 'Failed to retrieve certificate details',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     public function certificate_review_store(Request $request)
     {
@@ -4121,7 +4308,6 @@ class ApiController extends Controller
         return response()->json(['status' => true, 'status_code' => 200, 'message' => 'Your review has been deleted.']);
     }
 
-
     public function certificate_review_update(Request $request, $id)
     {
         if (!auth('api')->check()) {
@@ -4155,7 +4341,6 @@ class ApiController extends Controller
         return response()->json(['status' => true, 'status_code' => 200, 'message' => 'Your review has been updated.']);
     }
 
-
     public function certificate_review_like($id)
     {
         if (!auth('api')->check()) {
@@ -4183,7 +4368,6 @@ class ApiController extends Controller
         return response()->json(['status' => true, 'status_code' => 200, 'message' => 'Like status updated.']);
     }
 
-
     public function certificate_review_dislike($id)
     {
         if (!auth('api')->check()) {
@@ -4210,7 +4394,6 @@ class ApiController extends Controller
 
         return response()->json(['status' => true, 'status_code' => 200, 'message' => 'Dislike status updated.']);
     }
-
 
     // Achieve certificate
     public function certificate_achieve(Request $request)
@@ -5058,6 +5241,7 @@ class ApiController extends Controller
 
             // Transform user data
             $user->photo = get_photo('user_image', $user->photo);
+            $user->video_thumbnail = get_photo('video_thumbnail', $user->video_thumbnail);
             $user->paymentkeys = $user->paymentkeys ? json_decode($user->paymentkeys, true) : null;
             $user->educations = $user->educations ? json_decode($user->educations, true) : [];
             $user->skills = $user->skills ? json_decode($user->skills, true) : [];
@@ -5230,6 +5414,71 @@ class ApiController extends Controller
     }
 
 
+    public function checkCoupon(Request $request)
+    {
+        // $request->validate([
+        //     'coupon_code' => 'required|string',
+        //     'cart_total' => 'required|numeric|min:0',
+        // ]);
+        $validator = Validator::make($request->all(), [
+            'coupon_code' => 'required|string',
+            'cart_total' => 'required|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 422,
+                'message' => 'Validation errors occurred.',
+                'errors' => $validator->errors(),
+            ], 200);
+        }
+
+        try {
+            $coupon = Coupon::where('code', $request->coupon_code)->first();
+
+            if (!$coupon) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 404,
+                    'message' => 'Coupon not found.',
+                ], 404);
+            }
+
+            if (Carbon::now()->gt(Carbon::createFromTimestamp($coupon->expiry))) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 400,
+                    'message' => 'Coupon has expired.',
+                ], 400);
+            }
+
+            // Optional: Check usage limit, user eligibility, etc.
+
+            $cartTotal = $request->cart_total;
+            $discount = ($coupon->discount / 100) * $cartTotal;
+            $newTotal = $cartTotal - $discount;
+
+            return response()->json([
+                'status' => true,
+                'status_code' => 200,
+                'message' => 'Coupon applied successfully.',
+                'data' => [
+                    'original_total' => round($cartTotal, 2),
+                    'discount_percent' => $coupon->discount,
+                    'discount_amount' => round($discount, 2),
+                    'final_total' => round($newTotal, 2),
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 500,
+                'message' => 'An error occurred while checking the coupon.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     public function createCheckoutSession(Request $request)
     {
@@ -5292,6 +5541,7 @@ class ApiController extends Controller
         foreach ($items as $key => $value) {
             $products_name .= $key == 0 ? $value['title'] : ', ' . $value['title'];
         }
+        return response()->json(['data' => $courses]);
 
         Stripe::setApiKey($stripeSecretKey);
 
@@ -5326,7 +5576,7 @@ class ApiController extends Controller
                 // 'course_ids' => implode(',', (array) $courses),
             ]
         ]);
-
+        
         return response()->json(['url' => $session->url]);
         // return redirect()->away($session->url);
     }
@@ -5354,6 +5604,8 @@ class ApiController extends Controller
         }
         // Use data from $session->metadata instead of Laravel session
         $metadata = $session->metadata;
+        dd($metadata);
+        die;
 
         $course_ids = explode(',', $metadata->course_ids);
         $cart_ids = explode(',', $metadata->cart_id);
@@ -5401,7 +5653,7 @@ class ApiController extends Controller
         CartItem::where('user_id', $metadata->user_id)->whereIn('course_id', $cart_ids)->delete();
 
         // Redirect directly to the frontend success page
-        return redirect()->away('https://capital-academy.vercel.app/en/completed-pages');
+        return redirect()->away($request->success_url);
     }
 
     public function subscriptioncreateCheckoutSession(Request $request)
@@ -5482,7 +5734,7 @@ class ApiController extends Controller
                 ],
             ],
             'mode' => 'payment',
-            'success_url' => route('stripe.success') . '?session_id={CHECKOUT_SESSION_ID}',
+            'success_url' => route('subscription.stripe.success') . '?session_id={CHECKOUT_SESSION_ID}',
             // 'success_url' => url('api/stripe/success') . '?session_id={CHECKOUT_SESSION_ID}',
             // 'success_url' => $request->success_url . '?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => $request->cancel_url,
@@ -5574,7 +5826,7 @@ class ApiController extends Controller
         CartItem::where('user_id', $metadata->user_id)->whereIn('course_id', $cart_ids)->delete();
 
         // Redirect directly to the frontend success page
-        return redirect()->away('https://capital-academy.vercel.app/en/completed-pages');
+        return redirect()->away($request->success_url);
     }
 
     // ai chat api
@@ -5955,7 +6207,7 @@ class ApiController extends Controller
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => array('model_id' => 'scribe_v1', 'language_code' => 'eng', 'file' => $cfile),
             CURLOPT_HTTPHEADER => array(
-                'Xi-Api-Key: '. $elevenlabs_api_key
+                'Xi-Api-Key: ' . $elevenlabs_api_key
             ),
         ));
 
@@ -6236,7 +6488,7 @@ class ApiController extends Controller
         foreach ($data as $key => &$value) {
             if (is_array($value)) {
                 // Check if it's an array of images
-                if (in_array($key, ['thumbnail', 'thumbnail_video', 'logo','logo_1', 'thumbnail_1'])) {
+                if (in_array($key, ['thumbnail', 'thumbnail_video', 'logo', 'logo_1', 'thumbnail_1'])) {
                     foreach ($value as &$v) {
                         if (is_string($v)) {
                             $v = $baseUrl . ltrim($v, '/');
@@ -6310,7 +6562,7 @@ class ApiController extends Controller
         $setting9 = FrontendSetting::where('key', "banner_video")->first();
 
         $certificates = [];
-        $certificate = CertificateProgram::where("status","active")->get();
+        $certificate = CertificateProgram::where("status", "active")->get();
         foreach ($certificate as $key => $value) {
             $certificates[$key]['id'] = $value->id;
             $certificates[$key]['title'] = $value->title;
@@ -6374,6 +6626,278 @@ class ApiController extends Controller
         return $homeData;
     }
 
+    public function update_watch_history_with_duration(Request $request)
+    {
+        if (!auth('api')->check()) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 401,
+                'message' => 'Unauthorized. Please log in first.',
+            ], 401);
+        }
+
+        $userId = auth('api')->user()->id;  // Get the logged-in user's ID
+        $courseProgress = 0;
+        $isCompleted = 0;
+
+        // Retrieve and sanitize input data
+        $courseId = htmlspecialchars($request->input('course_id'));
+        $lessonId = htmlspecialchars($request->input('lesson_id'));
+        $currentDuration = htmlspecialchars($request->input('current_duration'));
+
+        // Fetch current watch history record
+        $currentHistory = DB::table('watch_durations')
+            ->where([
+                'watched_course_id' => $courseId,
+                'watched_lesson_id' => $lessonId,
+                'watched_student_id' => $userId,
+            ])
+            ->first();
+
+        // Fetch course details
+        $courseDetails = DB::table('courses')->where('id', $courseId)->first();
+        $dripContentSettings = json_decode($courseDetails->drip_content_settings, true);
+
+        if ($currentHistory) {
+            $watchedDurationArr = json_decode($currentHistory->watched_counter, true);
+            if (!is_array($watchedDurationArr)) $watchedDurationArr = [];
+
+            if (!in_array($currentDuration, $watchedDurationArr)) {
+                array_push($watchedDurationArr, $currentDuration);
+            }
+
+            $watchedDurationJson = json_encode($watchedDurationArr);
+
+            DB::table('watch_durations')
+                ->where([
+                    'watched_course_id' => $courseId,
+                    'watched_lesson_id' => $lessonId,
+                    'watched_student_id' => $userId,
+                ])
+                ->update([
+                    'watched_counter' => $watchedDurationJson,
+                    'current_duration' => $currentDuration,
+                ]);
+        } else {
+            $watchedDurationArr = [$currentDuration];
+            DB::table('watch_durations')->insert([
+                'watched_course_id' => $courseId,
+                'watched_lesson_id' => $lessonId,
+                'watched_student_id' => $userId,
+                'current_duration' => $currentDuration,
+                'watched_counter' => json_encode($watchedDurationArr),
+            ]);
+        }
+
+        if ($courseDetails->enable_drip_content != 1) {
+            return response()->json([
+                'lesson_id' => $lessonId,
+                'course_progress' => null,
+                'is_completed' => null
+            ]);
+        }
+
+        // Fetch lesson details for duration calculations
+        $lessonTotalDuration = DB::table('lessons')->where('id', $lessonId)->value('duration');
+        $lessonTotalDurationArr = explode(':', $lessonTotalDuration);
+        $lessonTotalSeconds = ($lessonTotalDurationArr[0] * 3600) + ($lessonTotalDurationArr[1] * 60) + $lessonTotalDurationArr[2];
+        $currentTotalSeconds = count($watchedDurationArr) * 5;  // Assuming each increment represents 5 seconds
+
+        // Drip content completion logic
+        if ($dripContentSettings['lesson_completion_role'] == 'duration') {
+            if ($currentTotalSeconds >= $dripContentSettings['minimum_duration']) {
+                $isCompleted = 1;
+            } elseif (($currentTotalSeconds + 4) >= $lessonTotalSeconds) {
+                $isCompleted = 1;
+            }
+        } else {
+            $requiredDuration = ($lessonTotalSeconds / 100) * $dripContentSettings['minimum_percentage'];
+            if ($currentTotalSeconds >= $requiredDuration) {
+                $isCompleted = 1;
+            } elseif (($currentTotalSeconds + 4) >= $lessonTotalSeconds) {
+                $isCompleted = 1;
+            }
+        }
+
+        // Update course progress if the lesson is completed
+        if ($isCompleted == 1) {
+            $watchHistory = DB::table('watch_histories')
+                ->where([
+                    'course_id' => $courseId,
+                    'student_id' => $userId,
+                ])
+                ->first();
+
+            if ($watchHistory) {
+                $lessonIds = json_decode($watchHistory->completed_lesson, true);
+                $courseProgress = $watchHistory->course_progress;
+
+                if (!is_array($lessonIds)) $lessonIds = [];
+
+                if (!in_array($lessonId, $lessonIds)) {
+                    array_push($lessonIds, $lessonId);
+                    $totalLesson = DB::table('lessons')->where('course_id', $courseId)->count();
+                    $courseProgress = (100 / $totalLesson) * count($lessonIds);
+
+                    $completedDate = ($courseProgress >= 100 && !$watchHistory->completed_date)
+                        ? time()
+                        : $watchHistory->completed_date;
+
+                    DB::table('watch_histories')
+                        ->where('id', $watchHistory->id)
+                        ->update([
+                            'course_progress' => $courseProgress,
+                            'completed_lesson' => json_encode($lessonIds),
+                            'completed_date' => $completedDate,
+                        ]);
+                }
+            }
+        }
+
+        // Return the response
+        return response()->json([
+            'lesson_id' => $lessonId,
+            'course_progress' => round($courseProgress),
+            'is_completed' => $isCompleted,
+        ]);
+    }
+    public function update_watch_duration(Request $request)
+    {
+        $response = array();
+        $token = $request->bearerToken();
+
+        if (isset($token) && $token != '') {
+            $userId = auth('sanctum')->user()->id;
+            $courseProgress = 0;
+            $isCompleted = 0;
+
+            // Retrieve and sanitize input data
+            $courseId = htmlspecialchars($request->input('course_id'));
+            $lessonId = htmlspecialchars($request->input('lesson_id'));
+            $currentDuration = htmlspecialchars($request->input('current_duration'));
+
+            // Fetch current watch history record
+            $currentHistory = DB::table('watch_durations')
+                ->where([
+                    'watched_course_id' => $courseId,
+                    'watched_lesson_id' => $lessonId,
+                    'watched_student_id' => $userId,
+                ])
+                ->first();
+
+            // Fetch course details
+            $courseDetails = DB::table('courses')->where('id', $courseId)->first();
+            $dripContentSettings = json_decode($courseDetails->drip_content_settings, true);
+
+            if ($currentHistory) {
+                $watchedDurationArr = json_decode($currentHistory->watched_counter, true);
+                if (!is_array($watchedDurationArr)) $watchedDurationArr = [];
+
+                if (!in_array($currentDuration, $watchedDurationArr)) {
+                    array_push($watchedDurationArr, $currentDuration);
+                }
+
+                $watchedDurationJson = json_encode($watchedDurationArr);
+
+                DB::table('watch_durations')
+                    ->where([
+                        'watched_course_id' => $courseId,
+                        'watched_lesson_id' => $lessonId,
+                        'watched_student_id' => $userId,
+                    ])
+                    ->update([
+                        'watched_counter' => $watchedDurationJson,
+                        'current_duration' => $currentDuration,
+                    ]);
+            } else {
+                $watchedDurationArr = [$currentDuration];
+                DB::table('watch_durations')->insert([
+                    'watched_course_id' => $courseId,
+                    'watched_lesson_id' => $lessonId,
+                    'watched_student_id' => $userId,
+                    'current_duration' => $currentDuration,
+                    'watched_counter' => json_encode($watchedDurationArr),
+                ]);
+            }
+
+            if ($courseDetails->enable_drip_content != 1) {
+                return response()->json([
+                    'lesson_id' => $lessonId,
+                    'course_progress' => null,
+                    'is_completed' => null
+                ]);
+            }
+
+            // Fetch lesson details for duration calculations
+            $lessonTotalDuration = DB::table('lessons')->where('id', $lessonId)->value('duration');
+            $lessonTotalDurationArr = explode(':', $lessonTotalDuration);
+            $lessonTotalSeconds = ($lessonTotalDurationArr[0] * 3600) + ($lessonTotalDurationArr[1] * 60) + $lessonTotalDurationArr[2];
+            $currentTotalSeconds = count($watchedDurationArr) * 5;  // Assuming each increment represents 5 seconds
+
+            // Drip content completion logic
+            if ($dripContentSettings['lesson_completion_role'] == 'duration') {
+                if ($currentTotalSeconds >= $dripContentSettings['minimum_duration']) {
+                    $isCompleted = 1;
+                } elseif (($currentTotalSeconds + 4) >= $lessonTotalSeconds) {
+                    $isCompleted = 1;
+                }
+            } else {
+                $requiredDuration = ($lessonTotalSeconds / 100) * $dripContentSettings['minimum_percentage'];
+                if ($currentTotalSeconds >= $requiredDuration) {
+                    $isCompleted = 1;
+                } elseif (($currentTotalSeconds + 4) >= $lessonTotalSeconds) {
+                    $isCompleted = 1;
+                }
+            }
+
+            // Update course progress if the lesson is completed
+            if ($isCompleted == 1) {
+                $watchHistory = DB::table('watch_histories')
+                    ->where([
+                        'course_id' => $courseId,
+                        'student_id' => $userId,
+                    ])
+                    ->first();
+
+                if ($watchHistory) {
+                    $lessonIds = json_decode($watchHistory->completed_lesson, true);
+                    $courseProgress = $watchHistory->course_progress;
+
+                    if (!is_array($lessonIds)) $lessonIds = [];
+
+                    if (!in_array($lessonId, $lessonIds)) {
+                        array_push($lessonIds, $lessonId);
+                        $totalLesson = DB::table('lessons')->where('course_id', $courseId)->count();
+                        $courseProgress = (100 / $totalLesson) * count($lessonIds);
+
+                        $completedDate = ($courseProgress >= 100 && !$watchHistory->completed_date)
+                            ? time()
+                            : $watchHistory->completed_date;
+
+                        DB::table('watch_histories')
+                            ->where('id', $watchHistory->id)
+                            ->update([
+                                'course_progress' => $courseProgress,
+                                'completed_lesson' => json_encode($lessonIds),
+                                'completed_date' => $completedDate,
+                            ]);
+                    }
+                }
+            }
+
+            // Return the response
+            return response()->json([
+                'lesson_id' => $lessonId,
+                'course_progress' => round($courseProgress),
+                'is_completed' => $isCompleted,
+            ]);
+        }  else {
+            $response['status'] = false;
+            $response['message'] = "Undefined authentication";
+        }
+
+        return $response;
+    }
     public function payment2(Request $request)
     {
         if (!auth('api')->check()) {

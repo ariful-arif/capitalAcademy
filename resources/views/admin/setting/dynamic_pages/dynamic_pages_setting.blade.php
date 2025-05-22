@@ -315,7 +315,7 @@
         }
         // program highlights area
         function getInvolved() {
-            jQuery('#getInvolved_area').append(programHighlights1);
+            jQuery('#getInvolved_area').append(getInvolved1);
         }
 
         function remove_getInvolved(faqElem) {

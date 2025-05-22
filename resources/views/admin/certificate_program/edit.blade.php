@@ -54,6 +54,12 @@
                                             value="{{ old('certificated_course_count', $certificate_programs->certificated_course_count) }}"
                                             placeholder="{{ get_phrase('Enter Certificate Course amount') }}" required>
                                     </div>
+                                    <div class="fpb-7 mb-3">
+                                        <label class="form-label ol-form-label" for="final_pdf">{{ get_phrase('Final exam pdf') }}</label>
+                                        <input type="file" name="final_pdf" class="form-control ol-form-control"
+                                            id="final_pdf"  />
+                                    </div>
+
                                 </div>
                             </div>
 
@@ -108,6 +114,13 @@
                                             </option>
                                         @endforeach
                                     </select>
+                                </div>
+
+                                <div class="fpb-7 mb-3">
+                                    <label class="form-label ol-form-label"
+                                        for="logo">{{ get_phrase('Logo') }}</label>
+                                    <input type="file" name="logo" class="form-control ol-form-control"
+                                        id="logo" accept="image/*" />
                                 </div>
 
                                 <div class="fpb-7 mb-3">

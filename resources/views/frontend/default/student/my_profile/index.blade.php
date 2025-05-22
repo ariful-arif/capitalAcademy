@@ -12,7 +12,9 @@
                 <div class="col-lg-9">
                     <h4 class="g-title mb-5">{{ get_phrase('Personal Information') }}</h4>
                     <div class="my-panel message-panel edit_profile">
-                        <form action="{{ route('update.profile', $user_details->id) }}" method="POST">@csrf
+                        <form action="{{ route('update.profile', $user_details->id) }}" method="POST"
+                            enctype="multipart/form-data">
+                            @csrf
                             <div class="row">
                                 <div class="col-lg-12 mb-20">
                                     <div class="form-group">
@@ -220,6 +222,16 @@
                                         <textarea name="description[]" class="form-control text_editor">{{ $education['description'] }}</textarea>
                                     </div>
                                 @endforeach --}}
+                                <div class="fpb-7 mb-3">
+                                    <label class="form-label ol-form-label"
+                                        for="video_thumbnail">{{ get_phrase('Video Thumbnail') }}</label>
+                                    <div class="form-group text-start mb-3">
+                                        <img id="previewImage" class="my-2" height="200px"
+                                            src="{{ asset($user_details->video_thumbnail) }}" alt="Preview">
+                                    </div>
+                                    <input type="file" name="video_thumbnail" class="form-control ol-form-control"
+                                        id="video_thumbnail" accept="image/*" />
+                                </div>
 
                                 <div class="fpb7 mb-2">
                                     <label

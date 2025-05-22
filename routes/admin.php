@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AiController;
 use App\Http\Controllers\Admin\BootcampCategoryController;
 use App\Http\Controllers\Admin\BootcampController;
 use App\Http\Controllers\Admin\BootcampLiveClassController;
@@ -549,6 +550,25 @@ Route::name('admin.')->prefix('admin')->middleware('admin')->group(function () {
             ->name('subscription_package.delete');
         Route::get('subscription_package/status/{type}/{id}', 'status')
             ->name('subscription_package.status');
+    });
+    //    Ai route
+    Route::controller(AiController::class)->group(function () {
+        Route::post('/generate-ai-flashcards', 'ai_flashCards_generate')->name('ai.flashcards');
+        Route::post('/save-flashcards', 'saveFlashcards')->name('save.flashcards');
+
+        Route::post('/generate-ai-free_response', 'ai_free_response_generate')->name('ai.free_responses');
+        Route::post('/save-free_response', 'saveFreeResponse')->name('save.free_responses');
+
+        Route::post('/generate-ai-mcq', 'ai_mcq_generate')->name('ai.mcqs');
+        Route::post('/save-mcq', 'saveMcqs')->name('save.mcqs');
+
+
+        Route::post('/generate-ai-summary', 'ai_summary_generate')->name('ai.summary');
+        Route::post('/save-summary', 'saveSummary')->name('save.summary');
+
+        Route::post('/generate-ai-final_question', 'ai_final_question_generate')->name('ai.final_questions');
+        Route::post('/save-final_question', 'saveFinalQuestions')->name('save.final_questions');
+
     });
 
     Route::get('select-language/{language}', [LanguageController::class, 'select_lng'])->name('select.language');

@@ -26,7 +26,7 @@
     <div class="input-group">
         <div class="custom-file w-100">
             <input type="file" class="form-control ol-form-control" id="audio_file" name="audio_file"
-                accept="audio/*" required>
+                accept="audio/*">
         </div>
     </div>
 </div>
@@ -36,7 +36,7 @@
     <label class="form-label ol-form-label">{{ get_phrase('Upload PDF file') }}</label>
     <div class="input-group">
         <div class="custom-file w-100">
-            <input type="file" class="form-control ol-form-control" id="pdf_file" name="pdf_file" required>
+            <input type="file" class="form-control ol-form-control" id="pdf_file" name="pdf_file">
         </div>
     </div>
 </div>

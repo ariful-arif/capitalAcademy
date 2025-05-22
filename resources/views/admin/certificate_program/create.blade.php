@@ -47,7 +47,11 @@
                                         <input type="number" name = "certificated_course_count" class="form-control ol-form-control"
                                             placeholder="{{ get_phrase('Enter Certificate Course amount') }}" required>
                                     </div>
-
+                                    <div class="fpb-7 mb-3">
+                                        <label class="form-label ol-form-label" for="final_pdf">{{ get_phrase('Final exam pdf') }}</label>
+                                        <input type="file" name="final_pdf" class="form-control ol-form-control"
+                                            id="final_pdf" />
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -74,6 +78,7 @@
                                             <label for="status_inactive"
                                                 class="form-check-label">{{ get_phrase('Inactive') }}</label>
                                         </div>
+
                                     </div>
                                 </div>
                                 <div class="fpb-7 mb-3">
@@ -90,6 +95,13 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="fpb-7 mb-3">
+                                    <label for="logo"
+                                        class="form-label ol-form-label">{{ get_phrase('Logo') }}</label>
+                                    <input type="file" name="logo" class="form-control ol-form-control"
+                                        id="logo" accept="image/*" />
+                                </div>
+
                                 <div class="fpb-7 mb-3">
                                     <label for="thumbnail"
                                         class="form-label ol-form-label">{{ get_phrase('Thumbnail') }}</label>

@@ -62,6 +62,14 @@ class CertificateController extends Controller
         $data['created_at']  = date('Y-m-d H:i:s');
         $data['updated_at']  = date('Y-m-d H:i:s');
 
+        if ($request->final_pdf) {
+            $data['final_pdf'] = "uploads/certificate-program/final_exam_pdf/" . nice_file_name($request->title, $request->final_pdf->extension());
+            FileUploader::upload($request->final_pdf, $data['final_pdf'], null, null, null, null);
+        }
+        if ($request->logo) {
+            $data['logo'] = "uploads/certificate-program/logo/" . nice_file_name($request->title, $request->logo->extension());
+            FileUploader::upload($request->logo, $data['logo'], 400, null, 200, 200);
+        }
         if ($request->thumbnail) {
             $data['thumbnail'] = "uploads/certificate-program/certificate-thumbnail/" . nice_file_name($request->title, $request->thumbnail->extension());
             FileUploader::upload($request->thumbnail, $data['thumbnail'], 400, null, 200, 200);
@@ -106,6 +114,30 @@ class CertificateController extends Controller
         $data['updated_at']         = now();
 
         // Handle Thumbnail Upload (if new file is uploaded)
+        if ($request->hasFile('final_pdf')) {
+            // Delete old file if exists
+            if ($certificate->final_pdf && file_exists(public_path($certificate->final_pdf))) {
+                unlink(public_path($certificate->final_pdf));
+            }
+
+            // Save new file (without resizing)
+            $data['final_pdf'] = "uploads/certificate-program/final_exam_pdf/" . nice_file_name($request->title, $request->final_pdf->extension());
+
+            // Ensure it uploads without treating as image
+            FileUploader::upload($request->final_pdf, $data['final_pdf'], null, null, null, null);
+        }
+
+
+        if ($request->hasFile('logo')) {
+            // Delete old file if exists
+            if ($certificate->logo && file_exists(public_path($certificate->logo))) {
+                unlink(public_path($certificate->logo));
+            }
+
+            // Save new file
+            $data['logo'] = "uploads/certificate-program/logo/" . nice_file_name($request->title, $request->logo->extension());
+            FileUploader::upload($request->logo, $data['logo'], 400, null, 200, 200);
+        }
         if ($request->hasFile('thumbnail')) {
             // Delete old file if exists
             if ($certificate->thumbnail && file_exists(public_path($certificate->thumbnail))) {

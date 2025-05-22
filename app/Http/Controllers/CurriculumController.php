@@ -100,7 +100,7 @@ class CurriculumController extends Controller
             $path = public_path('uploads/lesson_file/audios');
             if (!File::isDirectory($path)) {
                 File::makeDirectory($path, 0777, true, true);
-            }else{
+            } else {
                 $file = FileUploader::upload($request->audio_file, 'uploads/lesson_file/audios/' . $file_name);
             }
         }
@@ -271,39 +271,42 @@ class CurriculumController extends Controller
         $lesson['section_id'] = $request->section_id;
         $lesson['summary'] = $request->summary;
 
-        if ($request->pdf_file == '') {
-            $file = '';
-        } else {
+        // PDF Attachment
+        if ($request->hasFile('pdf_file')) {
             $item = $request->file('pdf_file');
             $file_name = strtotime('now') . random(4) . '.' . $item->getClientOriginalExtension();
 
             $path = public_path('uploads/lesson_file/attachment');
             if (!File::isDirectory($path)) {
                 File::makeDirectory($path, 0777, true, true);
-            } else {
-                FileUploader::upload($request->pdf_file, 'uploads/lesson_file/attachment/' . $file_name);
-                remove_file('uploads/lesson_file/attachment/' . $current_data->attachment);
             }
-            $file = $file_name;
-        }
-        $lesson['attachment'] = $file;
-        // $data['attachment_type'] = $request->attachment_type;
-        if ($request->audio_file == '') {
-            $file = '';
+
+            FileUploader::upload($request->pdf_file, 'uploads/lesson_file/attachment/' . $file_name);
+            remove_file('uploads/lesson_file/attachment/' . $current_data->attachment);
+
+            $lesson['attachment'] = $file_name; // set new file name
         } else {
+            $lesson['attachment'] = $current_data->attachment; // keep old file
+        }
+
+        // Audio File
+        if ($request->hasFile('audio_file')) {
             $item = $request->file('audio_file');
             $file_name = strtotime('now') . random(4) . '.' . $item->getClientOriginalExtension();
 
             $path = public_path('uploads/lesson_file/audios');
             if (!File::isDirectory($path)) {
                 File::makeDirectory($path, 0777, true, true);
-            }else{
-                $file = FileUploader::upload($request->audio_file, 'uploads/lesson_file/audios/' . $file_name);
-                remove_file($current_data->audio);
             }
+
+            FileUploader::upload($request->audio_file, 'uploads/lesson_file/audios/' . $file_name);
+            remove_file($current_data->audio);
+
+            $lesson['audio'] = $file_name; // set new file name
+        } else {
+            $lesson['audio'] = $current_data->audio; // keep old file
         }
-        // $data['video_type'] = $request->lesson_provider;
-        $lesson['audio'] = $file;
+
 
         if ($request->lesson_type == 'text') {
             // $lesson['attachment'] = $request->text_description;

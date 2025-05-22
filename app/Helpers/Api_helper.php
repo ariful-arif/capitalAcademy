@@ -297,6 +297,7 @@ if (!function_exists('course_data')) {
             $courses[$key]->instructor_image = url('public/' . $instructor_details->photo);
             $courses[$key]->total_enrollment = enroll_history($course->id)->count();
             $courses[$key]->shareable_link = url('course/' . slugify($course->title));
+            $courses[$key]->munite = get_total_duration_of_lesson_by_course_id($course->id);
 
             $review = Review::where('course_id', $course->id)->get();
 
@@ -337,6 +338,7 @@ if (!function_exists('course_data_by_details')) {
         } else {
             $course->preview = url('public/' . $course->preview);
         }
+        $course->preview_type = "youtube";
 
         if ($course->is_paid == 0) {
             $course->price = 'Free';
@@ -369,11 +371,23 @@ if (!function_exists('get_photo')) {
             } else {
                 return url('public/assets/upload/users/student/placeholder/placeholder.png');
             }
+        } elseif ($type == 'video_thumbnail') {
+            if (file_exists('public/' . $identifier) && $identifier != "") {
+                return url('public/' . $identifier);
+            } else {
+                return url('public/assets/upload/users/student/placeholder/placeholder.png');
+            }
         } elseif ($type == 'course_thumbnail') {
             if (file_exists('public/' . $identifier) && $identifier != "") {
                 return url('public/' . $identifier);
             } else {
                 return url('public/uploads/course-thumbnail/placeholder/placeholder.png');
+            }
+        } elseif ($type == 'lesson_thumbnail') {
+            if (file_exists('public/' . $identifier) && $identifier != "") {
+                return url('public/' . $identifier);
+            } else {
+                return url('public/uploads/lesson_file/thumbnail/placeholder/placeholder.png');
             }
         } elseif ($type == 'course_banner') {
             if (file_exists('public/' . $identifier) && $identifier != "") {
@@ -483,6 +497,12 @@ if (!function_exists('get_photo')) {
             } else {
                 return url('public/uploads/blog/thumbnail/placeholder/placeholder.png');
             }
+        } elseif ($type == 'certificate_logo') {
+            if (file_exists('public/' . $identifier) && $identifier != "") {
+                return url('public/' . $identifier);
+            } else {
+                return url('public/uploads/certificate-program/placeholder/placeholder.png');
+            }
         } elseif ($type == 'certificate_thumbnail') {
             if (file_exists('public/' . $identifier) && $identifier != "") {
                 return url('public/' . $identifier);
@@ -582,7 +602,7 @@ if (!function_exists('course_details_by_id')) {
 
         $response = course_data_by_details($course_details);
         $response->sections = sections($course_id);
-        $response->reviews = review($course_id, "course");
+        $response->reviews = review($course_id, $user_id,"course");
         $response->is_wishlisted = is_added_to_wishlist($user_id, $course_id);
         $response->is_purchased = is_purchased($user_id, $course_id);
         $response->liveClass = live_class_schedules($course_id);
@@ -1059,6 +1079,7 @@ function section_wise_lessons($section_id = "", $user_id = "")
         $response[$key]['duration'] = readable_time_for_humans($lesson->duration);
         $response[$key]['course_id'] = $lesson->course_id;
         $response[$key]['section_id'] = $lesson->section_id;
+        $response[$key]['thumbnail'] = get_photo('lesson_thumbnail', $lesson->thumbnail);
         $response[$key]['video_type'] = ($lesson->video_type == "" ? "" : $lesson->video_type);
         if ($lesson->lesson_type == 'system-video') {
             $response[$key]['video_url'] = ($lesson->lesson_src == "" ? "" : asset($lesson->lesson_src));
@@ -1400,7 +1421,7 @@ function review1($course_id = "", $type = "")
 
 function review($course_id = "", $user_id = "", $type = "")
 {
-    
+
     $response = array();
     $userId = $user_id;
 

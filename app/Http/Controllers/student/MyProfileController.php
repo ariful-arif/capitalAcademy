@@ -31,6 +31,7 @@ class MyProfileController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
+        $user_data = User::find($user_id);
 
         $data['name']      = $request->name;
         $data['email']     = $request->email;
@@ -41,12 +42,24 @@ class MyProfileController extends Controller
         $data['instagram']   = $request->instagram;
         $data['designation'] = $request->designation;
         $data['experience'] = $request->experience;
+        // $data['video_thumbnail']   = $request->video_thumbnail;
         $data['video_url']   = $request->video_url;
         $data['about']   = $request->about;
         $data['linkedin']  = $request->linkedin;
         $data['skills']    = $request->skills;
         $data['biography'] = $request->biography;
 
+        if ($request->hasFile('video_thumbnail')) {
+            // Delete old file if exists
+            if ($user_data->video_thumbnail && file_exists(public_path($user_data->video_thumbnail))) {
+                unlink(public_path($user_data->video_thumbnail));
+            }
+            // Save new file
+            $data['video_thumbnail'] = "uploads/users/video_thumbnail/" . nice_file_name($request->name, $request->video_thumbnail->extension());
+            FileUploader::upload($request->video_thumbnail, $data['video_thumbnail'], 400, null, 200, 200);
+        }
+        // dd($data);
+        // die;
         User::where('id', $user_id)->update($data);
         Session::flash('success', get_phrase('Profile updated successfully.'));
         return redirect()->back();

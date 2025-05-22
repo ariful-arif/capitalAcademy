@@ -10,9 +10,12 @@
 
         .hover-effect:hover {
             color: #007bff;
-            /* Change color on hover */
             text-decoration: underline;
-            /* Underline on hover */
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 5px 10px;
         }
     </style>
     <div class="ol-card radius-8px">
@@ -35,35 +38,32 @@
     <div class="row g-2 g-sm-3 mb-3 row-cols-1 row-cols-sm-2 row-cols-md-4 row-cols-lg-4 row-cols-xl-5">
         <div class="col">
             <a href="{{ route('admin.certificate_program', ['status' => 'active']) }}" class="d-block">
-            <div class="ol-card card-hover h-100">
-                <div class="ol-card-body px-3 py-12px">
-                    <div class="d-flex align-items-center cg-12px">
-                        <div>
-                            <p class="sub-title fs-14px fw-semibold mb-2">{{ $active_certificate }}</p>
-                            <h6 class="title fs-14px mb-1">{{ get_phrase('Active Certificate') }}</h6>
+                <div class="ol-card card-hover h-100">
+                    <div class="ol-card-body px-3 py-12px">
+                        <div class="d-flex align-items-center cg-12px">
+                            <div>
+                                <p class="sub-title fs-14px fw-semibold mb-2">{{ $active_certificate }}</p>
+                                <h6 class="title fs-14px mb-1">{{ get_phrase('Active Certificate') }}</h6>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             </a>
         </div>
         <div class="col">
             <a href="{{ route('admin.certificate_program', ['status' => 'inactive']) }}" class="d-block">
-            <div class="ol-card card-hover h-100">
-                <div class="ol-card-body px-3 py-12px">
-                    <div class="d-flex align-items-center cg-12px">
-                        <div>
-                            <p class="sub-title fs-14px fw-semibold mb-2">{{ $inactive_certificate }}</p>
-                            <h6 class="title fs-14px mb-1">{{ get_phrase('Inactive Certificate') }}</h6>
+                <div class="ol-card card-hover h-100">
+                    <div class="ol-card-body px-3 py-12px">
+                        <div class="d-flex align-items-center cg-12px">
+                            <div>
+                                <p class="sub-title fs-14px fw-semibold mb-2">{{ $inactive_certificate }}</p>
+                                <h6 class="title fs-14px mb-1">{{ get_phrase('Inactive Certificate') }}</h6>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             </a>
         </div>
-
-
-
     </div>
 
     <!-- Start Admin area -->
@@ -90,102 +90,6 @@
                                     </li>
                                 </ul>
                             </div>
-
-
-                            {{-- <div class="custom-dropdown dropdown-filter @if (!isset($_GET) || (isset($_GET) && count($_GET) == 0))  @endif">
-                                <button class="dropdown-header btn ol-btn-light">
-                                    <i class="fi-rr-filter me-2"></i>
-                                    {{ get_phrase('Filter') }}
-
-                                    @if (isset($_GET) && count($_GET))
-                                        <span class="text-12px">
-                                            ({{ count($_GET) }})
-                                        </span>
-                                    @endif
-                                </button>
-                                <ul class="dropdown-list w-250px">
-                                    <li>
-                                        <form id="filter-dropdown" action="{{ route('admin.courses') }}" method="get">
-                                            <div class="filter-option d-flex flex-column gap-3">
-                                                <div>
-                                                    <label for="eDataList"
-                                                        class="form-label ol-form-label">{{ get_phrase('Category') }}</label>
-                                                    <select class="form-control ol-form-control ol-select2"
-                                                        data-toggle="select2" name="category"
-                                                        data-placeholder="Type to search...">
-                                                        <option value="all">{{ get_phrase('All') }}</option>
-
-                                                        @foreach (App\Models\Category::where('parent_id', 0)->orderBy('title', 'desc')->get() as $category)
-                                                            <option
-                                                                value="{{ $category->slug }}"@if (isset($parent_cat) && $parent_cat == $category->slug) selected @endif>
-                                                                {{ $category->title }}</option>
-
-                                                            @foreach ($category->childs as $sub_category)
-                                                                <option
-                                                                    value="{{ $sub_category->slug }}"@if (isset($child_cat) && $child_cat == $sub_category->slug) selected @endif>
-                                                                    --{{ $sub_category->title }}</option>
-                                                            @endforeach
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <label for="eDataList"
-                                                        class="form-label ol-form-label">{{ get_phrase('Status') }}</label>
-                                                    <select class="form-control ol-form-control ol-select2" data-toggle="select2" name="status" class="ol-select-2" data-placeholder="Type to search...">
-                                                        <option value="all">{{ get_phrase('All') }}
-                                                        </option>
-
-                                                        <option value="active"@if (isset($status) && $status == 'active') selected @endif>{{ get_phrase('Active') }} </option>
-                                                        <option value="inactive"@if (isset($status) && $status == 'inactive') selected @endif>{{ get_phrase('Inactive') }} </option>
-                                                        <option value="pending"@if (isset($status) && $status == 'pending') selected @endif>{{ get_phrase('Pending') }} </option>
-                                                        <option value="upcoming"@if (isset($status) && $status == 'upcoming') selected @endif>{{ get_phrase('Upcoming') }} </option>
-                                                        <option value="private"@if (isset($status) && $status == 'private') selected @endif>{{ get_phrase('Private') }} </option>
-                                                        <option value="draft"@if (isset($status) && $status == 'draft') selected @endif>{{ get_phrase('Draft') }} </option>
-                                                    </select>
-                                                </div>
-
-                                                <div>
-                                                    <label for="eDataList"
-                                                        class="form-label ol-form-label">{{ get_phrase('Instructor') }}</label>
-                                                    <select class="form-control ol-form-control ol-select2"
-                                                        data-toggle="select2" name="instructor" class="ol-select-2"
-                                                        data-placeholder="Type to search...">
-                                                        <option value="all">{{ get_phrase('All') }}
-                                                        </option>
-                                                        @foreach (App\Models\Course::select('user_id')->distinct()->get() as $course)
-                                                            <option
-                                                                value="{{ $course->user_id }}"@if (isset($instructor) && $instructor == $course->user_id) selected @endif>
-                                                                {{ ucfirst(get_user_info($course->user_id)->name) }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <label for="eDataList"
-                                                        class="form-label ol-form-label">{{ get_phrase('Price') }}</label>
-                                                    <select class="form-control ol-form-control ol-select2"
-                                                        data-toggle="select2" name="price" class="ol-select-2"
-                                                        data-placeholder="Type to search...">
-                                                        <option value="all">{{ get_phrase('All') }}
-                                                        </option>
-
-                                                        <option
-                                                            value="free"@if (isset($price) && $price == 'free') selected @endif>
-                                                            {{ get_phrase('Free') }}</option>
-                                                        <option
-                                                            value="paid"@if (isset($price) && $price == 'paid') selected @endif>
-                                                            {{ get_phrase('Paid') }}</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="filter-button d-flex justify-content-end align-items-center mt-3">
-                                                <button type="submit"
-                                                    class="ol-btn-primary">{{ get_phrase('Apply') }}</button>
-                                            </div>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div> --}}
 
                             @if (isset($_GET) && count($_GET) > 0)
                                 <a href="{{ route('admin.certificate_program') }}" class="me-2" data-bs-toggle="tooltip"
@@ -214,161 +118,134 @@
                     <div class="row">
                         <div class="col-md-12">
                             @if ($certificate_programs->count() > 0)
-                            <div
-                                class="admin-tInfo-pagi d-flex justify-content-between justify-content-center align-items-center flex-wrap gr-15">
-                                <p class="admin-tInfo">
-                                    {{ get_phrase('Showing') . ' ' . count($certificate_programs) . ' ' . get_phrase('of') . ' ' . $certificate_programs->total() . ' ' . get_phrase('data') }}
-                                </p>
-                            </div>
-                            <div class="table-responsive overflow-auto course_list" id="course_list">
-                                <table class="table eTable eTable-2 print-table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">#</th>
-                                            <th scope="col">{{ get_phrase('Title') }}</th>
-                                            <th scope="col">{{ get_phrase('Certificate Courses') }}</th>
-                                            {{-- <th scope="col">{{ get_phrase('Lesson & Section') }}</th>
-                                                <th scope="col">{{ get_phrase('Enrolled Student') }}</th> --}}
-                                            <th scope="col" class="print-d-none">{{ get_phrase('Status') }}</th>
-                                            {{-- <th scope="col">{{ get_phrase('Price') }}</th> --}}
-                                            <th scope="col" class="print-d-none">{{ get_phrase('Options') }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($certificate_programs as $key => $row)
-                                            @php
-                                                // $query = App\Models\Watch_history::where('course_id', $row->id)
-                                                //     ->where('student_id', auth()->user()->id)
-                                                //     ->first();
-
-                                                // $query1 = App\Models\Lesson::where('course_id', $row->id)
-                                                //     ->orderBy('sort', 'asc')
-                                                //     ->first();
-
-                                                // if (isset($query->watching_lesson_id) && $query->watching_lesson_id != '') {
-                                                //     $watching_lesson_id = $query->watching_lesson_id;
-                                                // } elseif (isset($query1->id)) {
-                                                //     $watching_lesson_id = $query1->id;
-                                                // }
-                                                $certificate_courses = is_string($row->course_ids)
-                                                    ? json_decode($row->course_ids, true)
-                                                    : $row->course_ids;
-                                            @endphp
+                                <div
+                                    class="admin-tInfo-pagi d-flex justify-content-between justify-content-center align-items-center flex-wrap gr-15">
+                                    <p class="admin-tInfo">
+                                        {{ get_phrase('Showing') . ' ' . count($certificate_programs) . ' ' . get_phrase('of') . ' ' . $certificate_programs->total() . ' ' . get_phrase('data') }}
+                                    </p>
+                                </div>
+                                <div class="table-responsive overflow-auto course_list" id="course_list">
+                                    <table class="table eTable eTable-2 print-table">
+                                        <thead>
                                             <tr>
-                                                <th scope="row">
-                                                    <p class="row-number">{{ ++$key }}</p>
-                                                </th>
-                                                <td>
-                                                    <div class="dAdmin_profile d-flex align-items-center min-w-200px">
-                                                        <div class="dAdmin_profile_name">
-                                                            <h4 class="title fs-14px">
-                                                                <a href="{{ route('admin.certificate_program.edit', $row->id) }}"
-                                                                    class="hover-effect" data-bs-toggle="tooltip"
-                                                                    data-bs-placement="top" title="Edit Certificate">
-                                                                    {{ ucfirst($row->title) }}
-                                                                </a>
-                                                            </h4>
-                                                        </div>
-                                                    </div>
+                                                <th scope="col">#</th>
+                                                <th scope="col">{{ get_phrase('Title') }}</th>
+                                                <th scope="col">{{ get_phrase('Certificate Courses') }}</th>
+                                                <th scope="col" class="print-d-none">{{ get_phrase('Status') }}</th>
+                                                <th scope="col" class="print-d-none">{{ get_phrase('Options') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($certificate_programs as $key => $row)
+                                                @php
 
-                                                </td>
-                                                <td>
-                                                    <div class="sub-title2 text-12px">
-                                                        {{-- <a href="{{ route('admin.courses', ['category' => $row->category->slug ?? '']) }}">{{ category_by_course($row->category_id)->title }}</a> --}}
-                                                        @if (is_array($certificate_courses) && !empty($certificate_courses))
-                                                            @foreach (App\Models\Course::whereIn('id', $certificate_courses)->get() as $key => $item)
-                                                                <p class="sub-title2 text-12px">
-                                                                    {{ ++$key . '. ' . $item->title }}</p>
-                                                            @endforeach
-                                                        @else
-                                                            <p class="sub-title2 text-12px">No courses available
-                                                            </p>
-                                                        @endif
-                                                    </div>
-                                                </td>
-                                                {{-- <td>
-                                                        <div class="sub-title2 text-12px">
-                                                            <a href="{{ route('admin.course.edit', [$row->id, 'tab' => 'curriculum']) }}">
-                                                                <p>{{ get_phrase('Lesson') }}: {{ lesson_count($row->id) }} </p>
-                                                                <p> {{ get_phrase('Section') }}: {{ section_count($row->id) }} </p>
-                                                            </a>
+                                                    $certificate_courses = is_string($row->course_ids)
+                                                        ? json_decode($row->course_ids, true)
+                                                        : $row->course_ids;
+                                                @endphp
+                                                <tr>
+                                                    <th scope="row">
+                                                        <p class="row-number">{{ ++$key }}</p>
+                                                    </th>
+                                                    <td>
+                                                        <div class="dAdmin_profile d-flex align-items-center min-w-200px">
+                                                            <div class="dAdmin_profile_name">
+                                                                <h4 class="title fs-14px">
+                                                                    <a href="{{ route('admin.certificate_program.edit', $row->id) }}"
+                                                                        class="hover-effect" data-bs-toggle="tooltip"
+                                                                        data-bs-placement="top" title="Edit Certificate">
+                                                                        {{ ucfirst($row->title) }}
+                                                                    </a>
+                                                                </h4>
+                                                            </div>
                                                         </div>
+
                                                     </td>
                                                     <td>
-                                                        <div class="sub-title2 text-12px">
-                                                            <p>{{ get_phrase('Enrollment History') }}:
-                                                                {{ course_enrollments($row->id) }}
-                                                            </p>
-                                                        </div>
-                                                    </td> --}}
-                                                <td class="print-d-none">
-                                                    <span
-                                                        class="badge bg-{{ $row->status }}">{{ get_phrase(ucfirst($row->status)) }}</span>
-                                                </td>
-
-                                                <td class="print-d-none">
-                                                    <div class="dropdown ol-icon-dropdown ol-icon-dropdown-transparent">
-                                                        <button class="btn ol-btn-secondary dropdown-toggle"
-                                                            type="button" data-bs-toggle="dropdown"
-                                                            aria-expanded="false">
-                                                            <span class="fi-rr-menu-dots-vertical"></span>
-                                                        </button>
-
-                                                        <ul class="dropdown-menu">
-                                                            {{-- <li>
-                                                                    <a class="dropdown-item" target="_blank" href="{{ route('course.details', $row->slug) }}">{{ get_phrase('View Course On Frontend') }}</a>
-                                                                </li> --}}
-
-                                                            {{-- <li>
-                                                                    <a class="dropdown-item" target="_blank" href="{{ route('course.player', ['slug' => $row->slug]) }}">{{ get_phrase('Go To Course Playing Page') }}</a>
-                                                                </li> --}}
-                                                            <li>
-                                                                <a class="dropdown-item"
-                                                                    href="{{ route('admin.certificate_program.edit', [$row->id, 'tab' => 'basic']) }}">{{ get_phrase('Edit Certificate') }}</a>
-                                                            </li>
-                                                            {{-- <li>
-                                                                    <a class="dropdown-item" onclick="confirmModal('{{ route('admin.course.duplicate', $row->id) }}')" href="javascript:void(0)">{{ get_phrase('Duplicate Course') }}</a>
-                                                                </li> --}}
-
-                                                            @if ($row->status == 'active')
-                                                                <li>
-                                                                    <a class="dropdown-item"
-                                                                        onclick="confirmModal('{{ route('admin.course.status', ['type' => 'inactive', 'id' => $row->id]) }}')"
-                                                                        href="#">{{ get_phrase('Make As Inactive') }}</a>
-                                                                </li>
-                                                            @elseif($row->status == 'pending')
-                                                                <li>
-                                                                    <a class="dropdown-item"
-                                                                        onclick="ajaxModal('{{ route('view', ['path' => 'admin.course.course_approval', 'course_id' => $row->id]) }}', '{{ get_phrase('Write a congratulatory message') }}')"
-                                                                        href="#">{{ get_phrase('Make As Active') }}</a>
-                                                                </li>
+                                                        <div class="d-flex flex-wrap gap-2">
+                                                            @if (is_array($certificate_courses) && !empty($certificate_courses))
+                                                                @foreach (App\Models\Course::whereIn('id', $certificate_courses)->get() as $key => $item)
+                                                                    <span
+                                                                        class="badge bg-info text-dark">{{ ++$key . '. ' . $item->title }}</span>
+                                                                @endforeach
                                                             @else
-                                                                <li>
-                                                                    <a class="dropdown-item"
-                                                                        onclick="confirmModal('{{ route('admin.course.status', ['type' => 'active', 'id' => $row->id]) }}')"
-                                                                        href="#">{{ get_phrase('Make As Active') }}</a>
-                                                                </li>
+                                                                <span class="badge bg-warning text-dark">No courses</span>
                                                             @endif
-                                                            <li>
-                                                                <a class="dropdown-item"
-                                                                    onclick="confirmModal('{{ route('admin.certificate_program.delete', $row->id) }}')"
-                                                                    href="javascript:void(0)">{{ get_phrase('Delete Certificate') }}</a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div
-                                class="admin-tInfo-pagi d-flex justify-content-between justify-content-center align-items-center flex-wrap gr-15">
-                                <p class="admin-tInfo">
-                                    {{ get_phrase('Showing') . ' ' . count($certificate_programs) . ' ' . get_phrase('of') . ' ' . $certificate_programs->total() . ' ' . get_phrase('data') }}
-                                </p>
-                                {{ $certificate_programs->links() }}
-                            </div>
+                                                        </div>
+                                                    </td>
+
+                                                    <td class="print-d-none">
+                                                        <span
+                                                            class="badge bg-{{ $row->status == 'active' ? 'success' : 'secondary' }}">
+                                                            {{ ucfirst($row->status) }}
+                                                        </span>
+                                                    </td>
+
+                                                    <td class="print-d-none">
+                                                        <div class="d-flex flex-column gap-2">
+                                                            @if (!empty($row->final_pdf) && file_exists(public_path($row->final_pdf)))
+                                                                <a href="{{ asset($row->final_pdf) }}" target="_blank"
+                                                                    class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fas fa-file-pdf"></i> View PDF
+                                                                </a>
+                                                                <a href="#" class="btn btn-sm btn-outline-success"
+                                                                onclick="ajaxModal('{{ route('modal', ['admin.certificate_program.generate_final_question', 'id' => $row->id]) }}', '{{ get_phrase('Generate Final Question') }}', 'modal-xl')">
+                                                                    <i class="fas fa-question-circle"></i> Generate Final Question
+                                                                </a>
+                                                            @else
+                                                                <a href="{{ route('admin.certificate_program.edit', [$row->id, 'tab' => 'pdf']) }}"
+                                                                    class="btn btn-sm btn-outline-warning">
+                                                                    <i class="fas fa-upload"></i> Upload PDF
+                                                                </a>
+                                                            @endif
+
+                                                            {{-- Dropdown actions --}}
+                                                            <div class="dropdown">
+                                                                <button class="btn btn-sm btn-secondary dropdown-toggle"
+                                                                    type="button" data-bs-toggle="dropdown">
+                                                                    <i class="fas fa-ellipsis-v"></i>
+                                                                </button>
+                                                                <ul class="dropdown-menu">
+                                                                    <li>
+                                                                        <a class="dropdown-item"
+                                                                            href="{{ route('admin.certificate_program.edit', [$row->id, 'tab' => 'basic']) }}">{{ get_phrase('Edit Certificate') }}</a>
+                                                                    </li>
+                                                                    @if ($row->status == 'active')
+                                                                        <li>
+                                                                            <a class="dropdown-item"
+                                                                                onclick="confirmModal('{{ route('admin.course.status', ['type' => 'inactive', 'id' => $row->id]) }}')"
+                                                                                href="#">{{ get_phrase('Make As Inactive') }}</a>
+                                                                        </li>
+                                                                    @else
+                                                                        <li>
+                                                                            <a class="dropdown-item"
+                                                                                onclick="confirmModal('{{ route('admin.course.status', ['type' => 'active', 'id' => $row->id]) }}')"
+                                                                                href="#">{{ get_phrase('Make As Active') }}</a>
+                                                                        </li>
+                                                                    @endif
+                                                                    <li>
+                                                                        <a class="dropdown-item"
+                                                                            onclick="confirmModal('{{ route('admin.certificate_program.delete', $row->id) }}')"
+                                                                            href="javascript:void(0)">{{ get_phrase('Delete Certificate') }}</a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+
+
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div
+                                    class="admin-tInfo-pagi d-flex justify-content-between justify-content-center align-items-center flex-wrap gr-15">
+                                    <p class="admin-tInfo">
+                                        {{ get_phrase('Showing') . ' ' . count($certificate_programs) . ' ' . get_phrase('of') . ' ' . $certificate_programs->total() . ' ' . get_phrase('data') }}
+                                    </p>
+                                    {{ $certificate_programs->links() }}
+                                </div>
                             @else
                                 @include('admin.no_data')
                             @endif
@@ -378,5 +255,4 @@
             </div>
         </div>
     </div>
-    <!-- End Admin area -->
 @endsection

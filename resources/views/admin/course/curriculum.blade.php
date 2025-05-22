@@ -96,7 +96,17 @@
                                             onclick="ajaxModal('{{ route('modal', ['admin.course.flash_cards.generate_flashcards', 'id' => $lesson->id]) }}', '{{ get_phrase('Generate Flashcards') }}', 'modal-xl')"
                                             class="btn btn-outline-gray-small">{{ get_phrase('Flashcards') }}
                                             {{-- class="edit-delete" --}}
-                                            {{-- <span class="fi fi-rr-clipboard-list-check"></span> --}}
+                                            {{-- <sp class="fi fi-rr-clipboard-list-check"></sp sdfan> --}}
+                                        </a>
+                                        <a href="#" data-bs-toggle="tooltip"
+                                            title="{{ get_phrase('Generate Quiz') }}"
+                                            onclick="ajaxModal('{{ route('modal', ['admin.course.flash_cards.select_quiz_method', 'id' => $lesson->id]) }}', '{{ get_phrase('Select quiz method') }}')"
+                                            class="btn btn-outline-gray-small">{{ get_phrase('Quiz') }}
+                                        </a>
+                                        <a href="#" data-bs-toggle="tooltip"
+                                            title="{{ get_phrase('Generate Summary') }}"
+                                            onclick="ajaxModal('{{ route('modal', ['admin.course.flash_cards.generate_summary', 'id' => $lesson->id]) }}', '{{ get_phrase('Generate Summary') }}', 'modal-xl')"
+                                            class="btn btn-outline-gray-small">{{ get_phrase('Summary') }}
                                         </a>
                                         {{-- <a href="#"
                                             onclick="ajaxModal('{{ route('modal', ['admin.course.lesson_sort', 'id' => $section->id]) }}', '{{ get_phrase('Sort lessons') }}'); event.stopPropagation();"

@@ -18,6 +18,11 @@ class Lesson extends Model
     {
         return $this->belongsTo(Section::class);
     }
+    protected $casts = [
+        'flashcards' => 'array',
+        'free_response_question' => 'array',
+        'mcq_question' => 'array',
+    ];
 
     protected $fillable = [
         'title',

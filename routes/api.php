@@ -123,11 +123,13 @@ Route::post('/chat_save', [ApiController::class, 'chat_save']);
 
 Route::get('/courseLevels', [ApiController::class, 'courseLevels']);
 
+Route::post('/checkCoupon', [ApiController::class, 'checkCoupon']);
+
 Route::post('/stripe/create-checkout', [ApiController::class, 'createCheckoutSession']);
 Route::get('/stripe/success', [ApiController::class, 'handleStripeSuccess'])->name('stripe.success');
 
 Route::post('subscription/stripe/create-checkout', [ApiController::class, 'subscriptioncreateCheckoutSession']);
-Route::get('subscription/stripe/success', [ApiController::class, 'subscriptionhandleStripeSuccess'])->name('stripe.success');
+Route::get('subscription/stripe/success', [ApiController::class, 'subscriptionhandleStripeSuccess'])->name('subscription.stripe.success');
 
 
 Route::get('payment', [ApiController::class, 'payment']);
@@ -153,6 +155,7 @@ Route::get('certificate', [ApiController::class, 'certificate']);
 Route::get('certificate_details', [ApiController::class, 'certificate_details']);
 Route::post('certificate_achieve', [ApiController::class, 'certificate_achieve']);
 Route::get('my_certificate', [ApiController::class, 'my_certificate']);
+Route::get('final_exam_question', [ApiController::class, 'final_exam_question']);
 
 Route::controller(ApiController::class)->group(function () {
     Route::post('certificate_review_store', 'certificate_review_store');
@@ -177,6 +180,8 @@ Route::get('/all_dynamic_pages', [ApiController::class, 'all_dynamic_pages']);
 Route::get('/one_dynamic_pages', [ApiController::class, 'one_dynamic_pages']);
 Route::get('/student_list', [ApiController::class, 'student_list']);
 Route::get('/homePage', [ApiController::class, 'homePage']);
+Route::post('/update_watch_history_with_duration', [ApiController::class, 'update_watch_history_with_duration']);
+Route::post('/update_watch_duration', [ApiController::class, 'update_watch_duration']);
 
 // });
 
