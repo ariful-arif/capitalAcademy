@@ -44,7 +44,12 @@
                     $current_route == 'admin.courses' ||
                         $current_route == 'admin.course.create' ||
                         $current_route == 'admin.course.edit' ||
-                        $current_route == 'admin.coupons') active showMenu @endif">
+                        $current_route == 'admin.coupons' ||
+                        $current_route == 'admin.course.bundles' ||
+                        $current_route == 'admin.course.bundle.create' ||
+                        $current_route == 'admin.course.bundle.edit' ||
+                        $current_route == 'admin.course.bundle.subscription.report' ||
+                        $current_route == 'admin.course_bundle.categories') active showMenu @endif">
                     <a href="javascript:void(0);">
                         <span class="icon fi fi-rr-e-learning"></span>
                         <div class="text">
@@ -62,6 +67,25 @@
                         <li class="sidebar-second-li @if ($current_route == 'admin.coupons') active @endif">
                             <a href="{{ route('admin.coupons') }}">{{ get_phrase('Coupons') }}</a>
                         </li>
+                        @if (has_permission('admin.course.bundles'))
+                            <li class="sidebar-second-li second-li-have-sub @if ($current_route == 'admin.course.bundles' || $current_route == 'admin.course.bundle.create' || $current_route == 'admin.course.bundle.edit' || $current_route == 'admin.course.bundle.subscription.report' || $current_route == 'admin.course_bundle.categories') active @endif">
+                                <a href="javascript:void(0);">{{ get_phrase('Course Bundle') }}</a>
+                                <ul class="second-sub-menu">
+                                    <li class="sidebar-third-li @if ($current_route == 'admin.course.bundles') active @endif">
+                                        <a href="{{ route('admin.course.bundles') }}">{{ get_phrase('Manage Bundle') }}</a>
+                                    </li>
+                                    <li class="sidebar-third-li @if ($current_route == 'admin.course.bundle.create') active @endif">
+                                        <a href="{{ route('admin.course.bundle.create') }}">{{ get_phrase('Add New Bundle') }}</a>
+                                    </li>
+                                    <li class="sidebar-third-li @if ($current_route == 'admin.course.bundle.subscription.report') active @endif">
+                                        <a href="{{ route('admin.course.bundle.subscription.report') }}">{{ get_phrase('Subscription Report') }}</a>
+                                    </li>
+                                    <li class="sidebar-third-li @if ($current_route == 'admin.course_bundle.categories') active @endif">
+                                        <a href="{{ route('admin.course_bundle.categories') }}">{{ get_phrase('Bundle Categories') }}</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endif
                     </ul>
                 </li>
             @endif

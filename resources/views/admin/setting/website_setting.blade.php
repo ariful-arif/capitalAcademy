@@ -82,6 +82,12 @@
                                     <span></span>
                                 </button>
                             </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="logo_images-tab" data-bs-toggle="tab" data-bs-target="#final_xm_certification_setting" type="button" role="tab" aria-controls="final_xm_certification_setting" aria-selected="false">
+                                    {{ get_phrase('Final XM Certification') }}
+                                    <span></span>
+                                </button>
+                            </li>
                         </ul>
                         <div class="tab-content eNav-Tabs-content" id="myTabContent">
                             <div class="tab-pane fade show active" id="cHome" role="tabpanel" aria-labelledby="cHome-tab">
@@ -115,6 +121,9 @@
                             </div>
                             <div class="tab-pane fade" id="home_page_features_setting" role="tabpanel" aria-labelledby="home_page_features_setting-tab">
                                 @include('admin.setting.home_page_features_setting')
+                            </div>
+                            <div class="tab-pane fade" id="final_xm_certification_setting" role="tabpanel" aria-labelledby="final_xm_certification_setting-tab">
+                                @include('admin.setting.final_xm_certification')
                             </div>
                         </div>
                     </div>

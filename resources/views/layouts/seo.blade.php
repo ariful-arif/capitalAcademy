@@ -9,14 +9,16 @@
     //print SEO field values from database 'seo_field table', based on current route
     $current_route = Route::currentRouteName();
     $seo_field = App\Models\SeoField::where('name_route', $current_route);
-    
-    if($current_route == 'course.details' && isset($course_details)){
+
+    if ($current_route == 'course.details' && isset($course_details)) {
         $seo_field->where('course_id', $course_details->id ?? '');
     }
-    if($current_route == 'blog.details' && isset($blog_details)){
+    if ($current_route == 'blog.details' && isset($blog_details)) {
         $seo_field->where('blog_id', $blog_details->id ?? '');
     }
-
+    if ($current_route == 'course.bundle.details' && isset($course_bundle)) {
+        $seo_field->where('bundle_id', $course_bundle->id ?? '');
+    }
     $seo_field = $seo_field->firstOrNew();
 @endphp
 
@@ -32,7 +34,7 @@
 <link rel="custom" href="{{ $seo_field['custom_url'] ?? '' }}" />
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="{{$seo_field['meta_title'] ?? ''}}">
+<meta name="apple-mobile-web-app-title" content="{{ $seo_field['meta_title'] ?? '' }}">
 
 <script type="application/ld+json">{!! $seo_field['json_ld'] !!}</script>
 

@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\frontend\CourseController;
 use App\Http\Controllers\ApiController;
-use App\Http\Controllers\ApiReactController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Api\AuthController;
 
 
@@ -182,6 +182,26 @@ Route::get('/student_list', [ApiController::class, 'student_list']);
 Route::get('/homePage', [ApiController::class, 'homePage']);
 Route::post('/update_watch_history_with_duration', [ApiController::class, 'update_watch_history_with_duration']);
 Route::post('/update_watch_duration', [ApiController::class, 'update_watch_duration']);
+
+Route::get('/events', [ApiController::class, 'events']);
+Route::get('/eventDetails', [ApiController::class, 'eventDetails']);
+
+Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
+
+
+// Course bundle start
+Route::get('course-bundles', [ApiController::class, 'course_bundles']);
+Route::get('course-bundle/{id}', [ApiController::class, 'course_bundle_details']);
+Route::get('course-bundle/purchase/success', [ApiController::class, 'course_bundle_purchase_success'])->name('course_bundle_purchase_success');
+Route::post('course-bundle/purchase', [ApiController::class, 'course_bundle_purchase'])->name('course_bundle_purchase');
+// Course bundle ended
+
+Route::get('/membership', [ApiController::class, 'membership']);
+Route::post('/membership_purchase', [ApiController::class, 'membership_purchase']);
+Route::get('/membership/success', [ApiController::class, 'membership_purchase_success'])->name('membership_purchase.success');
+
+Route::get('/video_cipher_by_video_id', [ApiController::class, 'video_cipher_by_video_id']);
 
 // });
 

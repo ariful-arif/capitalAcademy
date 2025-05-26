@@ -44,7 +44,7 @@
                                     </div>
 
                                     <!-- Subscription Type -->
-                                    <div class="fpb-7 mb-3">
+                                    {{-- <div class="fpb-7 mb-3">
                                         <label for="subscription_type"
                                             class="form-label ol-form-label">{{ get_phrase('Subscription Type') }}<span
                                                 class="text-danger ms-1">*</span></label>
@@ -57,7 +57,36 @@
                                                 {{ old('subscription_type', $subscription_package->subscription_type) == 'team' ? 'selected' : '' }}>
                                                 {{ 'Team Subscription' }}</option>
                                         </select>
+                                    </div> --}}
+                                    <!-- Subscription Type -->
+                                    <div class="fpb-7 mb-3">
+                                        <label for="subscription_type" class="form-label ol-form-label">
+                                            {{ get_phrase('Subscription Type') }}<span class="text-danger ms-1">*</span>
+                                        </label>
+                                        <select class="ol-select2" name="subscription_type" id="subscription_type" required>
+                                            <option value="">{{ get_phrase('Select a Type') }}</option>
+                                            <option value="individual"
+                                                {{ old('subscription_type', $subscription_package->subscription_type) == 'individual' ? 'selected' : '' }}>
+                                                {{ 'Individual Subscription' }}
+                                            </option>
+                                            <option value="team"
+                                                {{ old('subscription_type', $subscription_package->subscription_type) == 'team' ? 'selected' : '' }}>
+                                                {{ 'Team Subscription' }}
+                                            </option>
+                                        </select>
                                     </div>
+
+                                    <!-- License Amount (Team Limit) -->
+                                    <div class="fpb-7 mb-3" id="license_limit_wrapper" style="display: none;">
+                                        <label for="license_amount" class="form-label ol-form-label">
+                                            {{ get_phrase('Team Licence Limit') }}
+                                        </label>
+                                        <input type="number" name="license_amount" class="form-control ol-form-control"
+                                            id="license_amount" min="1"
+                                            value="{{ old('license_amount', $subscription_package->license_amount ?? '') }}"
+                                            placeholder="{{ get_phrase('Enter your Team License Limit') }}">
+                                    </div>
+                                    
                                     <!-- Package Type -->
                                     <div class="fpb-7 mb-3">
                                         <label for="package_type"
@@ -83,7 +112,8 @@
                                             min="1" step=""
                                             placeholder="{{ get_phrase('Enter your package duration') }}">
                                         <small>{{ 'Monthly * 3 or Yearly * 1' }}</small>
-                                    </div> <!-- Status -->
+                                    </div>
+                                    <!-- Status -->
                                     <div class="fpb-7 mb-2">
                                         <label for="course_status"
                                             class="form-label ol-form-label">{{ get_phrase('Create as') }}
@@ -102,6 +132,29 @@
                                                     class="form-check-input eRadioDark" id="status_inactive" required
                                                     {{ old('status', $subscription_package->status) == 'inactive' ? 'checked' : '' }}>
                                                 <label for="status_inactive"
+                                                    class="form-check-label">{{ get_phrase('Inactive') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="fpb-7 mb-2">
+                                        <label for="course_status"
+                                            class="form-label ol-form-label">{{ get_phrase('Most Popular Section') }}
+                                            <span class="text-danger ms-1">*</span></label>
+                                        <div class="eRadios">
+                                            <div class="form-check">
+                                                <input type="radio" value="active" name="is_popular"
+                                                    class="form-check-input eRadioSuccess" id="is_popular_active" required
+                                                    {{ old('is_popular', $subscription_package->is_popular) == 1 ? 'checked' : '' }}>
+                                                <label for="is_popular_active"
+                                                    class="form-check-label">{{ get_phrase('Active') }}</label>
+                                            </div>
+
+                                            <div class="form-check">
+                                                <input type="radio" value="inactive" name="is_popular"
+                                                    class="form-check-input eRadioDark" id="is_popular_inactive" required
+                                                    {{ old('is_popular', $subscription_package->is_popular) == 0 ? 'checked' : '' }}>
+                                                <label for="is_popular_inactive"
                                                     class="form-check-label">{{ get_phrase('Inactive') }}</label>
                                             </div>
                                         </div>
@@ -325,19 +378,21 @@
             });
         });
 
-        // function appendOutcome() {
-        //   jQuery('#outcomes_area').append(blank_outcome);
-        // }
-        // function removeOutcome(outcomeElem) {
-        //   jQuery(outcomeElem).parent().parent().remove();
-        // }
+        $(document).ready(function() {
+            function toggleLicenseField() {
+                if ($('#subscription_type').val() === 'team') {
+                    $('#license_limit_wrapper').show();
+                } else {
+                    $('#license_limit_wrapper').hide();
+                    // $('#license_amount').val('');
+                }
+            }
+            // Initial check on page load
+            toggleLicenseField();
 
-        // function appendRequirement() {
-        //   jQuery('#requirement_area').append(blank_requirement);
-        // }
-        // function removeRequirement(requirementElem) {
-        //   jQuery(requirementElem).parent().parent().remove();
-        // }
+            // Check on change
+            $('#subscription_type').on('change', toggleLicenseField);
+        });
     </script>
 
 @endpush

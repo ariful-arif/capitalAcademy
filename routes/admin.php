@@ -38,6 +38,8 @@ use App\Http\Controllers\LearningController;
 use App\Http\Controllers\NewsroomCategoryController;
 use App\Http\Controllers\NewsroomController;
 use App\Http\Controllers\SubscriptionPackageController;
+use App\Http\Controllers\Admin\CourseBundleController;
+use App\Http\Controllers\Admin\MembershipController;
 use App\Models\Newsroom;
 use Illuminate\Support\Facades\Route;
 
@@ -407,6 +409,26 @@ Route::name('admin.')->prefix('admin')->middleware('admin')->group(function () {
         Route::get('coupon/status/{id}', 'status')->name('coupon.status');
     });
 
+    
+    //Course bundle
+    Route::controller(CourseBundleController::class)->group(function () {
+        Route::get('course-bundles/{type?}', 'index')->name('course.bundles');
+        Route::get('course-bundle/create', 'create')->name('course.bundle.create');
+        Route::post('course-bundle/store', 'store')->name('course.bundle.store');
+        Route::get('course-bundle/delete/{id}', 'delete')->name('course.bundle.delete');
+        Route::get('course-bundle/edit/{id}', 'edit')->name('course.bundle.edit');
+        Route::post('course-bundle/update/{id}', 'update')->name('course.bundle.update');
+        Route::get('course-bundle/status/{id}/{type}', 'status')->name('course.bundle.status');
+        Route::post('course-bundle/current-price', 'currentPrice')->name('course.bundle.current_price');
+        Route::get('course-bundle/subscription-report', 'subscriptionReport')->name('course.bundle.subscription.report');
+
+        Route::get('course-bundle/categories', 'bundle_categories')->name('course_bundle.categories');
+        Route::post('course-bundle/category/store', 'bundle_category_store')->name('course_bundle.category.store');
+        Route::post('course-bundle/category/update/{id}', 'bundle_category_update')->name('course_bundle.category.update');
+        Route::get('course-bundle/category/delete/{id}', 'bundle_category_delete')->name('course_bundle.category.delete');
+    });
+
+
     // course quiz
     Route::controller(QuizController::class)->group(function () {
         Route::post('course/quiz/store', 'store')->name('course.quiz.store');
@@ -569,6 +591,13 @@ Route::name('admin.')->prefix('admin')->middleware('admin')->group(function () {
         Route::post('/generate-ai-final_question', 'ai_final_question_generate')->name('ai.final_questions');
         Route::post('/save-final_question', 'saveFinalQuestions')->name('save.final_questions');
 
+    });
+
+     // Membership route
+    Route::controller(MembershipController::class)->group(function () {
+        Route::get('/membership-settings', 'membership_settings')->name('membership.settings');
+        Route::post('/membership-settings-update', 'membership_settings_update')->name('membership.settings.update');
+        Route::get('/membership-subscriptions', 'membership_subscriptions')->name('membership.subscriptions');
     });
 
     Route::get('select-language/{language}', [LanguageController::class, 'select_lng'])->name('select.language');

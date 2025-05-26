@@ -24,7 +24,7 @@
             </li>
 
 
-            <li class="sidebar-first-li first-li-have-sub @if ($current_route == 'instructor.courses' || $current_route == 'instructor.course.create' || $current_route == 'instructor.course.edit') active showMenu @endif">
+             <li class="sidebar-first-li first-li-have-sub @if ($current_route == 'instructor.courses' || $current_route == 'instructor.course.create' || $current_route == 'instructor.course.edit' || $current_route == 'instructor.course.bundles' || $current_route == 'instructor.course.bundle.create' || $current_route == 'instructor.course.bundle.edit') active showMenu @endif">
                 <a href="javascript:void(0);">
                     <span class="icon fi fi-rr-e-learning"></span>
                     <div class="text">
@@ -39,9 +39,19 @@
                     <li class="sidebar-second-li @if ($current_route == 'instructor.course.create') active @endif">
                         <a href="{{ route('instructor.course.create') }}">{{ get_phrase('Add New Course') }}</a>
                     </li>
+                    <li class="sidebar-second-li second-li-have-sub @if ($current_route == 'instructor.course.bundles' || $current_route == 'instructor.course.bundle.create' || $current_route == 'instructor.course.bundle.edit') active @endif">
+                        <a href="javascript:void(0);">{{ get_phrase('Course Bundle') }}</a>
+                        <ul class="second-sub-menu">
+                            <li class="sidebar-third-li @if ($current_route == 'instructor.course.bundles') active @endif">
+                                <a href="{{ route('instructor.course.bundles') }}">{{ get_phrase('Manage Bundle') }}</a>
+                            </li>
+                            <li class="sidebar-third-li @if ($current_route == 'instructor.course.bundle.create') active @endif">
+                                <a href="{{ route('instructor.course.bundle.create') }}">{{ get_phrase('Add New Bundle') }}</a>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </li>
-
 
             <li
                 class="sidebar-first-li first-li-have-sub {{ $current_route == 'instructor.bootcamps' || $current_route == 'instructor.bootcamp.purchase.history' || $current_route == 'instructor.bootcamp.purchase.invoice' || $current_route == 'instructor.bootcamp.create' || $current_route == 'instructor.bootcamp.edit' || $current_route == 'instructor.bootcamp.categories' ? 'active' : '' }}">

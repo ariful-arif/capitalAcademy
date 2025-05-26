@@ -20,6 +20,7 @@ use App\Http\Controllers\instructor\TeamTrainingController;
 use App\Http\Controllers\instructor\OpenAiController;
 use App\Http\Controllers\instructor\TutorBookingController;
 use App\Http\Controllers\instructor\LiveClassController;
+use App\Http\Controllers\instructor\CourseBundleController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -128,6 +129,22 @@ Route::name('instructor.')->prefix('instructor')->middleware(['instructor'])->gr
         Route::post('resume/education-add', 'education_add')->name('manage.education_add');
         Route::post('resume/education-update/{index}', 'education_update')->name('manage.education_update');
         Route::get('resume/education-remove/{index}', 'education_remove')->name('manage.education.remove');
+    });
+
+    
+    // course-bundle
+    Route::controller(CourseBundleController::class)->group(function () {
+        Route::get('course-bundles/', 'index')->name('course.bundles');
+        Route::get('course-bundle/create', 'create')->name('course.bundle.create');
+        Route::get('course-bundle/edit/{id}', 'edit')->name('course.bundle.edit');
+        Route::post('course-bundle/store', 'store')->name('course.bundle.store');
+        Route::get('course-bundle/delete/{id}', 'delete')->name('course.bundle.delete');
+        Route::post('course-bundle/update/{id}', 'update')->name('course.bundle.update');
+        Route::get('course-bundle/status/{id}/{type}', 'status')->name('course.bundle.status');
+        Route::post('course-bundle/current-price', 'currentPrice')->name('course.bundle.current_price');
+        Route::get('course-bundle/duplicate/{id}', 'duplicate')->name('course.bundle.duplicate');
+        Route::get('course-bundle/purchase/history/', 'purchase_history')->name('course.bundle.purchase.history');
+        Route::get('course-bundle/purchase/invoice/{id}', 'invoice')->name('course.bundle.purchase.invoice');
     });
 
     // bootcamp

@@ -24,6 +24,29 @@ if (!function_exists('lesson_count')) {
     }
 }
 
+
+if (!function_exists('unique_slug')) {
+function unique_slug($title, $table, $column_name = 'slug', $except_id = null)
+    {
+        $slug = slugify($title);
+        $updated_slug = $slug;
+        $counter = 1;
+
+        while (\DB::table($table)
+            ->where($column_name, $updated_slug)
+            ->when($except_id, function ($query) use ($except_id) {
+                return $query->where('id', '!=', $except_id);
+            })
+            ->exists()
+        ) {
+            $updated_slug = $slug . '-' . $counter;
+            $counter++;
+        }
+
+        return $updated_slug;
+    }
+}
+
 if (!function_exists('section_count')) {
     function section_count($course_id = "")
     {

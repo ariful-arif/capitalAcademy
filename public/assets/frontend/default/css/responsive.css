@@ -175,6 +175,10 @@
         display: block;
     }
 
+      .bundle-details.pricing-card {
+        margin-top: 0;
+    }
+
 }
 
 @media all and (max-width:767px) {
@@ -568,6 +572,6 @@
     .tutor-rating-progress {
         width: 250px;
     }
-    
+
 
 }

@@ -36,24 +36,26 @@
                                             class="form-control ol-form-control" rows="5"></textarea>
                                     </div>
                                     <div class="fpb-7 mb-3">
-                                        <label for="subscription_type"
-                                            class="form-label ol-form-label">{{ get_phrase('Subscription Type') }}<span
-                                                class="text-danger ms-1">*</span></label>
+                                        <label for="subscription_type" class="form-label ol-form-label">
+                                            {{ get_phrase('Subscription Type') }}<span class="text-danger ms-1">*</span>
+                                        </label>
                                         <select class="ol-select2" name="subscription_type" id="subscription_type" required>
                                             <option value="" selected disabled>{{ get_phrase('Select a type') }}
                                             </option>
-                                            {{-- @foreach (App\Models\Category::where('parent_id', 0)->orderBy('title', 'desc')->get() as $category) --}}
-                                            <option value="individual"> {{ 'Individual Subscription' }}</option>
-                                            <option value="team"> {{ 'Team Subscription' }}</option>
-
-                                            {{-- @foreach ($category->childs as $sub_category)
-                                                    <option value="{{ $sub_category->id }}"> --
-                                                        {{ $sub_category->title }}
-                                                    </option>
-                                                @endforeach
-                                            @endforeach --}}
+                                            <option value="individual">{{ 'Individual Subscription' }}</option>
+                                            <option value="team">{{ 'Team Subscription' }}</option>
                                         </select>
                                     </div>
+
+                                    <div class="fpb-7 mb-3" id="license_limit_wrapper" style="display: none;">
+                                        <label for="license_amount" class="form-label ol-form-label">
+                                            {{ get_phrase('Team Licence Limit') }}
+                                        </label>
+                                        <input type="number" name="license_amount" class="form-control ol-form-control"
+                                            id="license_amount" min="1"
+                                            placeholder="{{ get_phrase('Enter your Team License Limit') }}">
+                                    </div>
+
                                     <div class="fpb-7 mb-3">
                                         <label for="package_type"
                                             class="form-label ol-form-label">{{ get_phrase('Package Type') }}<span
@@ -61,16 +63,10 @@
                                         <select class="ol-select2" name="package_type" id="package_type" required>
                                             <option value="" selected disabled>{{ get_phrase('Select a type') }}
                                             </option>
-                                            {{-- @foreach (App\Models\Category::where('parent_id', 0)->orderBy('title', 'desc')->get() as $category) --}}
                                             <option value="Monthly"> {{ 'Monthly' }}</option>
                                             <option value="Yearly"> {{ 'Yearly' }}</option>
 
-                                            {{-- @foreach ($category->childs as $sub_category)
-                                                    <option value="{{ $sub_category->id }}"> --
-                                                        {{ $sub_category->title }}
-                                                    </option>
-                                                @endforeach
-                                            @endforeach --}}
+
                                         </select>
                                     </div>
                                     <div class="fpb-7 mb-3">
@@ -108,6 +104,27 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="fpb-7 mb-2 ">
+                                        <label for="course_status"
+                                            class="col-sm-4 col-form-label">{{ get_phrase('Most Popular Section') }}
+                                            <span class="text-danger ms-1">*</span></label>
+                                        <div class="eRadios">
+                                            <div class="form-check">
+                                                <input type="radio" value="active" name="is_popular"
+                                                    class="form-check-input eRadioSuccess" id="is_popular_active" required
+                                                    checked>
+                                                <label for="is_popular_active"
+                                                    class="form-check-label">{{ get_phrase('Active popular') }}</label>
+                                            </div>
+
+                                            <div class="form-check">
+                                                <input type="radio" value="inactive" name="is_popular"
+                                                    class="form-check-input eRadioDark" id="is_popular_inactive" required>
+                                                <label for="is_popular_inactive"
+                                                    class="form-check-label">{{ get_phrase('Inactive popular') }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="fpb-7 mb-3">
                                         {{-- <label
                                             class="form-label ol-form-label col-sm-2 col-form-label">{{ get_phrase('Pricing type') }}<span
@@ -137,8 +154,8 @@
                                                             class="text-danger ms-1">*</span></label>
 
                                                     <input type="number" name="price"
-                                                        class="form-control ol-form-control" id="price" min="1"
-                                                        step=".01"
+                                                        class="form-control ol-form-control" id="price"
+                                                        min="1" step=".01"
                                                         placeholder="{{ get_phrase('Enter your course price') }} ({{ currency() }})">
                                                 </div>
 
@@ -237,12 +254,8 @@
         "use strict";
 
         var blank_faq = jQuery('#blank_faq_field').html();
-        // var blank_outcome = jQuery('#blank_outcome_field').html();
-        // var blank_requirement = jQuery('#blank_requirement_field').html();
         jQuery(document).ready(function() {
             jQuery('#blank_faq_field').hide();
-            //   jQuery('#blank_outcome_field').hide();
-            //   jQuery('#blank_requirement_field').hide();
         });
 
         function appendFaq() {
@@ -253,51 +266,16 @@
             jQuery(faqElem).parent().parent().remove();
         }
 
-        // function appendOutcome() {
-        //   jQuery('#outcomes_area').append(blank_outcome);
-        // }
-        // function removeOutcome(outcomeElem) {
-        //   jQuery(outcomeElem).parent().parent().remove();
-        // }
-
-        // function appendRequirement() {
-        //   jQuery('#requirement_area').append(blank_requirement);
-        // }
-        // function removeRequirement(requirementElem) {
-        //   jQuery(requirementElem).parent().parent().remove();
-        // }
+        $(document).ready(function() {
+            $('#subscription_type').on('change', function() {
+                if ($(this).val() === 'team') {
+                    $('#license_limit_wrapper').show();
+                } else {
+                    $('#license_limit_wrapper').hide();
+                    $('#license_amount').val(''); // Clear input
+                }
+            }).trigger('change');
+        });
     </script>
-    {{-- <script>
-        "use strict";
 
-        //Start progress
-        var totalSteps = $('#v-pills-tab .nav-link').length
-        var progressVal = 100 / totalSteps;
-        $(function() {
-            var pValPerItem = progressVal;
-            $('#courseFormProgress .progress-bar').attr('aria-valuemin', 0);
-            $('#courseFormProgress .progress-bar').attr('aria-valuemax', pValPerItem);
-            $('#courseFormProgress .progress-bar').attr('aria-valuenow', pValPerItem);
-            $('#courseFormProgress .progress-bar').width(pValPerItem + '%');
-            $('#courseFormProgress .progress-bar').text("Step 1 out of " + totalSteps);
-        });
-
-        $("#v-pills-tab .nav-link").on('click', function() {
-            var currentStep = $("#v-pills-tab .nav-link").index(this) + 1;
-            var pValPerItem = currentStep * progressVal;
-            $('#courseFormProgress .progress-bar').attr('aria-valuemin', 0);
-            $('#courseFormProgress .progress-bar').attr('aria-valuemax', pValPerItem);
-            $('#courseFormProgress .progress-bar').attr('aria-valuenow', pValPerItem);
-            $('#courseFormProgress .progress-bar').width(pValPerItem + '%');
-            $('#courseFormProgress .progress-bar').text("Step " + currentStep + " out of " + totalSteps);
-
-            if (currentStep == totalSteps) {
-                $('#courseFormProgress .progress-bar').text("{{ get_phrase('Finish!') }}");
-                $('#courseFormProgress .progress-bar').addClass('bg-success');
-            } else {
-                $('#courseFormProgress .progress-bar').removeClass('bg-success');
-            }
-        });
-        //End progress
-    </script> --}}
 @endpush

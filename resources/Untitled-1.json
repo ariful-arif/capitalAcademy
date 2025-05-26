@@ -303,8 +303,6 @@
         ]
     }
 }
-
-
 ///////// 5555555555
 {
     "title": "Partner with Capital Academy and Elevate Your Impact",
@@ -1128,4 +1126,27 @@
             }
         ]
     }
+}
+
+
+{
+    "title": "Enroll in Certification",
+    "subtitle_1": "Are you ready to enroll in the CPFM Certification?",
+    "subtitle_2": "This certification will guide you through a curated selection of Capital Academy's expert-led courses, designed to build the skills and knowledge you need to excel in this domain of finance and investment.",
+    "subtitle_3": "Once you've completed all the required courses and successfully passed the final exam, you will earn an official Capital Academy Certification."
+}
+
+{
+    "title": "Capital Academy Honor Pledge",
+    "subtitle_1": "As a reminder, all candidates pursuing certifications from Capital Academy are required to read, acknowledge, and abide by the Capital Academy Honor Pledge in order to receive and maintain their certification status. Any breach of this pledge may result in the revocation of issued certificates and potential restriction from future enrollment.",
+    "subtitle_2": "By agreeing to this pledge, I understand that failure to uphold any part of this agreement may lead to disciplinary action, including revocation of my certifications and loss of access to the Capital Academy platform.",
+    "info": [
+        "I will complete all exercises, quizzes, and final assessments independently, without any unauthorized assistance.",
+        "I will not share my course login credentials or grant access to Capital Academy content to any other person.",
+        "I will not plagiarize or misuse any content in projects, quizzes, assignments, or assessments.",
+        "I will not copy, post, or share any learning resources, exam content, or proprietary materials without prior written consent from Capital Academy.",
+        "I will conduct myself with professionalism, integrity, and respect for the values and reputation of Capital Academy and its professional certifications.",
+        "I will avoid any conflicts of interest or external influences that may compromise my ethical or professional judgment.",
+        "I will report to Capital Academy any violations of this pledge or suspected unethical behavior by others within the learning environment."
+    ]
 }

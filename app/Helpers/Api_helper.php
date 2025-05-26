@@ -319,8 +319,8 @@ if (!function_exists('course_data')) {
 }
 
 
-if (!function_exists('course_data_by_details')) {
-    function course_data_by_details($course)
+if (!function_exists('course_data_by_details1')) {
+    function course_data_by_details1($course)
     {
         $user = auth('api')->user();
         $user_id = $user ? $user->id : 0;
@@ -349,6 +349,50 @@ if (!function_exists('course_data_by_details')) {
         $course->description = $course->description == null ? "No description added right now" : $course->description;
         $instructor_details = get_user_info(user_id: $course->user_id);
         $course->instructor_name = $instructor_details->name;
+        $course->instructor_image = url('public/' . $instructor_details->photo);
+        $course->instructor_about = $instructor_details->about;
+        $course->total_enrollment = enroll_history($course->id)->count();
+        $course->shareable_link = url('course/' . slugify($course->title));
+        $course->total_number_of_lessons = get_lessons('course', $course->id)->count();
+        $course->is_purchased = is_purchased($user_id, $course->id);
+        $course->is_cartItem = is_cart_item($user_id, $course->id);
+
+        return $course;
+    }
+}
+
+if (!function_exists('course_data_by_details')) {
+    function course_data_by_details($course)
+    {
+        $user = auth('api')->user();
+        $user_id = $user ? $user->id : 0;
+
+        $course->requirements = json_decode($course->requirements) == null ? [] : json_decode($course->requirements);
+        $course->outcomes = json_decode($course->outcomes) == null ? [] : json_decode($course->outcomes);
+        $course->faqs = json_decode($course->faqs) == null ? [] : json_decode($course->faqs);
+        // $course->instructors = json_decode($course->instructor_ids) == null ? [] : json_decode($course->instructor_ids);
+        $course->thumbnail = get_photo('course_thumbnail', $course->thumbnail);
+        $course->banner = get_photo('course_banner', $course->banner);
+        if (strpos($course->preview, 'youtube.com') !== false || strpos($course->preview, 'youtu.be') !== false) {
+        } elseif (strpos($course->preview, 'vimeo.com') !== false) {
+        } elseif (strpos($course->preview, 'drive.google.com') !== false) {
+        } elseif (strpos($course->preview, '.mp4') !== false && strpos($course->preview, 'http') !== false) {
+        } else {
+            $course->preview = url('public/' . $course->preview);
+        }
+        $course->preview_type = "youtube";
+
+        if ($course->is_paid == 0) {
+            $course->price = 'Free';
+        } else {
+            $course->discounted_price = currency($course->discounted_price);
+            $course->price = currency($course->price);
+        }
+        $course->description = $course->description == null ? "No description added right now" : $course->description;
+        $course->instructors = $course->user_id;
+        $instructor_details = get_user_info(user_id: $course->user_id);
+        $course->instructor_name = $instructor_details->name;
+        $course->instructor_designation = $instructor_details->designation;
         $course->instructor_image = url('public/' . $instructor_details->photo);
         $course->instructor_about = $instructor_details->about;
         $course->total_enrollment = enroll_history($course->id)->count();
@@ -521,6 +565,30 @@ if (!function_exists('get_photo')) {
             } else {
                 return url('public/uploads/subscription-package/placeholder/placeholder.png');
             }
+        } elseif ($type == 'event_logo') {
+            if (file_exists('public/' . $identifier) && $identifier != "") {
+                return url('public/' . $identifier);
+            } else {
+                return url('public/uploads/events/event_category_logo/placeholder/placeholder.png');
+            }
+        } elseif ($type == 'event_banner') {
+            if (file_exists('public/' . $identifier) && $identifier != "") {
+                return url('public/' . $identifier);
+            } else {
+                return url('public/uploads/events/event_category_logo/placeholder/placeholder.png');
+            }
+        } elseif ($type == 'event_details_banner') {
+            if (file_exists('public/' . $identifier) && $identifier != "") {
+                return url('public/' . $identifier);
+            } else {
+                return url('public/uploads/events/event_category_logo/placeholder/placeholder.png');
+            }
+        } elseif ($type == 'event_details_banner_video_thumbnail') {
+            if (file_exists('public/' . $identifier) && $identifier != "") {
+                return url('public/' . $identifier);
+            } else {
+                return url('public/uploads/events/event_category_logo/placeholder/placeholder.png');
+            }
         }
     }
 }
@@ -601,7 +669,11 @@ if (!function_exists('course_details_by_id')) {
         $course_details = get_course_by_id($course_id);
 
         $response = course_data_by_details($course_details);
-        $response->sections = sections($course_id);
+         if(!empty($user_id)) {
+            $response->sections = sections($course_id, $user_id);
+        } else {
+            $response->sections = sections($course_id);
+        }
         $response->reviews = review($course_id, $user_id,"course");
         $response->is_wishlisted = is_added_to_wishlist($user_id, $course_id);
         $response->is_purchased = is_purchased($user_id, $course_id);
@@ -665,7 +737,9 @@ if (!function_exists('course_related_category_course_for_course_details')) {
                 'discount_price' => currency($course->discounted_price),
                 'minute' => get_total_duration_of_lesson_by_course_id($course->id),
                 'lessons' => get_lessons('course', $course->id)->count(),
+                'instructors' => $instructor_details->id,
                 'instructor_name' => $instructor_details->name,
+                'instructor_designation' => $instructor_details->designation,
                 'instructor_image' => url('public/' . $instructor_details->photo),
             ];
         }
@@ -1099,6 +1173,14 @@ function section_wise_lessons($section_id = "", $user_id = "")
         $response[$key]['attachment_type'] = $lesson->attachment_type;
         $response[$key]['audio'] = $lesson->audio ? $lesson->audio : "";
         $response[$key]['audio_url'] = $lesson->audio ? asset($lesson->audio) : "";
+        
+        $response[$key]['summary'] = remove_js(htmlspecialchars_decode_($lesson->summary));
+        if ($user_id > 0) {
+            $response[$key]['is_completed'] = lesson_progress_api($lesson->id, $user_id);
+        } else {
+            $response[$key]['is_completed'] = 0;
+        }
+        $response[$key]['user_validity'] = true;
 
         // flashcards
         $allFlashcards = $lesson->flashcards ? json_decode($lesson->flashcards, true) : [];
@@ -1176,14 +1258,6 @@ function section_wise_lessons($section_id = "", $user_id = "")
         $response[$key]['both_question_total_count'] = $totalCombinedCount;
         $response[$key]['both_question_selected_count'] = $randomSubset->count();
         // end
-
-        $response[$key]['summary'] = remove_js(htmlspecialchars_decode_($lesson->summary));
-        if ($user_id > 0) {
-            $response[$key]['is_completed'] = lesson_progress_api($lesson->id, $user_id);
-        } else {
-            $response[$key]['is_completed'] = 0;
-        }
-        $response[$key]['user_validity'] = true;
     }
 
     return $response;
@@ -1316,6 +1390,28 @@ if (!function_exists('get_user_info_api')) {
     }
 }
 
+
+if (!function_exists('unique_slug')) {
+function unique_slug($title, $table, $column_name = 'slug', $except_id = null)
+    {
+        $slug = slugify($title);
+        $updated_slug = $slug;
+        $counter = 1;
+
+        while (\DB::table($table)
+            ->where($column_name, $updated_slug)
+            ->when($except_id, function ($query) use ($except_id) {
+                return $query->where('id', '!=', $except_id);
+            })
+            ->exists()
+        ) {
+            $updated_slug = $slug . '-' . $counter;
+            $counter++;
+        }
+
+        return $updated_slug;
+    }
+}
 
 if (!function_exists('count_student_by_instructor_api')) {
     function count_student_by_instructor_api($user_id = "")

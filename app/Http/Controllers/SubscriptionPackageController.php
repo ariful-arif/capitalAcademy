@@ -52,8 +52,10 @@ class SubscriptionPackageController extends Controller
             'package_type' => $request->package_type,
             'package_duration' => $request->package_duration,
             'status' => $request->status,
+            'is_popular' => $request->is_popular == 'active' ? 1 : 0, // Convert checkbox to boolean
             'is_paid' => 1,
             'price' => $request->price,
+            'license_amount' => $request->license_amount,
             'discount_flag' => $request->discount_flag,
             'discounted_price' => $request->discounted_price,
             'created_at' => now(),
@@ -84,53 +86,7 @@ class SubscriptionPackageController extends Controller
         $data['subscription_package'] = SubscriptionPackage::where('id', $id)->first();
         return view('admin.subscription_package.edit', $data);
     }
-    // public function update(Request $request, $id)
-    // {
-    //     // Validate the required fields
-    //     $validated = $request->validate([
-    //         'package_name' => 'required|max:255',
-    //         // 'short_description' => 'required|max:255',
-    //         'package_type' => 'required',
-    //         'package_duration' => 'required|numeric|min:1',
-    //         'status' => 'required|in:active,pending,draft,private,upcoming,inactive',
-    //         // 'is_paid' => 'required|in:0,1',
-    //         'price' => 'required_if:is_paid,1|nullable|numeric|min:1',
-    //         'discount_flag' => 'nullable|boolean',
-    //         'discounted_price' => 'required_if:discount_flag,1|nullable|numeric|min:1',
-    //         'info' => 'array',
-    //     ]);
-
-    //     // Find the subscription package by ID, or fail if not found
-    //     $subscriptionPackage = SubscriptionPackage::findOrFail($id);
-
-    //     // Prepare the data array
-    //     $data = [
-    //         'package_name' => $request->package_name,
-    //         'short_description' => $request->short_description,
-    //         'package_type' => $request->package_type,
-    //         'package_duration' => $request->package_duration,
-    //         'status' => $request->status,
-    //         'is_paid' => 1,
-    //         'price_id' => $request->price_id,
-    //         'price' => $request->price,
-    //         'discount_flag' => $request->discount_flag,
-    //         'discounted_price' => $request->discount_flag ? $request->discounted_price : null,  // Set discounted price only if discount flag is true
-    //         'package_courses' => json_encode($request->course_id),  // Store courses as JSON
-    //         'updated_at' => now(),
-    //     ];
-
-    //     $data['info'] = json_encode(array_filter($request->info, fn($value) => !is_null($value) && $value !== ''));
-    //     // $data['info'] = json_encode(array_filter($request->info, fn ($value) => !is_null($value) && $value !== ''));
-
-    //     // Update the subscription package
-    //     $subscriptionPackage->update($data);
-
-    //     // Redirect back with success message
-    //     return redirect()->route('admin.subscription_package')->with('success', 'Course updated successfully');
-    // }
-
-
-    public function update(Request $request, $id)
+     public function update(Request $request, $id)
     {
         // Validate the required fields
         $validated = $request->validate([
@@ -157,8 +113,10 @@ class SubscriptionPackageController extends Controller
             'subscription_type' => $request->subscription_type,
             'package_duration' => $request->package_duration,
             'status' => $request->status,
+            'is_popular' => $request->is_popular == 'active' ? 1 : 0, // Convert checkbox to boolean
             'is_paid' => 1,
             'price' => $request->price,
+            'license_amount' => $request->license_amount,
             'discount_flag' => $request->discount_flag,
             'discounted_price' => $request->discount_flag ? $request->discounted_price : null,
             // 'info' => json_encode(array_filter($request->info, fn($value) => !is_null($value) && $value !== '')),

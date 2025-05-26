@@ -12,6 +12,7 @@ use App\Http\Controllers\frontend\TeamTrainingController;
 use App\Http\Controllers\frontend\TutorBookingController;
 use App\Http\Controllers\frontend\LanguageController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\frontend\CourseBundleController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(HomeController::class)->group(function () {
@@ -72,7 +73,11 @@ Route::get('/faq', function () {
     $view_path = 'frontend.' . get_frontend_settings('theme') . '.faq.index';
     return view($view_path);
 })->name('faq');
-
+//course-bundle
+Route::controller(CourseBundleController::class)->group(function () {
+    Route::get('course-bundle', 'index')->name('course.bundles');
+    Route::get('course-bundle/{slug}', 'show')->name('course.bundle.details');
+});
 // terms and condition
 Route::get('/terms-and-condition', function () {
     $view_path = 'frontend.' . get_frontend_settings('theme') . '.terms_and_condition.index';

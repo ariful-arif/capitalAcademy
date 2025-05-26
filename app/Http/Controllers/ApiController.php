@@ -43,11 +43,14 @@ use App\Models\LikeDislikeReview;
 use App\Models\Wishlist;
 use App\Models\CertificateProgram;
 use App\Models\Team;
+use App\Models\Event;
+use App\Models\EventCategory;
 use App\Http\Controllers\student\PurchaseController;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 // use DB;
-use DB;
+// use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -69,6 +72,13 @@ use App\Models\Lesson;
 use App\Models\Newsroom;
 use App\Models\Learning;
 use App\Models\Coupon;
+use App\Models\CourseBundle;
+use App\Models\Bundle_category;
+use App\Models\BundleRating;
+use App\Models\BundlePayment;
+use App\Models\Membership;
+use App\Models\MembershipPackage;
+use App\Models\MembershipSubscription;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ApiController extends Controller
@@ -312,7 +322,6 @@ class ApiController extends Controller
             'message' => 'Password reset successfully.'
         ], 200);
     }
-
 
     public function top_courses($top_course_id = null)
     {
@@ -854,6 +863,38 @@ class ApiController extends Controller
             $course_id = $request->course_id;
             $response = course_details_by_id($user_id, $course_id);
             $response->related_courses = course_related_category_course_for_course_details($course_id);
+            $response->skilled = [
+                'accounting' => [
+                    'name' => 'Accounting',
+                    'percentage' => 30,
+                    'description' => "Identify the key accounting standards commonly encountered by financial analysts and explain the impact on financial statements and financial models.Identify key items on the financial statements and describe the interrelationship between all the components."
+                ],
+                'business' => [
+                    'name' => 'Business',
+                    'percentage' => 20,
+                    'description' => "Identify the key accounting standards commonly encountered by financial analysts and explain the impact on financial statements and financial models.Identify key items on the financial statements and describe the interrelationship between all the components."
+                ],
+                'finance' => [
+                    'name' => 'finance',
+                    'percentage' => 5,
+                    'description' => "Identify the key accounting standards commonly encountered by financial analysts and explain the impact on financial statements and financial models.Identify key items on the financial statements and describe the interrelationship between all the components."
+                ],
+                'management' => [
+                    'name' => 'management',
+                    'percentage' => 25,
+                    'description' => "Identify the key accounting standards commonly encountered by financial analysts and explain the impact on financial statements and financial models.Identify key items on the financial statements and describe the interrelationship between all the components."
+                ],
+                'marketing' => [
+                    'name' => 'marketing',
+                    'percentage' => 15,
+                    'description' => "Identify the key accounting standards commonly encountered by financial analysts and explain the impact on financial statements and financial models.Identify key items on the financial statements and describe the interrelationship between all the components."
+                ],
+                'project_management' => [
+                    'name' => 'project_management',
+                    'percentage' => 5,
+                    'description' => "Identify the key accounting standards commonly encountered by financial analysts and explain the impact on financial statements and financial models.Identify key items on the financial statements and describe the interrelationship between all the components."
+                ],
+            ];
 
             // Check if the course details are available
             if (empty($response)) {
@@ -4057,7 +4098,9 @@ class ApiController extends Controller
                         'discount_price' => currency($course->discounted_price),
                         'minute' => get_total_duration_of_lesson_by_course_id($course->id),
                         'lessons' => $lessonCount,
+                        'instructors' => $instructor_details->id,
                         'instructor_name' => $instructor_details->name ?? '',
+                        'instructor_designation' => $instructor_details->designation ?? '',
                         'instructor_image' => isset($instructor_details->photo) ? url('public/' . $instructor_details->photo) : '',
                         'course_type' => $course->certificate_course_type,
                     ];
@@ -4590,8 +4633,17 @@ class ApiController extends Controller
             $subscriptionPackage->getCollection()->transform(function ($subPackage) {
                 $subPackage->banner = get_photo("subscription_banner", $subPackage->banner);
                 $subPackage->info = json_decode($subPackage->info);
+
+                // Calculate discount percentage if applicable
+                if ($subPackage->discount_flag && $subPackage->price > 0) {
+                    $discount = ($subPackage->price - $subPackage->discounted_price) / $subPackage->price * 100;
+                    $subPackage->discount_percentage = round($discount, 0); // You can round to 1 or 0 decimals if preferred
+                } else {
+                    $subPackage->discount_percentage = 0;
+                }
                 return $subPackage;
             });
+
 
             // Prepare response
             $response = [
@@ -5541,7 +5593,7 @@ class ApiController extends Controller
         foreach ($items as $key => $value) {
             $products_name .= $key == 0 ? $value['title'] : ', ' . $value['title'];
         }
-        return response()->json(['data' => $courses]);
+        // return response()->json(['data' => $courses]);
 
         Stripe::setApiKey($stripeSecretKey);
 
@@ -5572,11 +5624,12 @@ class ApiController extends Controller
                 'coupon_discount' => $request->coupon_discount ?? 0,
                 'tax' => $request->tax ?? 0,
                 'payable_amount' => $request->payable,
+                'success_url' => $request->success_url,
                 'course_ids' => implode(',', $courses->toArray()),
                 // 'course_ids' => implode(',', (array) $courses),
             ]
         ]);
-        
+
         return response()->json(['url' => $session->url]);
         // return redirect()->away($session->url);
     }
@@ -5604,8 +5657,8 @@ class ApiController extends Controller
         }
         // Use data from $session->metadata instead of Laravel session
         $metadata = $session->metadata;
-        dd($metadata);
-        die;
+        // dd($metadata);
+        // die;
 
         $course_ids = explode(',', $metadata->course_ids);
         $cart_ids = explode(',', $metadata->cart_id);
@@ -5653,7 +5706,7 @@ class ApiController extends Controller
         CartItem::where('user_id', $metadata->user_id)->whereIn('course_id', $cart_ids)->delete();
 
         // Redirect directly to the frontend success page
-        return redirect()->away($request->success_url);
+        return redirect()->away($metadata->success_url);
     }
 
     public function subscriptioncreateCheckoutSession(Request $request)
@@ -5667,6 +5720,7 @@ class ApiController extends Controller
         }
 
         $user = auth('api')->user();
+        $package_id = $request->package_id;
         $payment_gateway = DB::table('payment_gateways')->where('identifier', 'stripe')->first();
         $keys = json_decode($payment_gateway->keys, true);
 
@@ -5674,49 +5728,9 @@ class ApiController extends Controller
             ? $keys['secret_key']
             : $keys['secret_live_key'];
 
-        $cartItems = CartItem::where('user_id', $user->id)->pluck('course_id');
-        $items_id = $cartItems;
-        $courses = $items_id;
+        $package = SubscriptionPackage::where('id', $package_id)->first();
 
-        $gifted_user_id = '';
-        if ($request->gifted_user_email) {
-            $gifted_user_id = User::where('role', '!=', 'admin')
-                ->where('email', $request->gifted_user_email)
-                ->value('id');
-
-            if (!$gifted_user_id) {
-                return response()->json(['error' => "User email doesn't exist."], 422);
-            }
-
-            $courses = [];
-            foreach ($items_id as $item) {
-                if (Enrollment::where('course_id', $item)->where('user_id', $gifted_user_id)->doesntExist()) {
-                    $courses[] = $item;
-                }
-            }
-
-            if (count($courses) === 0) {
-                return response()->json(['error' => 'User already enrolled.'], 422);
-            }
-        }
-
-        $selected_courses = Course::whereIn('id', $courses)->get();
-        $items = [];
-
-        foreach ($selected_courses as $course) {
-            $items[] = [
-                'id' => $course->id,
-                'title' => $course->title,
-                'subtitle' => '',
-                'price' => $course->price,
-                'discount_price' => $course->discount_flag ? $course->discounted_price : 0,
-            ];
-        }
-
-        $products_name = '';
-        foreach ($items as $key => $value) {
-            $products_name .= $key == 0 ? $value['title'] : ', ' . $value['title'];
-        }
+        $products_name = $package->package_name;
 
         Stripe::setApiKey($stripeSecretKey);
 
@@ -5735,20 +5749,15 @@ class ApiController extends Controller
             ],
             'mode' => 'payment',
             'success_url' => route('subscription.stripe.success') . '?session_id={CHECKOUT_SESSION_ID}',
-            // 'success_url' => url('api/stripe/success') . '?session_id={CHECKOUT_SESSION_ID}',
-            // 'success_url' => $request->success_url . '?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => $request->cancel_url,
             'metadata' => [
                 'user_id' => $user->id,
-                // 'cart_id' => implode(',', (array) $items_id),
-                'cart_id' => implode(',', $items_id->toArray()),
-                'gifted_user_id' => $gifted_user_id,
-                'coupon' => $request->coupon_code ?? '',
-                'coupon_discount' => $request->coupon_discount ?? 0,
+                'package_id' => $package_id,
+                'package_type' => $request->package_type,
+                'license_amount' => $request->license_amount ?? 0,
                 'tax' => $request->tax ?? 0,
                 'payable_amount' => $request->payable,
-                'course_ids' => implode(',', $courses->toArray()),
-                // 'course_ids' => implode(',', (array) $courses),
+                'success_url' => $request->success_url,
             ]
         ]);
 
@@ -5771,7 +5780,6 @@ class ApiController extends Controller
         // Retrieve Stripe session
         // $session = \Stripe\Checkout\Session::retrieve($request->get('session_id'));
 
-
         $session_id = $request->get('session_id');
         $session = \Stripe\Checkout\Session::retrieve($session_id);
         if ($session->payment_status !== 'paid') {
@@ -5780,53 +5788,72 @@ class ApiController extends Controller
         // Use data from $session->metadata instead of Laravel session
         $metadata = $session->metadata;
 
-        $course_ids = explode(',', $metadata->course_ids);
-        $cart_ids = explode(',', $metadata->cart_id);
+        $subscription_package = SubscriptionPackage::find($metadata->package_id);
+        $price = $subscription_package->price;
+        $discount = $subscription_package->discount_flag ? $subscription_package->discounted_price : 0;
 
-        foreach ($course_ids as $course_id) {
-            $course = Course::find($course_id);
-            $price = $course->price;
-            $discount = $course->discount_flag ? $course->discounted_price : 0;
+        // Calculate expiry date based on package_type and package_duration
+        $durationInMonths = $subscription_package->package_type === 'Yearly'
+            ? $subscription_package->package_duration * 12
+            : $subscription_package->package_duration;
 
-            $creator = get_course_creator_id($course_id);
-            $payment = [
-                'invoice' => Str::random(20),
-                'course_id' => $course_id,
+        $expiryDate = strtotime('+' . $durationInMonths . ' months');
+
+        // $creator = get_course_creator_id($course_id);
+        $payment = [
+            'user_id' => $metadata->user_id,
+            'subscription_type' => $metadata->package_type,
+            'subscription_package_id' => $metadata->package_id,
+            'payment_method' => 'stripe',
+            // 'amount' => $discount ?: $price,
+            'amount' => $metadata->payable_amount,
+            'invoice' => Str::random(20),
+            'entry_date' => time(),
+            'expiry_date' => $expiryDate,
+            'tax' => $metadata->tax,
+            'session_id' => $session_id,
+        ];
+
+        DB::table('subscription_package_histories')->insert($payment);
+
+        // Check if the user is already enrolled in the same package and type
+        $existing = DB::table('subscription_package_enrollments')
+            ->where('user_id', $metadata->user_id)
+            ->where('subscription_package_id', $metadata->package_id)
+            ->where('subscription_type', $metadata->package_type)
+            ->first();
+
+        if ($existing) {
+            // Update license_amount by adding the new license amount
+            DB::table('subscription_package_enrollments')
+                ->where('id', $existing->id)
+                ->update([
+                    'license_amount' => $existing->license_amount + $metadata->license_amount,
+                    'entry_date' => time(),
+                    'expiry_date' => $expiryDate,
+                ]);
+        } else {
+            // Insert new enrollment
+            DB::table('subscription_package_enrollments')->insert([
                 'user_id' => $metadata->user_id,
-                'tax' => $metadata->tax,
-                'amount' => $discount ?: $price,
-                'payment_type' => 'stripe',
-                'coupon' => $metadata->coupon,
-                'session_id' => $session_id,
-            ];
-
-            if ($creator->role === 'admin') {
-                $payment['admin_revenue'] = $metadata->payable_amount;
-            } else {
-                $instructor_revenue = $metadata->payable_amount * (get_settings('instructor_revenue') / 100);
-                $payment['instructor_revenue'] = $instructor_revenue;
-                $payment['admin_revenue'] = $metadata->payable_amount - $instructor_revenue;
-            }
-
-            DB::table('payment_histories')->insert($payment);
-
-            // Enroll
-            DB::table('enrollments')->insert([
-                'course_id' => $course_id,
-                'user_id' => $metadata->gifted_user_id ?: $metadata->user_id,
-                'enrollment_type' => 'paid',
+                'subscription_type' => $metadata->package_type,
+                'subscription_package_id' => $metadata->package_id,
+                'license_amount' => $metadata->license_amount,
+                'payment_method' => 'stripe',
                 'entry_date' => time(),
-                'expiry_date' => $course->expiry_period > 0
-                    ? strtotime('+' . ($course->expiry_period * 30) . ' days')
-                    : null,
+                'expiry_date' => $expiryDate,
             ]);
         }
 
-        // Remove from cart
-        CartItem::where('user_id', $metadata->user_id)->whereIn('course_id', $cart_ids)->delete();
+        // If package type is 'team', update user role to 'organization'
+        if ($metadata->package_type === 'team') {
+            DB::table('users')
+                ->where('id', $metadata->user_id)
+                ->update(['role' => 'organization']);
+        }
 
         // Redirect directly to the frontend success page
-        return redirect()->away($request->success_url);
+        return redirect()->away($metadata->success_url);
     }
 
     // ai chat api
@@ -6488,7 +6515,7 @@ class ApiController extends Controller
         foreach ($data as $key => &$value) {
             if (is_array($value)) {
                 // Check if it's an array of images
-                if (in_array($key, ['thumbnail', 'thumbnail_video', 'logo', 'logo_1', 'thumbnail_1'])) {
+                if (in_array($key, ['thumbnail', 'thumbnail_video', 'thumbnail_video_1', 'logo', 'logo_1', 'thumbnail_1'])) {
                     foreach ($value as &$v) {
                         if (is_string($v)) {
                             $v = $baseUrl . ltrim($v, '/');
@@ -6498,7 +6525,7 @@ class ApiController extends Controller
                     // Recursively call if it's nested array
                     $value = $this->addPublicUrlToAssets($value);
                 }
-            } elseif (in_array($key, ['thumbnail', 'thumbnail_video', 'logo', 'logo_1', 'thumbnail_1']) && is_string($value)) {
+            } elseif (in_array($key, ['thumbnail', 'thumbnail_video', 'thumbnail_video_1', 'logo', 'logo_1', 'thumbnail_1']) && is_string($value)) {
                 $value = $baseUrl . ltrim($value, '/');
             }
         }
@@ -6625,7 +6652,6 @@ class ApiController extends Controller
 
         return $homeData;
     }
-
     public function update_watch_history_with_duration(Request $request)
     {
         if (!auth('api')->check()) {
@@ -6660,7 +6686,8 @@ class ApiController extends Controller
 
         if ($currentHistory) {
             $watchedDurationArr = json_decode($currentHistory->watched_counter, true);
-            if (!is_array($watchedDurationArr)) $watchedDurationArr = [];
+            if (!is_array($watchedDurationArr))
+                $watchedDurationArr = [];
 
             if (!in_array($currentDuration, $watchedDurationArr)) {
                 array_push($watchedDurationArr, $currentDuration);
@@ -6732,7 +6759,8 @@ class ApiController extends Controller
                 $lessonIds = json_decode($watchHistory->completed_lesson, true);
                 $courseProgress = $watchHistory->course_progress;
 
-                if (!is_array($lessonIds)) $lessonIds = [];
+                if (!is_array($lessonIds))
+                    $lessonIds = [];
 
                 if (!in_array($lessonId, $lessonIds)) {
                     array_push($lessonIds, $lessonId);
@@ -6763,141 +6791,748 @@ class ApiController extends Controller
     }
     public function update_watch_duration(Request $request)
     {
-        $response = array();
-        $token = $request->bearerToken();
+        if (!auth('api')->check()) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 401,
+                'message' => 'Unauthorized. Please log in first.',
+            ], 401);
+        }
 
-        if (isset($token) && $token != '') {
-            $userId = auth('sanctum')->user()->id;
-            $courseProgress = 0;
-            $isCompleted = 0;
+        $userId = auth('api')->user()->id;
+        $courseProgress = 0;
+        $isCompleted = 0;
 
-            // Retrieve and sanitize input data
-            $courseId = htmlspecialchars($request->input('course_id'));
-            $lessonId = htmlspecialchars($request->input('lesson_id'));
-            $currentDuration = htmlspecialchars($request->input('current_duration'));
+        // Retrieve and sanitize input data
+        $courseId = htmlspecialchars($request->input('course_id'));
+        $lessonId = htmlspecialchars($request->input('lesson_id'));
+        $currentDuration = htmlspecialchars($request->input('current_duration'));
 
-            // Fetch current watch history record
-            $currentHistory = DB::table('watch_durations')
+        // Fetch current watch history record
+        $currentHistory = DB::table('watch_durations')
+            ->where([
+                'watched_course_id' => $courseId,
+                'watched_lesson_id' => $lessonId,
+                'watched_student_id' => $userId,
+            ])
+            ->first();
+
+        // Fetch course details
+        $courseDetails = DB::table('courses')->where('id', $courseId)->first();
+        $dripContentSettings = json_decode($courseDetails->drip_content_settings, true);
+
+        if ($currentHistory) {
+            $watchedDurationArr = json_decode($currentHistory->watched_counter, true);
+            if (!is_array($watchedDurationArr))
+                $watchedDurationArr = [];
+
+            if (!in_array($currentDuration, $watchedDurationArr)) {
+                array_push($watchedDurationArr, $currentDuration);
+            }
+
+            $watchedDurationJson = json_encode($watchedDurationArr);
+
+            DB::table('watch_durations')
                 ->where([
                     'watched_course_id' => $courseId,
                     'watched_lesson_id' => $lessonId,
                     'watched_student_id' => $userId,
                 ])
-                ->first();
-
-            // Fetch course details
-            $courseDetails = DB::table('courses')->where('id', $courseId)->first();
-            $dripContentSettings = json_decode($courseDetails->drip_content_settings, true);
-
-            if ($currentHistory) {
-                $watchedDurationArr = json_decode($currentHistory->watched_counter, true);
-                if (!is_array($watchedDurationArr)) $watchedDurationArr = [];
-
-                if (!in_array($currentDuration, $watchedDurationArr)) {
-                    array_push($watchedDurationArr, $currentDuration);
-                }
-
-                $watchedDurationJson = json_encode($watchedDurationArr);
-
-                DB::table('watch_durations')
-                    ->where([
-                        'watched_course_id' => $courseId,
-                        'watched_lesson_id' => $lessonId,
-                        'watched_student_id' => $userId,
-                    ])
-                    ->update([
-                        'watched_counter' => $watchedDurationJson,
-                        'current_duration' => $currentDuration,
-                    ]);
-            } else {
-                $watchedDurationArr = [$currentDuration];
-                DB::table('watch_durations')->insert([
-                    'watched_course_id' => $courseId,
-                    'watched_lesson_id' => $lessonId,
-                    'watched_student_id' => $userId,
+                ->update([
+                    'watched_counter' => $watchedDurationJson,
                     'current_duration' => $currentDuration,
-                    'watched_counter' => json_encode($watchedDurationArr),
                 ]);
-            }
-
-            if ($courseDetails->enable_drip_content != 1) {
-                return response()->json([
-                    'lesson_id' => $lessonId,
-                    'course_progress' => null,
-                    'is_completed' => null
-                ]);
-            }
-
-            // Fetch lesson details for duration calculations
-            $lessonTotalDuration = DB::table('lessons')->where('id', $lessonId)->value('duration');
-            $lessonTotalDurationArr = explode(':', $lessonTotalDuration);
-            $lessonTotalSeconds = ($lessonTotalDurationArr[0] * 3600) + ($lessonTotalDurationArr[1] * 60) + $lessonTotalDurationArr[2];
-            $currentTotalSeconds = count($watchedDurationArr) * 5;  // Assuming each increment represents 5 seconds
-
-            // Drip content completion logic
-            if ($dripContentSettings['lesson_completion_role'] == 'duration') {
-                if ($currentTotalSeconds >= $dripContentSettings['minimum_duration']) {
-                    $isCompleted = 1;
-                } elseif (($currentTotalSeconds + 4) >= $lessonTotalSeconds) {
-                    $isCompleted = 1;
-                }
-            } else {
-                $requiredDuration = ($lessonTotalSeconds / 100) * $dripContentSettings['minimum_percentage'];
-                if ($currentTotalSeconds >= $requiredDuration) {
-                    $isCompleted = 1;
-                } elseif (($currentTotalSeconds + 4) >= $lessonTotalSeconds) {
-                    $isCompleted = 1;
-                }
-            }
-
-            // Update course progress if the lesson is completed
-            if ($isCompleted == 1) {
-                $watchHistory = DB::table('watch_histories')
-                    ->where([
-                        'course_id' => $courseId,
-                        'student_id' => $userId,
-                    ])
-                    ->first();
-
-                if ($watchHistory) {
-                    $lessonIds = json_decode($watchHistory->completed_lesson, true);
-                    $courseProgress = $watchHistory->course_progress;
-
-                    if (!is_array($lessonIds)) $lessonIds = [];
-
-                    if (!in_array($lessonId, $lessonIds)) {
-                        array_push($lessonIds, $lessonId);
-                        $totalLesson = DB::table('lessons')->where('course_id', $courseId)->count();
-                        $courseProgress = (100 / $totalLesson) * count($lessonIds);
-
-                        $completedDate = ($courseProgress >= 100 && !$watchHistory->completed_date)
-                            ? time()
-                            : $watchHistory->completed_date;
-
-                        DB::table('watch_histories')
-                            ->where('id', $watchHistory->id)
-                            ->update([
-                                'course_progress' => $courseProgress,
-                                'completed_lesson' => json_encode($lessonIds),
-                                'completed_date' => $completedDate,
-                            ]);
-                    }
-                }
-            }
-
-            // Return the response
-            return response()->json([
-                'lesson_id' => $lessonId,
-                'course_progress' => round($courseProgress),
-                'is_completed' => $isCompleted,
+        } else {
+            $watchedDurationArr = [$currentDuration];
+            DB::table('watch_durations')->insert([
+                'watched_course_id' => $courseId,
+                'watched_lesson_id' => $lessonId,
+                'watched_student_id' => $userId,
+                'current_duration' => $currentDuration,
+                'watched_counter' => json_encode($watchedDurationArr),
             ]);
-        }  else {
-            $response['status'] = false;
-            $response['message'] = "Undefined authentication";
         }
 
-        return $response;
+        if ($courseDetails->enable_drip_content != 1) {
+            return response()->json([
+                'lesson_id' => $lessonId,
+                'course_progress' => null,
+                'is_completed' => null
+            ]);
+        }
+
+        // Fetch lesson details for duration calculations
+        $lessonTotalDuration = DB::table('lessons')->where('id', $lessonId)->value('duration');
+        $lessonTotalDurationArr = explode(':', $lessonTotalDuration);
+        $lessonTotalSeconds = ($lessonTotalDurationArr[0] * 3600) + ($lessonTotalDurationArr[1] * 60) + $lessonTotalDurationArr[2];
+        $currentTotalSeconds = count($watchedDurationArr) * 5;  // Assuming each increment represents 5 seconds
+
+        // Drip content completion logic
+        if ($dripContentSettings['lesson_completion_role'] == 'duration') {
+            if ($currentTotalSeconds >= $dripContentSettings['minimum_duration']) {
+                $isCompleted = 1;
+            } elseif (($currentTotalSeconds + 4) >= $lessonTotalSeconds) {
+                $isCompleted = 1;
+            }
+        } else {
+            $requiredDuration = ($lessonTotalSeconds / 100) * $dripContentSettings['minimum_percentage'];
+            if ($currentTotalSeconds >= $requiredDuration) {
+                $isCompleted = 1;
+            } elseif (($currentTotalSeconds + 4) >= $lessonTotalSeconds) {
+                $isCompleted = 1;
+            }
+        }
+
+        // Update course progress if the lesson is completed
+        if ($isCompleted == 1) {
+            $watchHistory = DB::table('watch_histories')
+                ->where([
+                    'course_id' => $courseId,
+                    'student_id' => $userId,
+                ])
+                ->first();
+
+            if ($watchHistory) {
+                $lessonIds = json_decode($watchHistory->completed_lesson, true);
+                $courseProgress = $watchHistory->course_progress;
+
+                if (!is_array($lessonIds))
+                    $lessonIds = [];
+
+                if (!in_array($lessonId, $lessonIds)) {
+                    array_push($lessonIds, $lessonId);
+                    $totalLesson = DB::table('lessons')->where('course_id', $courseId)->count();
+                    $courseProgress = (100 / $totalLesson) * count($lessonIds);
+
+                    $completedDate = ($courseProgress >= 100 && !$watchHistory->completed_date)
+                        ? time()
+                        : $watchHistory->completed_date;
+
+                    DB::table('watch_histories')
+                        ->where('id', $watchHistory->id)
+                        ->update([
+                            'course_progress' => $courseProgress,
+                            'completed_lesson' => json_encode($lessonIds),
+                            'completed_date' => $completedDate,
+                        ]);
+                }
+            }
+        }
+
+        // Return the response
+        return response()->json([
+            'lesson_id' => $lessonId,
+            'course_progress' => round($courseProgress),
+            'is_completed' => $isCompleted,
+        ]);
+
     }
+
+    public function events(Request $request)
+    {
+        $now = time();
+
+        // Step 1: Fetch and process events
+        $events = Event::whereRaw('event_start + (event_duration * 3600) > ?', [$now])
+            ->orderBy('event_start', 'asc')
+            ->get()
+            ->map(function ($event) use ($now) {
+                $event_end = $event->event_start + ($event->event_duration * 3600);
+
+                $status = 'ended';
+                if ($event->event_start > $now) {
+                    $status = 'upcoming';
+                } elseif ($event_end > $now) {
+                    $status = 'running';
+                }
+
+                return [
+                    'id' => $event->id,
+                    'title' => $event->title,
+                    'short_description' => $event->short_description,
+                    'status' => $status,
+                    'podcast_audio_duration' => $event->podcast_audio_duration,
+                    'podcast_audio' => $event->podcast_audio ? asset($event->podcast_audio) : null,
+                    'speaker_ids' => $event->speaker_ids ? json_decode($event->speaker_ids) : [],
+                ];
+            })
+            ->filter(fn($event) => in_array($event['status'], ['upcoming', 'running']))
+            ->values();
+
+        // Step 2: Collect all unique speaker IDs
+        $speakerIds = $events->pluck('speaker_ids')->flatten()->unique()->values();
+
+        // Step 3: Fetch speaker details
+        $speakersRaw = User::whereIn('id', $speakerIds)->get()->keyBy('id');
+
+        // Step 4: Build speaker-event records
+        $speakers = collect();
+
+        foreach ($events as $event) {
+            foreach ($event['speaker_ids'] as $speakerId) {
+                if (isset($speakersRaw[$speakerId])) {
+                    $user = $speakersRaw[$speakerId];
+                    $speakers->push([
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'photo' => get_photo('user_image', $user->photo),
+                        'event_title' => $event['title'],
+                        'podcast_audio' => $event['podcast_audio'],
+                        'podcast_audio_duration' => $event['podcast_audio_duration'],
+                    ]);
+                }
+            }
+        }
+
+        // Step 5: Get event categories
+        $event_category = EventCategory::get()->transform(function ($category) {
+            $category->category_logo = get_photo('event_logo', $category->category_logo);
+            return $category;
+        });
+
+        // Final response
+        return response()->json([
+            'events' => $events,
+            'event_category' => $event_category,
+            'speakers' => $speakers,
+        ]);
+    }
+
+    public function eventDetails(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'event_id' => 'required|exists:events,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'status_code' => 422,
+                'message' => 'Validation error.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+        $event = Event::find($request->event_id);
+
+        if (!$event) {
+            return response()->json(['message' => 'Event not found'], 404);
+        }
+
+        // Status calculation
+        $now = time();
+        $event_end = $event->event_start + ($event->event_duration * 3600);
+        if ($event->event_start > $now) {
+            $status = 'upcoming';
+        } elseif ($event_end > $now) {
+            $status = 'running';
+        } else {
+            $status = 'ended';
+        }
+
+        // Decode speaker IDs
+        $speakerIds = $event->speaker_ids ? json_decode($event->speaker_ids) : [];
+
+        // Fetch speaker details
+        $speakers = User::whereIn('id', $speakerIds)->get()->map(function ($speaker) {
+            return [
+                'id' => $speaker->id,
+                'name' => $speaker->name,
+                'designation' => $speaker->designation,
+                'about' => $speaker->about,
+                'skills' => json_decode($speaker->skills),
+                'photo' => get_photo('user_image', $speaker->photo),
+            ];
+        });
+
+
+        // Previous (ended) events
+        $previousEvents = Event::whereRaw('event_start + (event_duration * 3600) < ?', [$now])
+            ->orderBy('event_start', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($ev) {
+                $user = User::where('id', $ev->user_id)->first();
+                $user_name = $user->name;
+                $user_image = get_photo('user_image', $user->photo);
+                return [
+                    'id' => $ev->id,
+                    'title' => $ev->title,
+                    'event_start' => $ev->event_start,
+                    'user_name' => $user_name,
+                    'user_image' => $user_image,
+                    'event_location' => $ev->event_location,
+                    'podcast_audio_duration' => $ev->podcast_audio_duration,
+                    'short_description' => $ev->short_description,
+                    'podcast_audio' => $ev->podcast_audio ? asset($ev->podcast_audio) : null,
+                ];
+            });
+
+        // Upcoming events (excluding current)
+        $upcomingEvents = Event::where('id', '!=', $event->id)
+            ->where('event_start', '>', $now)
+            ->orderBy('event_start', 'asc')
+            ->limit(5)
+            ->get()
+            ->map(function ($ev) {
+                $user = User::where('id', $ev->user_id)->first();
+                $user_name = $user->name;
+                $user_image = get_photo('user_image', $user->photo);
+                return [
+                    'id' => $ev->id,
+                    'title' => $ev->title,
+                    'event_start' => $ev->event_start,
+                    'user_name' => $user_name,
+                    'user_image' => $user_image,
+                    'event_location' => $ev->event_location,
+                    'short_description' => $ev->short_description,
+                    'podcast_audio' => $ev->podcast_audio ? asset($ev->podcast_audio) : null,
+                ];
+            });
+
+        return response()->json([
+            'id' => $event->id,
+            'title' => $event->title,
+            'short_description' => $event->short_description,
+            'banner' => get_photo('event_banner', $event->banner),
+            'details_title' => $event->details_title,
+            'details_description' => $event->details_description ?? '',
+            'details_banner' => get_photo('event_details_banner', $event->details_banner),
+            'details_banner_video_thumbnail' => get_photo('event_details_banner_video_thumbnail', $event->details_banner_video_thumbnail),
+            'details_banner_video' => asset($event->details_banner_video),
+            'event_location' => $event->event_location,
+            'event_start' => $event->event_start,
+            'event_duration' => $event->event_duration,
+            'status' => $status,
+            'podcast_audio' => $event->podcast_audio ? asset($event->podcast_audio) : null,
+            'podcast_audio_duration' => $event->podcast_audio_duration,
+            'youtube_podcast' => $event->youtube_podcast,
+            'google_podcast' => $event->google_podcast,
+            'overcast_podcast' => $event->overcast_podcast,
+            'spotify_podcast' => $event->spotify_podcast,
+            'apple_podcast' => $event->apple_podcast,
+            'speakers' => $speakers,
+            'previousEvents' => $previousEvents,
+            'upcomingEvents' => $upcomingEvents,
+        ]);
+    }
+
+    // Course bundle start
+    function course_bundles(Request $request)
+    {
+        // Get course ids for specific instructor
+        if ($request->filled('instructor_id')) {
+            $course_ids = Course::where('user_id', $request->instructor_id)->pluck('id');
+        } else {
+            $course_ids = [];
+        }
+
+
+        $query = CourseBundle::query();
+
+        // Filter by category ID if provided
+        if ($request->filled('bundle_category_id')) {
+            $query->where('bundle_category_id', $request->bundle_category_id);
+        }
+
+        // Filter by instructor ID if provided
+        if ($request->filled('instructor_id')) {
+            $query->where(function ($query) use ($course_ids) {
+                foreach ($course_ids as $id) {
+                    $query->orWhereJsonContains('course_ids', (string) $id);
+                }
+            });
+        }
+
+        // Filter by price range if provided
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        // Pagination (default to 10 items per page)
+        $perPage = $request->get('per_page', 4);
+        $bundles = $query->paginate($perPage);
+
+
+        $bundles_with_courses = $bundles->getCollection()->transform(function ($bundle) {
+            $course_ids_arr = json_decode($bundle->course_ids ?? '[]', true);
+            $bundle['courses'] = Course::select(['id', 'title', 'slug', 'short_description', 'thumbnail', 'is_paid', 'discounted_price', 'discount_flag', 'price'])->whereIn('id', $course_ids_arr)->get();
+            return $bundle;
+        });
+
+
+        // Response
+        return response()->json([
+            'status' => true,
+            'status_code' => 200,
+            'message' => 'Course Bundles for filter page',
+            'data' => [
+                'bundle_categories' => Bundle_category::select(['id', 'title', 'slug', 'description'])->get(),
+                'instructors' => User::select(['id', 'name', 'email'])->where('role', 'instructor')->get(),
+                'bundles' => $bundles_with_courses,
+                'price' => [
+                    'max_price' => CourseBundle::max('price'),
+                    'min_price' => CourseBundle::min('price'),
+                ]
+            ]
+        ]);
+    }
+
+    function course_bundle_details($id)
+    {
+
+        $data = CourseBundle::find($id);
+
+        $course_ids_arr = json_decode($data->course_ids ?? '[]', true);
+        $courses = Course::select(['id', 'user_id', 'title', 'slug', 'short_description', 'thumbnail', 'is_paid', 'discounted_price', 'discount_flag', 'price'])->whereIn('id', $course_ids_arr);
+        $instructor_ids = $courses->pluck('user_id');
+
+        $data['bundle_ratings'] = BundleRating::with(['user'])->where('bundle_id', $id)->get();
+        $data['instructors'] = User::whereIn('id', $instructor_ids)->get();
+        $data['courses'] = $courses->get();
+        $data['faqs'] = json_decode(get_frontend_settings('website_faqs') ?? '[]', true);
+
+
+
+        // Response
+        return response()->json([
+            'status' => true,
+            'status_code' => 200,
+            'message' => 'Course bundle details',
+            'data' => $data
+        ]);
+    }
+
+    function course_bundle_purchase(Request $request)
+    {
+        if (!auth('api')->check()) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 401,
+                'message' => 'Unauthorized. Please log in first.',
+            ], 401);
+        }
+
+
+        $user = auth('api')->user();
+        $payment_gateway = DB::table('payment_gateways')->where('identifier', 'stripe')->first();
+        $keys = json_decode($payment_gateway->keys, true);
+
+        $course_bundle = CourseBundle::find($request->id);
+
+        $stripeSecretKey = $payment_gateway->test_mode == 1
+            ? $keys['secret_key']
+            : $keys['secret_live_key'];
+
+        Stripe::setApiKey($stripeSecretKey);
+
+        $session = \Stripe\Checkout\Session::create([
+            'line_items' => [
+                [
+                    'price_data' => [
+                        'product_data' => [
+                            'name' => get_phrase('Purchasing') . ' ' . $course_bundle->title,
+                        ],
+                        'unit_amount' => round($course_bundle->price * 100, 2),
+                        'currency' => $payment_gateway->currency,
+                    ],
+                    'quantity' => 1,
+                ],
+            ],
+            'mode' => 'payment',
+            'success_url' => route('course_bundle_purchase_success') . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => $request->cancel_url,
+            'metadata' => [
+                'user_id' => $user->id,
+                'payable_amount' => $course_bundle->price,
+                'bundle_id' => $course_bundle->id,
+                'success_url' => $request->success_url,
+            ]
+        ]);
+
+        return response()->json(['url' => $session->url]);
+    }
+
+    function course_bundle_purchase_success(Request $request)
+    {
+        // Fetch Stripe keys and session
+        $payment_gateway = DB::table('payment_gateways')->where('identifier', 'stripe')->first();
+        $keys = json_decode($payment_gateway->keys, true);
+
+        $stripeSecretKey = $payment_gateway->test_mode == 1
+            ? $keys['secret_key']
+            : $keys['secret_live_key'];
+
+        Stripe::setApiKey($stripeSecretKey);
+
+
+        $session_id = $request->get('session_id');
+        $session = \Stripe\Checkout\Session::retrieve($session_id);
+        if ($session->payment_status !== 'paid') {
+            return response()->json(['error' => 'Payment not completed'], 400);
+        }
+        // Use data from $session->metadata instead of Laravel session
+        $metadata = $session->metadata;
+
+
+        $bundle = CourseBundle::find($metadata->bundle_id);
+
+        if (BundlePayment::where('payment_details->session_id', $session_id)->count() > 0) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 400,
+                'message' => 'You cannot purchase this bundle using the previous session',
+            ]);
+        }
+
+        // generate invoice for payment
+        $payment_data['payment_details'] = json_encode(['session_id' => $session_id, 'amount' => $metadata->payable_amount]);
+        $payment_data['user_id'] = $metadata->user_id;
+        $payment_data['bundle_id'] = $metadata->bundle_id;
+        $payment_data['amount'] = $metadata->payable_amount;
+        $payment_data['payment_method'] = 'stripe';
+        $payment_data['status'] = 1;
+        if (get_user_info($bundle->user_id)->role == 'admin') {
+            $payment_data['admin_revenue'] = $metadata->payable_amount;
+        } else {
+            $payment_data['instructor_revenue'] = $metadata->payable_amount * (get_settings('instructor_revenue') / 100);
+            $payment_data['admin_revenue'] = $metadata->payable_amount - $payment_data['instructor_revenue'];
+        }
+        // insert payment details
+        BundlePayment::create($payment_data);
+
+
+        // Course enrollment
+        $courses = json_decode($bundle->course_ids ?? '[]', true);
+        $expiry = now()->addDays($bundle->subscription_limit)->timestamp;
+        $enroll['user_id'] = $metadata->user_id;
+        foreach ($courses as $course) {
+            $enroll['course_id'] = $course;
+            $enroll['enrollment_type'] = 'bundle';
+            $enroll['entry_date'] = strtotime('now');
+            $enroll['expiry_date'] = $expiry;
+
+            if (!Enrollment::where('user_id', $enroll['user_id'])->where('course_id', $course)->where('enrollment_type', 'bundle')->exists()) {
+                Enrollment::insert($enroll);
+            }
+        }
+
+        //Send purchase email
+        BundlePayment::send_mail($metadata->bundle_id, $metadata->user_id);
+
+
+        return redirect()->away($metadata->success_url);
+    }
+    // Course bundle ended
+
+
+    public function membership()
+    {
+        // Retrieve membership details (e.g., general information about the membership)
+        $membershipDetails = Membership::first();
+
+        // Retrieve all active membership packages
+        $packages = MembershipPackage::where('status', 1)->get();
+
+        // Format the data into the desired structure
+        $data = [
+            'title' => $membershipDetails->title ?? 'Membership Details',
+            'subtitle' => $membershipDetails->subtitle ?? 'Explore exclusive membership benefits.',
+            'thumbnail' => $membershipDetails->thumbnail ?? null,
+            'member_count' => $membershipDetails->member_count ?? '0',
+            'pricing' => [
+                'title' => $membershipDetails->package_section_title ?? 'Membership Pricing Plan',
+                'plans' => $packages->map(function ($package) {
+                    return [
+                        'title' => $package->title,
+                        'subtitle_1' => $package->subtitle_1,
+                        'subtitle_2' => $package->subtitle_2,
+                        'price' => $package->price,
+                        'type' => $package->type,
+                        'features' => $package->features ? json_decode($package->features, true) : [],
+                    ];
+                })->toArray(),
+            ],
+        ];
+
+        // Prepare response
+        $response = [
+            'status' => true,
+            'status_code' => 200,
+            'message' => 'Membersip data retrieved successfully.',
+            'data' => $data,
+        ];
+
+        // Return the data in JSON format
+        return response()->json($response);
+    }
+
+    public function membership_purchase(Request $request)
+    {
+        if (!auth('api')->check()) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 401,
+                'message' => 'Unauthorized. Please log in first.',
+            ], 401);
+        }
+
+        $user = auth('api')->user();
+        $payment_gateway = DB::table('payment_gateways')->where('identifier', 'stripe')->first();
+        $keys = json_decode($payment_gateway->keys, true);
+
+        $selected_package = MembershipPackage::where('id', $request->package_id)->first();
+
+        $stripeSecretKey = $payment_gateway->test_mode == 1
+            ? $keys['secret_key']
+            : $keys['secret_live_key'];
+
+        Stripe::setApiKey($stripeSecretKey);
+
+        $session = \Stripe\Checkout\Session::create([
+            'line_items' => [
+                [
+                    'price_data' => [
+                        'product_data' => [
+                            'name' => get_phrase('Purchasing') . ' ' . $selected_package->title,
+                        ],
+                        'unit_amount' => round($selected_package->price * 100, 2),
+                        'currency' => $payment_gateway->currency,
+                    ],
+                    'quantity' => 1,
+                ],
+            ],
+            'mode' => 'payment',
+            'success_url' => route('membership_purchase.success') . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => $request->cancel_url,
+            'metadata' => [
+                'user_id' => $user->id,
+                'payable_amount' => $selected_package->price,
+                'package_id' => $selected_package->id,
+                'success_url' => $request->success_url,
+            ]
+        ]);
+
+        return response()->json(['url' => $session->url]);
+    }
+
+    public function membership_purchase_success(Request $request)
+    {
+        // Fetch Stripe keys and session
+        $payment_gateway = DB::table('payment_gateways')->where('identifier', 'stripe')->first();
+        $keys = json_decode($payment_gateway->keys, true);
+
+        $stripeSecretKey = $payment_gateway->test_mode == 1
+            ? $keys['secret_key']
+            : $keys['secret_live_key'];
+
+        Stripe::setApiKey($stripeSecretKey);
+
+
+        $session_id = $request->get('session_id');
+        $session = \Stripe\Checkout\Session::retrieve($session_id);
+        if ($session->payment_status !== 'paid') {
+            return response()->json(['error' => 'Payment not completed'], 400);
+        }
+        // Use data from $session->metadata instead of Laravel session
+        $metadata = $session->metadata;
+        // dd($metadata);
+        // die;
+
+        $purchase_package = MembershipPackage::where('id', $metadata->package_id)->first();
+
+        $data['user_id'] = $metadata->user_id;
+        $data['package_id'] = $metadata->package_id;
+        $data['payment_method'] = 'Stripe';
+        $data['paid_amount'] = $metadata->payable_amount;
+        $data['purchase_date'] = strtotime(date('Y-m-d'));
+
+        // Ensure the expiry period defaults to 1 year if the package or period is not found
+        $default_period = 1; // Default to 1 year
+        $period = $purchase_package && isset($purchase_package->period) ? $purchase_package->period : $default_period;
+
+        $data['expiry_date'] = strtotime('+' . $period . ' years', $data['purchase_date']);
+
+        // Insert the subscription data into the database
+        MembershipSubscription::insert($data);
+
+        // Redirect directly to the frontend success page
+        return redirect()->away($metadata->success_url);
+    }
+
+
+    public function video_cipher_by_video_id(Request $request)
+    {
+        // Get the authenticated user (if any)
+        $user = auth('api')->user();
+        $user_id = $user ? $user->id : null;
+        $video_id = $request->video_id;
+
+        if (!empty($user_id) && !empty($video_id)) {
+
+            $vdocipher_api_secret = get_settings('vdocipher_api_secret');
+
+            if (empty($vdocipher_api_secret)) {
+                return response()->json(['error' => 'VdoCipher API secret is not configured.'], 500);
+            }
+
+            // VdoCipher API endpoint
+            $url = "https://dev.vdocipher.com/api/videos/{$video_id}/otp";
+
+            // Prepare the data for the request
+            $data = json_encode([
+                "ttl" => 300 // Time-to-live for the OTP
+            ]);
+
+            // Initialize cURL
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                "Authorization: Apisecret {$vdocipher_api_secret}",
+                "Content-Type: application/json"
+            ]);
+
+            // Execute the request
+            $response = curl_exec($ch);
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curl_error = curl_error($ch);
+            curl_close($ch);
+
+            // Check for errors
+            if ($curl_error) {
+                return response()->json(['error' => "Curl error: {$curl_error}"], 500);
+            }
+
+            // Decode the response
+            $decoded_response = json_decode($response, true);
+
+            if ($http_code !== 200 || !isset($decoded_response['otp'], $decoded_response['playbackInfo'])) {
+                return response()->json(['error' => 'Failed to retrieve video OTP.', 'details' => $decoded_response], $http_code);
+            }
+
+            // Return the OTP and playback info
+            return response()->json([
+                'status' => true,
+                'status_code' => 200,
+                'message' => 'Data retrieved successfully.',
+                'otp' => $decoded_response['otp'],
+                'playbackInfo' => $decoded_response['playbackInfo']
+            ], 200);
+
+        }
+
+        // Return an error if the user ID or lesson ID is empty
+        return response()->json(['error' => 'Invalid user or lesson ID.'], 400);
+
+    }
+
+
     public function payment2(Request $request)
     {
         if (!auth('api')->check()) {
@@ -7033,5 +7668,6 @@ class ApiController extends Controller
 
         return $response;
     }
+
 
 }

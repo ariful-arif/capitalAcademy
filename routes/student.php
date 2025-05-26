@@ -18,6 +18,8 @@ use App\Http\Controllers\student\PurchaseController;
 use App\Http\Controllers\student\QuizController;
 use App\Http\Controllers\student\ReviewController;
 use App\Http\Controllers\student\WishListController;
+use App\Http\Controllers\student\MyCourseBundleController;
+use App\Http\Controllers\student\CourseBundlePurchaseController;
 use App\Http\Controllers\student\TutorBookingController;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +40,21 @@ Route::middleware(['auth'])->group(function () {
     // my course routes
     Route::controller(MyCoursesController::class)->group(function () {
         Route::get('my-courses', 'index')->name('my.courses');
+    });
+
+    // course-bundle routes
+    Route::controller(MyCourseBundleController::class)->group(function () {
+        Route::get('my-course-bundles', 'index')->name('my.course.bundles');
+        Route::get('my-course-bundles/details/{slug?}', 'show')->name('my.course.bundle.details');
+        Route::get('my-course-bundles/invoice/{id}', 'invoice')->name('my.course.bundle.invoice');
+        Route::get('my-course-bundles/purchase-history/{id}', 'purchaseHistory')->name('my.course.bundle.purchase.history');
+        Route::post('course-bundle/rating/store{bundle_id}', 'store')->name('course.bundle.rating.store');
+        Route::post('course-bundle/rating/update{id}', 'update')->name('course.bundle.rating.update');
+    });
+    Route::controller(CourseBundlePurchaseController::class)->group(function () {
+        Route::get('purchase/course-bundle/{id}', 'purchase')->name('purchase.course.bundle');
+        Route::get('course-bundle/purchase/history', 'purchase_history')->name('course.bundle.purchase.history');
+        Route::get('course-bundle/invoice/{id}', 'invoice')->name('course.bundle.invoice');
     });
 
     // quiz routes

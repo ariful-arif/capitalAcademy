@@ -586,7 +586,7 @@ img {
 }
 .us-btn {
     position: relative;
-    
+
     border-radius: 30px;
     background-color: #f5f6f8;
     border: none;
@@ -5457,7 +5457,7 @@ a#team-training-header-menu-icon svg{
 .lms1-category-sidebar .form-check-input {
 	width: 16px;
 	height: 16px;
-    
+
 }
 .lms1-breadcrumb .breadcrumb-item.active {
 	color: #1E293B;
@@ -5604,7 +5604,7 @@ a#team-training-header-menu-icon svg{
 	height: 6px !important;
 }
 .lms-slider-range-wrapper .ui-widget.ui-widget-content {
-	 top: 0 !important; 
+	 top: 0 !important;
 }
 .slider-range-value{
     display: flex;
@@ -5714,8 +5714,8 @@ a#team-training-header-menu-icon svg{
     border: 1px solid #D9D9DF;
     float: none;
 }
-.lms-sm-select:active, 
-.lms-sm-select.open, 
+.lms-sm-select:active,
+.lms-sm-select.open,
 .lms-sm-select:focus {
 	border-color: #D9D9DF;
 }
@@ -5998,7 +5998,7 @@ a#team-training-header-menu-icon svg{
     font-size: 16px;
     font-style: normal;
     font-weight: 500;
-    line-height: 100%; 
+    line-height: 100%;
     border-radius: 0 !important;
     padding: 0 12px 14px 12px;
     position: relative;
@@ -6021,7 +6021,7 @@ a#team-training-header-menu-icon svg{
     stroke: inherit;
     fill: #6E798A;
 }
-.tutor-tab-link.nav-link:focus, 
+.tutor-tab-link.nav-link:focus,
 .tutor-tab-link.nav-link:hover {
 	color: #1E293B;
 }
@@ -6059,32 +6059,32 @@ a#team-training-header-menu-icon svg{
 }
 
 /* Flat Pickr */
-.flat-picker-dropdown .flatpickr-months .flatpickr-prev-month svg path, 
+.flat-picker-dropdown .flatpickr-months .flatpickr-prev-month svg path,
 .flat-picker-dropdown .flatpickr-months .flatpickr-next-month svg path {
 	fill: #6E798A;
 }
-.flat-picker-dropdown .flatpickr-months .flatpickr-prev-month:hover svg path, 
+.flat-picker-dropdown .flatpickr-months .flatpickr-prev-month:hover svg path,
 .flat-picker-dropdown .flatpickr-months .flatpickr-next-month:hover svg path {
 	fill: #754FFE;
 }
 
-.flat-picker-dropdown .flatpickr-day.selected, 
-.flat-picker-dropdown .flatpickr-day.startRange, 
-.flat-picker-dropdown .flatpickr-day.endRange, 
-.flat-picker-dropdown .flatpickr-day.selected.inRange, 
-.flat-picker-dropdown .flatpickr-day.startRange.inRange, 
-.flat-picker-dropdown .flatpickr-day.endRange.inRange, 
-.flat-picker-dropdown .flatpickr-day.selected:focus, 
-.flat-picker-dropdown .flatpickr-day.startRange:focus, 
-.flat-picker-dropdown .flatpickr-day.endRange:focus, 
-.flat-picker-dropdown .flatpickr-day.selected:hover, 
-.flat-picker-dropdown .flatpickr-day.startRange:hover, 
-.flat-picker-dropdown .flatpickr-day.endRange:hover, 
-.flat-picker-dropdown .flatpickr-day.selected.prevMonthDay, 
-.flat-picker-dropdown .flatpickr-day.startRange.prevMonthDay, 
-.flat-picker-dropdown .flatpickr-day.endRange.prevMonthDay, 
-.flat-picker-dropdown .flatpickr-day.selected.nextMonthDay, 
-.flat-picker-dropdown .flatpickr-day.startRange.nextMonthDay, 
+.flat-picker-dropdown .flatpickr-day.selected,
+.flat-picker-dropdown .flatpickr-day.startRange,
+.flat-picker-dropdown .flatpickr-day.endRange,
+.flat-picker-dropdown .flatpickr-day.selected.inRange,
+.flat-picker-dropdown .flatpickr-day.startRange.inRange,
+.flat-picker-dropdown .flatpickr-day.endRange.inRange,
+.flat-picker-dropdown .flatpickr-day.selected:focus,
+.flat-picker-dropdown .flatpickr-day.startRange:focus,
+.flat-picker-dropdown .flatpickr-day.endRange:focus,
+.flat-picker-dropdown .flatpickr-day.selected:hover,
+.flat-picker-dropdown .flatpickr-day.startRange:hover,
+.flat-picker-dropdown .flatpickr-day.endRange:hover,
+.flat-picker-dropdown .flatpickr-day.selected.prevMonthDay,
+.flat-picker-dropdown .flatpickr-day.startRange.prevMonthDay,
+.flat-picker-dropdown .flatpickr-day.endRange.prevMonthDay,
+.flat-picker-dropdown .flatpickr-day.selected.nextMonthDay,
+.flat-picker-dropdown .flatpickr-day.startRange.nextMonthDay,
 .flat-picker-dropdown .flatpickr-day.endRange.nextMonthDay {
 	background: #754FFE;
 	border-color: #754FFE;
@@ -6122,7 +6122,7 @@ a#team-training-header-menu-icon svg{
     height: 100%;
     cursor: pointer;
 }
-  
+
 /* Hide the default date picker icon in Firefox */
 .date-picker-input::-webkit-inner-spin-button,
 .date-picker-input::-webkit-calendar-picker-indicator {
@@ -6257,7 +6257,7 @@ a#team-training-header-menu-icon svg{
     font-size: 17px;
     font-weight: bold !important;
 }
-.date-swiper-main .swiper-button-next.swiper-button-disabled, 
+.date-swiper-main .swiper-button-next.swiper-button-disabled,
 .date-swiper-main .swiper-button-prev.swiper-button-disabled {
 	opacity: 1;
 	color: #6E798A;
@@ -6309,8 +6309,8 @@ a#team-training-header-menu-icon svg{
 .tutor-service-modal .modal-body::-webkit-scrollbar-thumb:active {
     background-color: rgba(146, 154, 167, 0.3);
 }
-  
-  
+
+
 .image-circle-24px{
     height: 24px;
     width: 24px;
@@ -6546,8 +6546,8 @@ textarea.lms-form-control{
     border: 1px solid #D9D9DF;
     float: none;
 }
-.lms-md-select:active, 
-.lms-md-select.open, 
+.lms-md-select:active,
+.lms-md-select.open,
 .lms-md-select:focus {
 	border-color: #D9D9DF;
 }
@@ -6589,3 +6589,344 @@ textarea.lms-form-control{
 /* ===================================================================
                         Tutor Details CSS End
 ====================================================================*/
+
+
+/* Course bundle start */
+
+.course-bundle::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
+}
+
+.course-bundle::-webkit-scrollbar-track {
+    border-radius: 20px;
+    background-color: #c3c9da;
+}
+
+.course-bundle::-webkit-scrollbar-track:hover {
+    background-color: #c3c9da;
+}
+
+.course-bundle::-webkit-scrollbar-track:active {
+    background-color: #c3c9da;
+}
+
+.course-bundle::-webkit-scrollbar-thumb {
+    border-radius: 20px;
+    background-color: #878fa7;
+}
+
+.course-bundle::-webkit-scrollbar-thumb:hover {
+    background-color: #878fa7;
+}
+
+.course-bundle::-webkit-scrollbar-thumb:active {
+    background-color: #878fa7;
+}
+
+.course-bundle-item {
+    display: grid;
+    padding: 20px;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0px 15px 40px 0px rgba(100, 121, 150, 0.1);
+}
+
+.bundle-head .title {
+    line-height: 28px;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.bundle-head .course-count {
+    color: #6b7385;
+    font-weight: 500;
+    font-size: 15px;
+}
+
+.bundle-header .price {
+    font-weight: 700;
+    line-height: 40px;
+    font-size: 24px;
+    color: #000;
+}
+
+.bundle-body .course-bundle {
+    height: 298px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.bundle-body .course-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 21px 0;
+    border-bottom: 1px solid #edf0f7;
+}
+
+.bundle-body .course-img {
+    height: 72px;
+    width: 88px;
+    min-width: 88px;
+}
+
+.bundle-body .course-img img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.bundle-body .course-title {
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+    color: #192335;
+}
+
+.bundle-body .course-price {
+    color: #6b7385;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 40px;
+}
+
+.course-bundle-item .bundle-details {
+    display: block;
+    padding: 16px 24px;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid #754ffe;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #2f57ef 0%, #c464fd 93.75%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    margin-bottom: 12px;
+}
+
+.course-bundle-item .bundle-details::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(120deg, #40c9ff 0%, #e81cff 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+}
+
+.course-bundle-item .buy-now {
+    display: block;
+    font-size: 15px;
+    padding: 16px 24px;
+    font-weight: 600;
+    text-align: center;
+    border-radius: 8px;
+    color: #edf0f7;
+    background: linear-gradient(150deg,
+            rgba(47, 87, 239, 1) 0%,
+            rgba(196, 100, 253, 1) 100%);
+}
+
+.bundle-footer {
+    padding: 20px 8px 0 8px;
+}
+
+.bundle-details-title {
+    color: #192335;
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 52px;
+}
+
+.bundle-details-description {
+    color: var(--black, #192335);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 27px;
+}
+
+.bundle-details.user-image {
+    height: 25px;
+    width: 25px;
+}
+
+.bundle-details.user-name {
+    color: var(--black, #192335);
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.bundle-details.course-count {
+    color: var(--black, #192335);
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.bundle-details.courses {
+    margin-top: -166px;
+    position: relative;
+}
+
+.bundle-details .course-list-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 8px 38px 0px rgba(16, 16, 16, 0.08);
+    margin: 20px 0;
+    gap: 20px;
+}
+
+.course-list-card .course-thumbnail {
+    width: 175px;
+    min-width: 175px;
+    aspect-ratio: 175 / 175;
+    border-radius: 10px;
+}
+
+.course-list-card .course-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.course-list-card .course-details {
+    padding-top: 10px;
+}
+
+.course-list-card .course-details .title {
+    color: #192335;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.course-list-card .course-details .course-info {
+    color: #6b7385;
+    display: flex;
+    gap: 8px;
+    margin: 12px 0 20px;
+}
+
+.course-list-card .course-details .description {
+    color: #6b7385;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 27px;
+}
+
+.bundle-details .overview {
+    width: 100%;
+    display: block;
+    background: #fff;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0px 6px 38px 0px rgba(16, 16, 16, 0.08);
+    margin: 52px 0;
+}
+
+.bundle-details .overview h4 {
+    color: var(--black, #192335);
+    font-size: 20px;
+    font-weight: 600;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #edf0f7;
+}
+
+.bundle-details .overview p {
+    padding-top: 30px;
+    color: var(--gray, #6b7385);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 25px;
+}
+
+.bundle-details .review {
+    width: 100%;
+    display: block;
+    background: #fff;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0px 6px 38px 0px rgba(16, 16, 16, 0.08);
+}
+
+.bundle-details .review h4 {
+    color: var(--black, #192335);
+    font-size: 20px;
+    font-weight: 600;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #edf0f7;
+}
+
+.review-user img {
+    height: 50px;
+    width: 50px;
+}
+
+.bundle-details.pricing-card {
+    position: sticky;
+    margin-top: -365px;
+    top: 50px;
+}
+
+.bundle-details .bundle-container {
+    border-radius: 12px;
+    background: #fff;
+    padding: 7px;
+    box-shadow: 0px 30px 27.5px 0px rgba(103, 108, 125, 0.1);
+}
+
+.bundle-container .bundle-thumbnail {
+    width: 100%;
+    aspect-ratio: 341 / 341;
+    border-radius: 10px;
+}
+
+.bundle-container .bundle-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.bundle-container .bundle-content {
+    padding: 20px 30px 20px 30px;
+}
+
+.bundle-container .bundle-content .bundle-price h1 {
+    color: var(--black, #192335);
+    font-size: 40px;
+    font-weight: 600;
+}
+
+.bundle-container .bundle-content .bundle-limit {
+    gap: 8px;
+    color: var(--gray, #6b7385);
+    font-size: 15px;
+    font-weight: 500;
+    border-bottom: 1px solid #edf0f7;
+    padding: 12px 0;
+}
+
+.bundle-container .bundle-content .bundle-button {
+    display: flex;
+    width: 100%;
+    padding: 16px 24px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    background: var(--gradient,
+            linear-gradient(135deg, #2f57ef 0%, #c464fd 93.75%));
+    color: var(--line, #edf0f7);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 15px;
+    margin-top: 33px;
+}
+
+/* Course bundle ended */

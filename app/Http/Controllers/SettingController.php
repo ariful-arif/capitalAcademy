@@ -65,9 +65,9 @@ class SettingController extends Controller
             array_shift($data);
 
             $motivations = array();
-            $images      = array();
+            $images = array();
             foreach (array_filter($data['titles']) as $key => $title) {
-                $motivations[$key]['title']       = $title;
+                $motivations[$key]['title'] = $title;
                 $motivations[$key]['designation'] = $data['designation'][$key];
                 $motivations[$key]['description'] = $data['descriptions'][$key];
 
@@ -81,7 +81,7 @@ class SettingController extends Controller
             $files = glob('uploads/motivational_speech/' . '*');
             foreach ($files as $file) {
                 $file_name_arr = explode('/', $file);
-                $file_name     = end($file_name_arr);
+                $file_name = end($file_name_arr);
                 if (!in_array($file_name, $images)) {
                     remove_file($file);
                 }
@@ -96,11 +96,11 @@ class SettingController extends Controller
             $faqs = array();
             foreach (array_filter($data['questions']) as $key => $question) {
                 $faqs[$key]['question'] = $question;
-                $faqs[$key]['answer']   = $data['answers'][$key];
+                $faqs[$key]['answer'] = $data['answers'][$key];
             }
 
             $data['value'] = json_encode($faqs);
-            $faq           = $data['value'];
+            $faq = $data['value'];
             FrontendSetting::where('key', 'website_faqs')->update(['value' => $faq]);
             Session::flash('success', get_phrase('Website Faqs update successfully'));
         }
@@ -108,7 +108,7 @@ class SettingController extends Controller
 
             array_shift($data);
             $contact_information = json_encode($data);
-            $row                 = FrontendSetting::where('key', 'contact_info')->get();
+            $row = FrontendSetting::where('key', 'contact_info')->get();
             if ($row->count() > 0) {
                 FrontendSetting::where('key', 'contact_info')->update(['value' => $contact_information]);
             } else {
@@ -358,9 +358,9 @@ class SettingController extends Controller
             array_shift($data);
 
             $motivations = array();
-            $images      = array();
+            $images = array();
             foreach (array_filter($data['titles']) as $key => $title) {
-                $motivations[$key]['title']       = $title;
+                $motivations[$key]['title'] = $title;
                 $motivations[$key]['description'] = $data['descriptions'][$key];
 
                 if ($_FILES['images']['name'][$key] != "") {
@@ -373,7 +373,7 @@ class SettingController extends Controller
             $files = glob('uploads/dynamic_Pages/home_page/' . '*');
             foreach ($files as $file) {
                 $file_name_arr = explode('/', $file);
-                $file_name     = end($file_name_arr);
+                $file_name = end($file_name_arr);
                 if (!in_array($file_name, $images)) {
                     remove_file($file);
                 }
@@ -382,6 +382,26 @@ class SettingController extends Controller
             FrontendSetting::where('key', 'features')->update(['value' => $data['value']]);
             Session::flash('success', get_phrase('Home page features update successfully'));
         }
+        if ($request->type == 'certification_data') {
+            $data = $request->all();
+            array_shift($data); // Remove the `_token`
+
+            // Save certificate_enroll
+            if (isset($data['enroll'])) {
+                $certificateEnroll = json_encode($data['enroll']);
+                FrontendSetting::where('key', 'certificate_enroll')->update(['value' => $certificateEnroll]);
+            }
+
+            // Save certification_honor
+            if (isset($data['honor'])) {
+                $certificationHonor = json_encode($data['honor']);
+                FrontendSetting::where('key', 'certification_honor')->update(['value' => $certificationHonor]);
+            }
+
+            Session::flash('success', get_phrase('Certification sections updated successfully'));
+            return redirect()->back();
+        }
+
         return redirect()->back();
     }
 
@@ -440,23 +460,23 @@ class SettingController extends Controller
         } else {
             if ($request->identifier == 'paypal') {
                 $paypal = [
-                    'sandbox_client_id'     => $data['sandbox_client_id'],
-                    'sandbox_secret_key'    => $data['sandbox_secret_key'],
-                    'production_client_id'  => $data['production_client_id'],
+                    'sandbox_client_id' => $data['sandbox_client_id'],
+                    'sandbox_secret_key' => $data['sandbox_secret_key'],
+                    'production_client_id' => $data['production_client_id'],
                     'production_secret_key' => $data['production_secret_key'],
                 ];
-                $paypal       = json_encode($paypal);
-                $data         = array_splice($data, 0, 4);
+                $paypal = json_encode($paypal);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $paypal;
             } elseif ($request->identifier == 'stripe') {
                 $stripe = [
-                    'public_key'      => $data['public_key'],
-                    'secret_key'      => $data['secret_key'],
+                    'public_key' => $data['public_key'],
+                    'secret_key' => $data['secret_key'],
                     'public_live_key' => $data['public_live_key'],
                     'secret_live_key' => $data['secret_live_key'],
                 ];
-                $stripe       = json_encode($stripe);
-                $data         = array_splice($data, 0, 4);
+                $stripe = json_encode($stripe);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $stripe;
             } elseif ($request->identifier == 'razorpay') {
                 $razorpay = [
@@ -464,8 +484,8 @@ class SettingController extends Controller
                     'secret_key' => $data['secret_key'],
 
                 ];
-                $razorpay     = json_encode($razorpay);
-                $data         = array_splice($data, 0, 4);
+                $razorpay = json_encode($razorpay);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $razorpay;
             } elseif ($request->identifier == 'flutterwave') {
                 $flutterwave = [
@@ -473,8 +493,8 @@ class SettingController extends Controller
                     'secret_key' => $data['secret_key'],
 
                 ];
-                $flutterwave  = json_encode($flutterwave);
-                $data         = array_splice($data, 0, 4);
+                $flutterwave = json_encode($flutterwave);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $flutterwave;
             } elseif ($request->identifier == 'paytm') {
                 $paytm = [
@@ -484,124 +504,124 @@ class SettingController extends Controller
                     'industry_type_id' => $data['industry_type_id'] ?? '',
                     'channel_id' => $data['channel_id'] ?? '',
                 ];
-                $paytm        = json_encode($paytm);
-                $data         = array_splice($data, 0, 4);
+                $paytm = json_encode($paytm);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $paytm;
             } elseif ($request->identifier == 'offline') {
                 $offline = [
                     'bank_information' => $data['bank_information'],
 
                 ];
-                $offline        = json_encode($offline);
-                $data         = array_splice($data, 0, 4);
+                $offline = json_encode($offline);
+                $data = array_splice($data, 0, 4);
 
                 $data['keys'] = $offline;
                 unset($data['bank_information']);
             } elseif ($request->identifier == 'paystack') {
                 $paystack = [
-                    'secret_test_key'      => $data['secret_test_key'],
-                    'public_test_key'      => $data['public_test_key'],
+                    'secret_test_key' => $data['secret_test_key'],
+                    'public_test_key' => $data['public_test_key'],
                     'secret_live_key' => $data['secret_live_key'],
                     'public_live_key' => $data['public_live_key'],
                 ];
-                $paystack       = json_encode($paystack);
-                $data         = array_splice($data, 0, 4);
+                $paystack = json_encode($paystack);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $paystack;
             } elseif ($request->identifier == 'ccavenue') {
                 $ccavenue = [
-                    'ccavenue_merchant_id'      => $data['ccavenue_merchant_id'],
-                    'ccavenue_working_key'      => $data['ccavenue_working_key'],
+                    'ccavenue_merchant_id' => $data['ccavenue_merchant_id'],
+                    'ccavenue_working_key' => $data['ccavenue_working_key'],
                     'ccavenue_access_code' => $data['ccavenue_access_code'],
                 ];
-                $ccavenue       = json_encode($ccavenue);
-                $data         = array_splice($data, 0, 4);
+                $ccavenue = json_encode($ccavenue);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $ccavenue;
-            }elseif ($request->identifier == 'pagseguro') {
+            } elseif ($request->identifier == 'pagseguro') {
                 $pagseguro = [
-                    'api_key'      => $data['api_key'],
-                    'secret_key'      => $data['secret_key'],
+                    'api_key' => $data['api_key'],
+                    'secret_key' => $data['secret_key'],
                     'other_parameter' => $data['other_parameter'],
                 ];
-                $pagseguro       = json_encode($pagseguro);
-                $data         = array_splice($data, 0, 4);
+                $pagseguro = json_encode($pagseguro);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $pagseguro;
-            }elseif ($request->identifier == 'iyzico') {
+            } elseif ($request->identifier == 'iyzico') {
                 $iyzico = [
-                    'api_test_key'      => $data['api_test_key'],
-                    'secret_test_key'      => $data['secret_test_key'],
-                    'api_live_key'      => $data['api_live_key'],
+                    'api_test_key' => $data['api_test_key'],
+                    'secret_test_key' => $data['secret_test_key'],
+                    'api_live_key' => $data['api_live_key'],
                     'secret_live_key' => $data['secret_live_key'],
                 ];
-                $iyzico       = json_encode($iyzico);
-                $data         = array_splice($data, 0, 4);
+                $iyzico = json_encode($iyzico);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $iyzico;
-            }elseif ($request->identifier == 'xendit') {
+            } elseif ($request->identifier == 'xendit') {
                 $xendit = [
-                    'api_key'      => $data['api_key'],
-                    'secret_key'      => $data['secret_key'],
+                    'api_key' => $data['api_key'],
+                    'secret_key' => $data['secret_key'],
                     'other_parameter' => $data['other_parameter'],
                 ];
-                $xendit       = json_encode($xendit);
-                $data         = array_splice($data, 0, 4);
+                $xendit = json_encode($xendit);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $xendit;
-            }elseif ($request->identifier == 'payu') {
+            } elseif ($request->identifier == 'payu') {
                 $payu = [
-                    'pos_id'      => $data['pos_id'],
-                    'second_key'      => $data['second_key'],
-                    'client_id'      => $data['client_id'],
+                    'pos_id' => $data['pos_id'],
+                    'second_key' => $data['second_key'],
+                    'client_id' => $data['client_id'],
                     'client_secret' => $data['client_secret'],
                 ];
-                $payu       = json_encode($payu);
-                $data         = array_splice($data, 0, 4);
+                $payu = json_encode($payu);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $payu;
-            }elseif ($request->identifier == 'skrill') {
+            } elseif ($request->identifier == 'skrill') {
                 $skrill = [
-                    'skrill_merchant_email'      => $data['skrill_merchant_email'],
-                    'secret_passphrase'      => $data['secret_passphrase']
+                    'skrill_merchant_email' => $data['skrill_merchant_email'],
+                    'secret_passphrase' => $data['secret_passphrase']
                 ];
-                $skrill       = json_encode($skrill);
-                $data         = array_splice($data, 0, 4);
+                $skrill = json_encode($skrill);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $skrill;
-            }elseif ($request->identifier == 'doku') {
+            } elseif ($request->identifier == 'doku') {
                 $doku = [
-                    'client_id'      => $data['client_id'],
-                    'shared_key'      => $data['shared_key']
+                    'client_id' => $data['client_id'],
+                    'shared_key' => $data['shared_key']
                 ];
-                $doku       = json_encode($doku);
-                $data         = array_splice($data, 0, 4);
+                $doku = json_encode($doku);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $doku;
-            }elseif ($request->identifier == 'maxicash') {
+            } elseif ($request->identifier == 'maxicash') {
                 $maxicash = [
-                    'merchant_id'      => $data['merchant_id'],
-                    'merchant_password'      => $data['merchant_password']
+                    'merchant_id' => $data['merchant_id'],
+                    'merchant_password' => $data['merchant_password']
                 ];
-                $maxicash       = json_encode($maxicash);
-                $data         = array_splice($data, 0, 4);
+                $maxicash = json_encode($maxicash);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $maxicash;
-            }elseif ($request->identifier == 'cashfree') {
+            } elseif ($request->identifier == 'cashfree') {
                 $cashfree = [
-                    'client_id'      => $data['client_id'],
-                    'client_secret'      => $data['client_secret']
+                    'client_id' => $data['client_id'],
+                    'client_secret' => $data['client_secret']
                 ];
-                $cashfree       = json_encode($cashfree);
-                $data         = array_splice($data, 0, 4);
+                $cashfree = json_encode($cashfree);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $cashfree;
-            }elseif ($request->identifier == 'aamarpay') {
+            } elseif ($request->identifier == 'aamarpay') {
                 $aamarpay = [
-                    'store_id'      => $data['store_id'],
-                    'signature_key'      => $data['signature_key']
+                    'store_id' => $data['store_id'],
+                    'signature_key' => $data['signature_key']
                 ];
-                $aamarpay       = json_encode($aamarpay);
-                $data         = array_splice($data, 0, 4);
+                $aamarpay = json_encode($aamarpay);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $aamarpay;
-            }elseif ($request->identifier == 'tazapay') {
+            } elseif ($request->identifier == 'tazapay') {
                 $tazapay = [
-                    'public_key'      => $data['public_key'],
-                    'api_key'      => $data['api_key'],
-                    'api_secret'      => $data['api_secret']
+                    'public_key' => $data['public_key'],
+                    'api_key' => $data['api_key'],
+                    'api_secret' => $data['api_secret']
                 ];
-                $tazapay       = json_encode($tazapay);
-                $data         = array_splice($data, 0, 4);
+                $tazapay = json_encode($tazapay);
+                $data = array_splice($data, 0, 4);
                 $data['keys'] = $tazapay;
             }
             Payment_gateway::where('identifier', $request->identifier)->update($data);
@@ -741,7 +761,7 @@ class SettingController extends Controller
         if ($param1 == 'edit_email_template') {
             array_shift($data);
             unset($data['files']);
-            $data['subject']  = json_encode($request->subject);
+            $data['subject'] = json_encode($request->subject);
             $data['template'] = json_encode($request->template);
             NotificationSetting::where('id', $id)->update($data);
 
@@ -755,19 +775,19 @@ class SettingController extends Controller
 
         if ($param1 == 'notification_enable_disable') {
 
-            $id                       = $request->id;
-            $user_type                = $request->user_types;
-            $notification_type        = $request->notification_type;
-            $input_val                = $request->input_val;
+            $id = $request->id;
+            $user_type = $request->user_types;
+            $notification_type = $request->notification_type;
+            $input_val = $request->input_val;
             $notification_setting_row = NotificationSetting::where('id', $id)->first();
             if ($notification_type == 'system') {
-                $json_to_arr                 = json_decode($notification_setting_row->system_notification, true);
-                $json_to_arr[$user_type]     = $input_val;
+                $json_to_arr = json_decode($notification_setting_row->system_notification, true);
+                $json_to_arr[$user_type] = $input_val;
                 $data['system_notification'] = json_encode($json_to_arr);
             }
             if ($notification_type == 'email') {
-                $json_to_arr                = json_decode($notification_setting_row->email_notification, true);
-                $json_to_arr[$user_type]    = $input_val;
+                $json_to_arr = json_decode($notification_setting_row->email_notification, true);
+                $json_to_arr[$user_type] = $input_val;
                 $data['email_notification'] = json_encode($json_to_arr);
             }
             if ($notification_setting_row->is_editable == 1) {
@@ -787,7 +807,7 @@ class SettingController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'status' => 'success',
-                'msg'    => $msg,
+                'msg' => $msg,
             ]);
         } else {
             return redirect()->back();
@@ -797,26 +817,26 @@ class SettingController extends Controller
     public function about()
     {
 
-        $purchase_code    = get_settings('purchase_code');
+        $purchase_code = get_settings('purchase_code');
         $returnable_array = array(
             'purchase_code_status' => get_phrase('Not found'),
-            'support_expiry_date'  => get_phrase('Not found'),
-            'customer_name'        => get_phrase('Not found'),
+            'support_expiry_date' => get_phrase('Not found'),
+            'customer_name' => get_phrase('Not found'),
         );
 
         $personal_token = "gC0J1ZpY53kRpynNe4g2rWT5s4MW56Zg";
-        $url            = "https://api.envato.com/v3/market/author/sale?code=" . $purchase_code;
-        $curl           = curl_init($url);
+        $url = "https://api.envato.com/v3/market/author/sale?code=" . $purchase_code;
+        $curl = curl_init($url);
 
         //setting the header for the rest of the api
-        $bearer   = 'bearer ' . $personal_token;
-        $header   = array();
+        $bearer = 'bearer ' . $personal_token;
+        $header = array();
         $header[] = 'Content-length: 0';
         $header[] = 'Content-type: application/json; charset=utf-8';
         $header[] = 'Authorization: ' . $bearer;
 
         $verify_url = 'https://api.envato.com/v1/market/private/user/verify-purchase:' . $purchase_code . '.json';
-        $ch_verify  = curl_init($verify_url . '?code=' . $purchase_code);
+        $ch_verify = curl_init($verify_url . '?code=' . $purchase_code);
 
         curl_setopt($ch_verify, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch_verify, CURLOPT_SSL_VERIFYPEER, false);
@@ -831,16 +851,16 @@ class SettingController extends Controller
 
         if (is_array($response) && isset($response['verify-purchase']) && count($response['verify-purchase']) > 0) {
 
-            $item_name     = $response['verify-purchase']['item_name'];
+            $item_name = $response['verify-purchase']['item_name'];
             $purchase_time = $response['verify-purchase']['created_at'];
-            $customer      = $response['verify-purchase']['buyer'];
-            $licence_type  = $response['verify-purchase']['licence'];
+            $customer = $response['verify-purchase']['buyer'];
+            $licence_type = $response['verify-purchase']['licence'];
             $support_until = $response['verify-purchase']['supported_until'];
-            $customer      = $response['verify-purchase']['buyer'];
+            $customer = $response['verify-purchase']['buyer'];
 
             $purchase_date = date("d M, Y", strtotime($purchase_time));
 
-            $todays_timestamp         = strtotime(date("d M, Y"));
+            $todays_timestamp = strtotime(date("d M, Y"));
             $support_expiry_timestamp = strtotime($support_until);
 
             $support_expiry_date = date("d M, Y", $support_expiry_timestamp);
@@ -853,18 +873,18 @@ class SettingController extends Controller
 
             $returnable_array = array(
                 'purchase_code_status' => $support_status,
-                'support_expiry_date'  => $support_expiry_date,
-                'customer_name'        => $customer,
-                'product_license'      => 'valid',
-                'license_type'         => $licence_type,
+                'support_expiry_date' => $support_expiry_date,
+                'customer_name' => $customer,
+                'product_license' => 'valid',
+                'license_type' => $licence_type,
             );
         } else {
             $returnable_array = array(
                 'purchase_code_status' => 'invalid',
-                'support_expiry_date'  => 'invalid',
-                'customer_name'        => 'invalid',
-                'product_license'      => 'invalid',
-                'license_type'         => 'invalid',
+                'support_expiry_date' => 'invalid',
+                'customer_name' => 'invalid',
+                'product_license' => 'invalid',
+                'license_type' => 'invalid',
             );
         }
 
@@ -877,18 +897,18 @@ class SettingController extends Controller
         $purchase_code = $code;
 
         $personal_token = "FkA9UyDiQT0YiKwYLK3ghyFNRVV9SeUn";
-        $url            = "https://api.envato.com/v3/market/author/sale?code=" . $purchase_code;
-        $curl           = curl_init($url);
+        $url = "https://api.envato.com/v3/market/author/sale?code=" . $purchase_code;
+        $curl = curl_init($url);
 
         //setting the header for the rest of the api
-        $bearer   = 'bearer ' . $personal_token;
-        $header   = array();
+        $bearer = 'bearer ' . $personal_token;
+        $header = array();
         $header[] = 'Content-length: 0';
         $header[] = 'Content-type: application/json; charset=utf-8';
         $header[] = 'Authorization: ' . $bearer;
 
         $verify_url = 'https://api.envato.com/v1/market/private/user/verify-purchase:' . $purchase_code . '.json';
-        $ch_verify  = curl_init($verify_url . '?code=' . $purchase_code);
+        $ch_verify = curl_init($verify_url . '?code=' . $purchase_code);
 
         curl_setopt($ch_verify, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch_verify, CURLOPT_SSL_VERIFYPEER, false);
@@ -1110,17 +1130,20 @@ class SettingController extends Controller
                     if ($previous_slider_item == 'no') {
                         if ($request->hasFile('slider_items.' . $key)) {
                             $file_path = FileUploader::upload($request->slider_items[$key], 'uploads/home_page_image/university', 1500);
-                            if ($file_path) $slider_items[] = $file_path;
+                            if ($file_path)
+                                $slider_items[] = $file_path;
                         } else {
                             if (array_key_exists($key, $request->slider_items)) {
-                                if ($request->slider_items[$key]) $slider_items[] = $request->slider_items[$key];
+                                if ($request->slider_items[$key])
+                                    $slider_items[] = $request->slider_items[$key];
                             }
                         }
                     } else {
                         if ($request->hasFile('slider_items.' . $key)) {
                             remove_file($previous_slider_item);
                             $file_path = FileUploader::upload($request->slider_items[$key], 'uploads/home_page_image/university', 1500);
-                            if ($file_path) $slider_items[] = $file_path;
+                            if ($file_path)
+                                $slider_items[] = $file_path;
                         } else {
                             $slider_items[] = $previous_slider_item;
                         }
@@ -1262,8 +1285,8 @@ class SettingController extends Controller
         }
 
 
-        $data['home_page_id'] =  $id;
-        $data['key'] =  $home_page;
+        $data['home_page_id'] = $id;
+        $data['key'] = $home_page;
         $data['value'] = json_encode($speech);
         $homePageSetting = HomePageSetting::where('key', $home_page);
         if ($homePageSetting->first()) {
@@ -1284,24 +1307,24 @@ class SettingController extends Controller
     public function player_settings_update(Request $request)
     {
         if ($request->type == 'watermark') {
-            $watermark['watermark_width']   = $request->watermark_width;
-            $watermark['watermark_height']  = $request->watermark_height;
-            $watermark['watermark_top']     = $request->watermark_top;
-            $watermark['watermark_left']    = $request->watermark_left;
+            $watermark['watermark_width'] = $request->watermark_width;
+            $watermark['watermark_height'] = $request->watermark_height;
+            $watermark['watermark_top'] = $request->watermark_top;
+            $watermark['watermark_left'] = $request->watermark_left;
             $watermark['watermark_opacity'] = $request->watermark_opacity;
-            $watermark['watermark_type']    = $request->watermark_type;
-            $watermark['watermark_logo']    = $request->watermark_logo;
-            $watermark['animation_speed']    = $request->animation_speed;
+            $watermark['watermark_type'] = $request->watermark_type;
+            $watermark['watermark_logo'] = $request->watermark_logo;
+            $watermark['animation_speed'] = $request->animation_speed;
 
 
             $validator = Validator::make($watermark, [
-                'watermark_width'   => 'required|numeric',
-                'watermark_height'  => 'required|numeric',
-                'watermark_top'     => 'required|numeric',
-                'watermark_left'    => 'required|numeric',
+                'watermark_width' => 'required|numeric',
+                'watermark_height' => 'required|numeric',
+                'watermark_top' => 'required|numeric',
+                'watermark_left' => 'required|numeric',
                 'watermark_opacity' => 'required|integer|min:0|max:100',
-                'watermark_type'    => 'required|in:js,ffmpeg',
-                'animation_speed'   => 'required|numeric',
+                'watermark_type' => 'required|in:js,ffmpeg',
+                'animation_speed' => 'required|numeric',
             ]);
 
             $validator->sometimes('watermark_logo', 'file|mimes:png,jpg,gif', function ($input) {
@@ -1319,7 +1342,7 @@ class SettingController extends Controller
             }
 
             foreach ($watermark as $key => $data) {
-                if (! PlayerSettings::where('title', $key)->exists()) {
+                if (!PlayerSettings::where('title', $key)->exists()) {
                     PlayerSettings::insert(['title' => $key, 'description' => $data]);
                     continue;
                 }
