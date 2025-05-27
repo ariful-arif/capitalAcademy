@@ -343,10 +343,16 @@ Route::name('admin.')->prefix('admin')->middleware('admin')->group(function () {
         Route::post('live-class/settings/update', 'update_live_class_settings')->name('live.class.settings.update');
     });
 
-    Route::controller(OpenAiController::class)->group(function () {
+  Route::controller(OpenAiController::class)->group(function () {
         Route::get('open-ai/settings', 'settings')->name('open.ai.settings');
-        Route::post('open-ai/settings/update', 'settings_update')->name('open.ai.settings.update');
+        Route::post('open-ai/docs/upload', 'settings_update')->name('open.ai.settings.update');
         Route::post('open-ai/generate', 'generate')->name('open.ai.generate');
+
+
+        Route::post('open-ai/assistant/store', 'assistant_store')->name('open.ai.assistant.store');
+        Route::post('open-ai/upload/file', 'upload_file')->name('open.ai.upload.file');
+
+        Route::get('open-ai/remove/file', 'remove_file')->name('open.ai.remove.file');
     });
 
     Route::controller(PageBuilderController::class)->group(function () {

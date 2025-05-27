@@ -150,6 +150,9 @@ class DynamicPagesSettingController extends Controller
                 'thumbnail' => $request->hasFile('thumbnail')
                     ? $this->uploadFile($request->file('thumbnail'), 'scholarships_page', $existingData['thumbnail'] ?? null)
                     : ($existingData['thumbnail'] ?? ''),
+                'thumbnail_video_1' => $request->hasFile('thumbnail_video_1')
+                    ? $this->uploadFile($request->file('thumbnail_video_1'), 'scholarships_page', $existingData['thumbnail_video_1'] ?? null)
+                    : ($existingData['thumbnail_video_1'] ?? ''),
 
                 'howItWorks' => [
                     'title' => $request->input('how_it_works_title', $existingData['howItWorks']['title'] ?? ''),
@@ -278,6 +281,9 @@ class DynamicPagesSettingController extends Controller
                 'thumbnail_video' => $request->hasFile('thumbnail_video')
                     ? $this->uploadFile($request->file('thumbnail_video'), 'business_individuals', $existingData['thumbnail_video'] ?? null)
                     : ($existingData['thumbnail_video'] ?? ''),
+                'thumbnail_video_1' => $request->hasFile('thumbnail_video_1')
+                    ? $this->uploadFile($request->file('thumbnail_video_1'), 'business_individuals', $existingData['thumbnail_video_1'] ?? null)
+                    : ($existingData['thumbnail_video_1'] ?? ''),
                 'active_students' => $request->input('active_students', $existingData['active_students'] ?? ''),
                 'students_percentage' => $request->input('students_percentage', $existingData['students_percentage'] ?? ''),
                 'professionalChoose' => [
@@ -297,7 +303,7 @@ class DynamicPagesSettingController extends Controller
                 ],
                 'professionals' => [
                     'title' => $request->input('professionals_title', $existingData['professionals']['title'] ?? ''),
-                    'subtitle' => $request->input('professionals_subtitle', $existingData['professionals']['subtitle'] ?? ''),
+                    // 'subtitle' => $request->input('professionals_subtitle', $existingData['professionals']['subtitle'] ?? ''),
                     'subtitle1' => $request->input('professionals_subtitle1', $existingData['professionals']['subtitle1'] ?? ''),
                     'subtitle2' => $request->input('professionals_subtitle2', $existingData['professionals']['subtitle2'] ?? ''),
                     'subtitle3' => $request->input('professionals_subtitle3', $existingData['professionals']['subtitle3'] ?? ''),
@@ -348,6 +354,9 @@ class DynamicPagesSettingController extends Controller
                 'thumbnail_video' => $request->hasFile('thumbnail_video')
                     ? $this->uploadFile($request->file('thumbnail_video'), 'business_individuals', $existingData['thumbnail_video'] ?? null)
                     : ($existingData['thumbnail_video'] ?? ''),
+                'thumbnail_video_1' => $request->hasFile('thumbnail_video_1')
+                    ? $this->uploadFile($request->file('thumbnail_video_1'), 'business_individuals', $existingData['thumbnail_video_1'] ?? null)
+                    : ($existingData['thumbnail_video_1'] ?? ''),
                 'learningSolution' => [
                     'title' => $request->input('learningSolution_title', $existingData['learningSolution']['title'] ?? ''),
                     // 'subtitle' => $request->input('learningSolution_subtitle', $existingData['learningSolution']['subtitle'] ?? []),

@@ -40,6 +40,7 @@ class MyProfileController extends Controller
         $data['facebook']  = $request->facebook;
         $data['twitter']   = $request->twitter;
         $data['instagram']   = $request->instagram;
+        $data['whatsapp']   = $request->whatsapp;
         $data['designation'] = $request->designation;
         $data['experience'] = $request->experience;
         // $data['video_thumbnail']   = $request->video_thumbnail;

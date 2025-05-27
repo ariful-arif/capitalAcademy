@@ -153,9 +153,12 @@ Route::get('team_users_profile', [ApiController::class, 'team_users_profile']);
 
 Route::get('certificate', [ApiController::class, 'certificate']);
 Route::get('certificate_details', [ApiController::class, 'certificate_details']);
-Route::post('certificate_achieve', [ApiController::class, 'certificate_achieve']);
 Route::get('my_certificate', [ApiController::class, 'my_certificate']);
+
 Route::get('final_exam_question', [ApiController::class, 'final_exam_question']);
+Route::post('final_exam_answer', [ApiController::class, 'final_exam_answer']);
+Route::post('final_exam_achieve', [ApiController::class, 'final_exam_achieve']);
+Route::post('certificate_achieve', [ApiController::class, 'certificate_achieve']);
 
 Route::controller(ApiController::class)->group(function () {
     Route::post('certificate_review_store', 'certificate_review_store');
@@ -175,6 +178,8 @@ Route::post('ai_summary', [ApiController::class, 'ai_summary']);
 Route::post('generate_mcq_from_pdf', [ApiController::class, 'generate_mcq_from_pdf']);
 Route::post('generate_free_response_from_pdf', [ApiController::class, 'generate_free_response_from_pdf']);
 Route::post('audio_podcast', [ApiController::class, 'audio_podcast']);
+Route::post('generate_ai_flashCards', [ApiController::class, 'generate_ai_flashCards']);
+Route::post('generate_quiz', [ApiController::class, 'generate_quiz']);
 
 Route::get('/all_dynamic_pages', [ApiController::class, 'all_dynamic_pages']);
 Route::get('/one_dynamic_pages', [ApiController::class, 'one_dynamic_pages']);
@@ -197,11 +202,19 @@ Route::get('course-bundle/purchase/success', [ApiController::class, 'course_bund
 Route::post('course-bundle/purchase', [ApiController::class, 'course_bundle_purchase'])->name('course_bundle_purchase');
 // Course bundle ended
 
+// Chat assistant API
+Route::post('ask-to-assistant', [ApiController::class, 'ask_to_assistant']);
+// Chat assistant API ended
+
 Route::get('/membership', [ApiController::class, 'membership']);
 Route::post('/membership_purchase', [ApiController::class, 'membership_purchase']);
 Route::get('/membership/success', [ApiController::class, 'membership_purchase_success'])->name('membership_purchase.success');
 
+
+Route::get('/download_invoice/{invoiceId}', [ApiController::class, 'download_invocie'])->name('invoice.download');
 Route::get('/video_cipher_by_video_id', [ApiController::class, 'video_cipher_by_video_id']);
+//Certificate download
+Route::get('/course/certificate/{identifier}', [ApiController::class, 'download_certificate'])->name('course.certificate');
 
 // });
 

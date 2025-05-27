@@ -27,6 +27,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'status',
         'photo',
         'instagram',
+        'whatsapp',
         'experience',
         'designation',
         'video_thumbnail',

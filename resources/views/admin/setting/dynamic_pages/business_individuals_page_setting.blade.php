@@ -58,6 +58,20 @@
             accept="video/*">
     </div>
 
+    <div class="fpb-7 mb-3 col">
+        <label class="form-label ol-form-label" for="thumbnail_video_1">{{ get_phrase('Video Thumbnail') }}</label>
+        @if (!empty($business_individuals_page_setting['thumbnail_video_1']))
+            <img src="{{ asset($business_individuals_page_setting['thumbnail_video_1']) }}" alt="Thumbnail_video_1" class="img-fluid mb-3"
+                style="width: 200px; height: 150px;">
+
+            {{-- <video controls class="mb-2" style="width: 200px; height: 150px;">
+                <source src="{{ asset($business_individuals_page_setting['thumbnail_video_1']) }}" type="video/mp4">
+                {{ get_phrase('Your browser does not support the video tag.') }}
+            </video> --}}
+        @endif
+        <input type="file" name="thumbnail_video_1" id="thumbnail_video_1" class="form-control ol-form-control" accept="image/*">
+    </div>
+
     <!-- Why Partner Section -->
     <div class="fpb-7 mb-3">
         <!--  Title -->
@@ -164,40 +178,40 @@
     <!-- Why Partner Section -->
     <!-- Why Partner Section -->
     <div class="fpb-7 mb-3">
-        <h4 class="mb-3 border-bottom">{{ $business_organization_page_setting['professionals']['title'] ?? '' }}</h4>
+        <h4 class="mb-3 border-bottom">{{ $business_individuals_page_setting['professionals']['title'] ?? '' }}</h4>
 
         <div class="fpb-7 mb-3">
             <label class="form-label ol-form-label" for="professionals_title">{{ get_phrase('Title') }}<span
                     class="required">*</span></label>
             <input type="text" name="professionals_title" id="professionals_title" class="form-control ol-form-control"
-                value="{{ $business_organization_page_setting['professionals']['title'] ?? '' }}">
+                value="{{ $business_individuals_page_setting['professionals']['title'] ?? '' }}">
         </div>
-        <div class="fpb-7 mb-3">
+        {{-- <div class="fpb-7 mb-3">
             <label class="form-label ol-form-label" for="professionals_subtitle">{{ get_phrase('subtitle ') }}<span
                     class="required">:</span></label>
-            <textarea type="text" name="professionals_subtitle" id="professionals_subtitle" class="form-control ol-form-control">{{ $business_organization_page_setting['professionals']['subtitle'] ?? '' }}</textarea>
-        </div>
+            <textarea type="text" name="professionals_subtitle" id="professionals_subtitle" class="form-control ol-form-control">{{ $business_individuals_page_setting['professionals']['subtitle'] ?? '' }}</textarea>
+        </div> --}}
         <div class="fpb-7 mb-3">
             <label class="form-label ol-form-label" for="professionals_subtitle1">{{ get_phrase('subtitle 1 ') }}<span
                     class="required">:</span></label>
-            <textarea type="text" name="professionals_subtitle1" id="professionals_subtitle1" class="form-control ol-form-control">{{ $business_organization_page_setting['professionals']['subtitle1'] ?? '' }}</textarea>
+            <textarea type="text" name="professionals_subtitle1" id="professionals_subtitle1" class="form-control ol-form-control">{{ $business_individuals_page_setting['professionals']['subtitle1'] ?? '' }}</textarea>
         </div>
-       
+
         <div class="fpb-7 mb-3">
             <label class="form-label ol-form-label" for="professionals_subtitle">{{ get_phrase('subtitle 2') }}<span
                     class="required">*</span></label>
-            <textarea type="text" name="professionals_subtitle2" id="professionals_subtitle" class="form-control ol-form-control">{{ $business_organization_page_setting['professionals']['subtitle2'] ?? '' }}</textarea>
+            <textarea type="text" name="professionals_subtitle2" id="professionals_subtitle" class="form-control ol-form-control">{{ $business_individuals_page_setting['professionals']['subtitle2'] ?? '' }}</textarea>
         </div>
-       
+
         <div class="fpb-7 mb-3">
             <label class="form-label ol-form-label" for="professionals_subtitle">{{ get_phrase('subtitle 3') }}<span
                     class="required">*</span></label>
-            <textarea type="text" name="professionals_subtitle3" id="professionals_subtitle" class="form-control ol-form-control">{{ $business_organization_page_setting['professionals']['subtitle3'] ?? '' }}</textarea>
+            <textarea type="text" name="professionals_subtitle3" id="professionals_subtitle" class="form-control ol-form-control">{{ $business_individuals_page_setting['professionals']['subtitle3'] ?? '' }}</textarea>
         </div>
         <div class="fpb-7 mb-3">
             <label class="form-label ol-form-label" for="professionals_subtitle">{{ get_phrase('subtitle 4') }}<span
                     class="required">*</span></label>
-            <textarea type="text" name="professionals_subtitle4" id="professionals_subtitle" class="form-control ol-form-control">{{ $business_organization_page_setting['professionals']['subtitle4'] ?? '' }}</textarea>
+            <textarea type="text" name="professionals_subtitle4" id="professionals_subtitle" class="form-control ol-form-control">{{ $business_individuals_page_setting['professionals']['subtitle4'] ?? '' }}</textarea>
         </div>
     </div>
     <!-- Why Partner Section -->
@@ -301,7 +315,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="pt-4">
+                                    {{-- <div class="pt-4">
                                         @if ($key == 0)
                                             <button type="button" class="btn ol-btn-light ol-icon-btn mt-2"
                                                 name="button" data-bs-toggle="tooltip"
@@ -315,7 +329,7 @@
                                                 <i class="fi-rr-minus-small"></i>
                                             </button>
                                         @endif
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         @endforeach
@@ -335,12 +349,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="pt-4">
+                {{-- <div class="pt-4">
                     <button type="button" class="btn ol-btn-light ol-icon-btn mt-2" name="button"
                         data-bs-toggle="tooltip" title="{{ get_phrase('Remove') }}" onclick="removecompany(this)">
                         <i class="fi-rr-minus-small"></i>
                     </button>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

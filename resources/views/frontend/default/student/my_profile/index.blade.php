@@ -67,6 +67,13 @@
                                 </div>
                                 <div class="col-lg-6 mb-20">
                                     <div class="form-group">
+                                        <label for="whatsapp" class="form-label">{{ get_phrase('Whatsapp') }}</label>
+                                        <input type="text" class="form-control" name="whatsapp"
+                                            value="{{ $user_details->whatsapp }}" id="whatsapp">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 mb-20">
+                                    <div class="form-group">
                                         <label for="linkedin" class="form-label">{{ get_phrase('Linkedin') }}</label>
                                         <input type="text" class="form-control" name="linkedin"
                                             value="{{ $user_details->linkedin }}" id="linkedin">

@@ -28,8 +28,8 @@
                             <label class="form-label ol-form-label" for="">{{ get_phrase('Select ai model') }}</label>
                             <select class="ol-form-control ol-select2" name="open_ai_model">
                                 <option value="gpt-3.5-turbo-0125" @if (get_settings('open_ai_model') == 'gpt-3.5-turbo-0125') selected @endif>gpt-3.5-turbo-0125</option>
-                                <option value="gpt-4-0125-preview" @if (get_settings('open_ai_model') == 'gpt-4-0125-preview') selected @endif>gpt-4-0125-preview ({{ get_phrase('Required premium account') }})
-                                </option>
+                                <option value="gpt-4-0125-preview" @if (get_settings('open_ai_model') == 'gpt-4-0125-preview') selected @endif>gpt-4-0125-preview</option>
+                                <option value="gpt-4o-mini" @if (get_settings('open_ai_model') == 'gpt-4o-mini') selected @endif>gpt-4o-mini</option>
                             </select>
                         </div>
 
@@ -52,6 +52,18 @@
                     
                 </div>
             </div>
+        </div>
+        <div class="col-md-6">
+            <h4 class="mb-4">{{get_phrase('AI avatar')}}</h4>
+
+            @if(get_settings('openai_assistant'))
+                @include('admin.open_ai.edit_assistant')
+            @else
+                <a onclick="ajaxModal('{{route('view', ['path' => 'admin.open_ai.add_assistant'])}}', '{{get_phrase('Add a new assistant')}}')" href="#" class="add-section-block text-center mt-4">
+                    <p class="sub-title"><i class="fi-rr-add"></i></p>
+                    <h3 class="title text-15px mt-2 fw-500">{{get_phrase('Create a Assistant')}}</h3>
+                </a>
+            @endif
         </div>
     </div>
 @endsection

@@ -79,6 +79,9 @@ use App\Models\BundlePayment;
 use App\Models\Membership;
 use App\Models\MembershipPackage;
 use App\Models\MembershipSubscription;
+use PDF;
+use App\Models\Certificate;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ApiController extends Controller
@@ -1586,7 +1589,6 @@ class ApiController extends Controller
     }
 
     // newsroom details
-
     public function newsroom_details_by_id(Request $request)
     {
         try {
@@ -1738,7 +1740,6 @@ class ApiController extends Controller
     }
 
     // learning details
-
     public function learning_details_by_id(Request $request)
     {
         try {
@@ -2372,7 +2373,6 @@ class ApiController extends Controller
             ], 500);
         }
     }
-
     public function my_courses(Request $request)
     {
         try {
@@ -2389,38 +2389,40 @@ class ApiController extends Controller
 
             $user_id = $user->id;
 
-            // Get limit and page from request without default values
-            $limit = $request->input('limit');
-            $page = $request->input('page');
+            // Get limit and page from request
+            $limit = $request->input('limit'); // Get limit if provided
+            $page = $request->input('page');   // Get page if provided
 
-            $query = Enrollment::where('user_id', $user_id)->orderBy('id', 'desc');
+            $isSubscribed = is_subscribed($user_id);
 
-            // Apply pagination if both limit and page are provided
+            if ($isSubscribed) {
+                // If user is subscribed, fetch all active courses
+                $query = Course::where('status', 'active')->orderBy('id', 'desc');
+            } else {
+                // Fetch only enrolled courses
+                $query = Course::whereIn('id', function ($subquery) use ($user_id) {
+                    $subquery->select('course_id')
+                        ->from('enrollments')
+                        ->where('user_id', $user_id);
+                })->orderBy('id', 'desc');
+            }
+
+            $total_courses = $query->count();
+
             if ($limit && $page) {
+                // Apply pagination if limit and page are provided
                 $limit = (int) $limit;
                 $page = (int) $page;
 
                 $offset = ($page - 1) * $limit;
-                $total_courses = $query->count();
-                $enrollments = $query->offset($offset)->limit($limit)->get();
+                $courses = $query->offset($offset)->limit($limit)->get();
             } else {
-                // No pagination: get all
-                $enrollments = $query->get();
-                $total_courses = count($enrollments);
+                // Fetch all courses without pagination
+                $courses = $query->get();
             }
-
-            // Fetch course details
-            $courses = [];
-            foreach ($enrollments as $enrollment) {
-                $course = Course::find($enrollment->course_id);
-                if ($course) {
-                    $courses[] = $course;
-                }
-            }
-
-            $courses = course_data($courses);
 
             // Add progress and lesson stats
+            $courses = course_data($courses);
             foreach ($courses as $key => $course) {
                 if (isset($course['id']) && $course['id'] > 0) {
                     $courses[$key]['completion'] = round(course_progress($course['id'], $user_id));
@@ -2435,11 +2437,11 @@ class ApiController extends Controller
             $response = [
                 'status' => true,
                 'status_code' => 200,
-                'message' => count($courses) > 0 ? 'My Courses retrieved successfully.' : 'Your myCourse list is empty.',
-                'data' => array_values($courses),
+                'message' => count($courses) > 0 ? 'My Courses retrieved successfully.' : 'Your course list is empty.',
+                'data' => $courses,
             ];
 
-            // Add pagination only if both are provided
+            // Include pagination only if both limit and page are provided
             if ($limit && $page) {
                 $response['pagination'] = [
                     'limit' => $limit,
@@ -2460,7 +2462,6 @@ class ApiController extends Controller
             ], 500);
         }
     }
-
 
 
     // Get all the sections
@@ -3027,6 +3028,7 @@ class ApiController extends Controller
                 'facebook' => $request->filled('facebook') ? htmlspecialchars($request->facebook, ENT_QUOTES, 'UTF-8') : $existingUser->facebook,
                 'twitter' => $request->filled('twitter') ? htmlspecialchars($request->twitter, ENT_QUOTES, 'UTF-8') : $existingUser->twitter,
                 'linkedin' => $request->filled('linkedin') ? htmlspecialchars($request->linkedin, ENT_QUOTES, 'UTF-8') : $existingUser->linkedin,
+                'whatsapp' => $request->filled('whatsapp') ? htmlspecialchars($request->whatsapp, ENT_QUOTES, 'UTF-8') : $existingUser->whatsapp,
             ];
 
             if ($request->hasFile('photo')) {
@@ -3414,6 +3416,7 @@ class ApiController extends Controller
                 # code...
                 $course = single_course_by_id($value->course_id);
                 $value->course_title = $course->title;
+                $value->invoice_url = route('invoice.download', ['invoiceId' => $value->id]);
             }
 
             // Return success response
@@ -4221,6 +4224,7 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
     public function final_exam_question(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -4275,6 +4279,56 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
+    public function final_exam_answer(Request $request)
+    {
+        // Ensure the user is authenticated
+        if (!auth('api')->check()) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 401,
+                'message' => 'Unauthorized. Please log in first.',
+            ], 401);
+        }
+
+        try {
+            // Validate input
+            $request->validate([
+                'certificate_id' => 'required|integer',
+                'result_marks' => 'required|numeric',
+                'question_answers' => 'required|array',
+            ]);
+
+            // Prepare data for insertion
+            $data = [
+                'user_id' => auth('api')->id(),
+                'certificate_id' => $request->input('certificate_id'),
+                'result_marks' => $request->input('result_marks'),
+                'question_answers' => json_encode($request->input('question_answers')), // encode array to JSON
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            // Insert into database
+            DB::table('final_exam_results')->insert($data);
+
+            return response()->json([
+                'status' => true,
+                'status_code' => 200,
+                'message' => 'Final exam successfully submitted.',
+                'data' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 500,
+                'message' => 'An error occurred while processing your request.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
 
     public function certificate_review_store(Request $request)
     {
@@ -4562,6 +4616,113 @@ class ApiController extends Controller
                 'status_code' => 200,
                 'message' => 'Certificate achieved successfully!',
             ], 200);
+
+        } catch (\Exception $e) {
+            // \Log::error('Certificate Achieve Error: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'status_code' => 500,
+                'message' => 'An error occurred while processing your request.',
+                'error' => $e->getMessage(), // Debugging purpose (remove in production)
+            ], 500);
+        }
+
+    }
+    public function final_exam_achieve(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            // 'user_id' => 'required|exists:users,id',
+            // 'course_ids' => 'required|array',
+            'certificate_id' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 422,
+                'message' => 'Validation errors occurred.',
+                'errors' => $validator->errors(),
+            ], 200);
+        }
+
+        // Ensure the user is authenticated
+        if (!auth('api')->check()) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 401,
+                'message' => 'Unauthorized. Please log in first.',
+            ], 401);
+        }
+
+        try {
+            $user_id = auth('api')->id();
+
+            // Fetch organization_id from User table
+            $user = User::find($user_id);
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 404,
+                    'message' => 'User not found.',
+                ], 404);
+            }
+            // $organization_id = $user->organization_id;
+
+            // Check if certificate already exists
+            $existingCertificate = MyCertificate::where('user_id', $user_id)
+                ->where('certificate_id', $request->input('certificate_id'))
+                ->first();
+
+            if ($existingCertificate) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 409,
+                    'message' => 'Certificate already issued to this user.',
+                ], 409);
+            }
+
+            // Get course_ids from certificate master or some other source
+            $certificate = Certificate::find($request->input('certificate_id'));
+            if (!$certificate) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 404,
+                    'message' => 'Certificate course requirements not found.',
+                ], 404);
+            }
+
+            $course_ids = json_decode($certificate->course_ids, true);
+
+
+            // Check course progress for each course
+            $incompleteCourses = [];
+            foreach ($course_ids as $course_id) {
+                $progress = course_progress($course_id, $user_id); // Assume this function returns progress percentage
+
+                if ($progress < 100) {
+                    $incompleteCourses[] = [
+                        'course_id' => $course_id,
+                        'progress' => $progress
+                    ];
+                }
+            }
+
+            // If there are incomplete courses, return error with progress details
+            if (!empty($incompleteCourses)) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 403,
+                    'message' => 'Some courses are not fully completed.',
+                    'incomplete_courses' => $incompleteCourses, // Return details of incomplete courses
+                ], 403);
+            }
+
+            return response()->json([
+                'status' => true,
+                'status_code' => 200,
+                'message' => 'All required courses have been completed. Final exam access is now available.',
+            ], 200);
+
 
         } catch (\Exception $e) {
             // \Log::error('Certificate Achieve Error: ' . $e->getMessage());
@@ -5828,18 +5989,32 @@ class ApiController extends Controller
             DB::table('subscription_package_enrollments')
                 ->where('id', $existing->id)
                 ->update([
-                    'license_amount' => $existing->license_amount + $metadata->license_amount,
+                    'license_limit' => $existing->license_limit + $metadata->license_limit,
                     'entry_date' => time(),
                     'expiry_date' => $expiryDate,
+                    'status' => 1, // Set current one to active
                 ]);
+
+            // Set all other enrollments for the user (excluding this one) to inactive
+            DB::table('subscription_package_enrollments')
+                ->where('user_id', $metadata->user_id)
+                ->where('id', '!=', $existing->id)
+                ->update(['status' => 0]);
+
         } else {
-            // Insert new enrollment
+            // Set all previous enrollments for the user to inactive
+            DB::table('subscription_package_enrollments')
+                ->where('user_id', $metadata->user_id)
+                ->update(['status' => 0]);
+
+            // Insert new enrollment with active status
             DB::table('subscription_package_enrollments')->insert([
                 'user_id' => $metadata->user_id,
                 'subscription_type' => $metadata->package_type,
                 'subscription_package_id' => $metadata->package_id,
                 'license_amount' => $metadata->license_amount,
                 'payment_method' => 'stripe',
+                'status' => 1,
                 'entry_date' => time(),
                 'expiry_date' => $expiryDate,
             ]);
@@ -5963,6 +6138,71 @@ class ApiController extends Controller
         ]);
     }
 
+    public function generate_ai_flashCards(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            // 'lesson_id' => 'required|exists:lessons,id',
+            'text' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 422,
+                'message' => 'Validation errors occurred.',
+                'errors' => $validator->errors(),
+            ], 200);
+        }
+
+        $text = $request->text;
+        $chatgpt_api_key = get_settings('chatgpt_api_key');
+        $chatgpt_model = get_settings('chatgpt_model');
+        // $text = substr($text, 0, 12000); // limit characters (tokens) if needed
+
+        // Create OpenAI prompt
+        $prompt = "Generate flashcards from the following text. Format each flashcard like this:\n\nFlashcard 1:\nQuestion 1: [Your Question]\nAnswer 1: [Your Answer]\n\n---\n\nText:\n" . $text;
+        // Your OpenAI API Key
+        $apiKey = $chatgpt_api_key;
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $apiKey,
+            'Content-Type' => 'application/json',
+        ])->timeout(120)->post('https://api.openai.com/v1/chat/completions', [
+                    'model' => $chatgpt_model,
+                    'messages' => [
+                        ['role' => 'system', 'content' => 'You are a flashcard generator. Format your response using "Flashcard 1:", "Question 1:", "Answer 1:" etc.'],
+                        ['role' => 'user', 'content' => $prompt],
+                    ],
+                ]);
+
+        if (!$response->successful()) {
+            return response()->json([
+                'error' => 'OpenAI API failed',
+                'details' => $response->json(),
+            ], $response->status());
+        }
+
+        // Extract flashcards
+        $rawText = $response['choices'][0]['message']['content'];
+        $flashcards = [];
+
+        preg_match_all('/Flashcard (\d+):\s+Question \d+: (.*?)\s+Answer \d+: (.*?)(?=(Flashcard \d+:|$))/s', $rawText, $matches, PREG_SET_ORDER);
+
+        foreach ($matches as $match) {
+            $flashcards[] = [
+                'question' => trim($match[2]),
+                'answer' => trim($match[3]),
+            ];
+        }
+
+        return response()->json([
+            'status' => true,
+            'status_code' => 200,
+            'message' => 'Flashcards generated successfully.',
+            // 'lesson_id' => $lesson->id,
+            'flashcards' => $flashcards,
+        ], 200);
+    }
+
     public function ai_summary(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -6044,6 +6284,66 @@ class ApiController extends Controller
     }
 
     // Generate MCQs from PDF
+    public function generate_quiz(Request $request)
+    {
+        // Validate input
+        $validator = Validator::make($request->all(), [
+            'text' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 422,
+                'message' => 'Validation errors occurred.',
+                'errors' => $validator->errors(),
+            ], 200);
+        }
+
+        $text = $request->text;
+
+        // Generate prompt for OpenAI API
+        $prompt = "From the following educational content, Each question should have 4 options (A, B, C, D) and clearly indicate the correct answer. Format them cleanly in a json formate." . $text;
+
+        // OpenAI API Key
+        $chatgpt_api_key = get_settings('chatgpt_api_key');
+        $chatgpt_model = get_settings('chatgpt_model');
+        $apiKey = $chatgpt_api_key;
+        // Make API call to OpenAI to generate MCQs
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $apiKey,
+            'Content-Type' => 'application/json',
+        ])->timeout(120)->post('https://api.openai.com/v1/chat/completions', [
+                    'model' => $chatgpt_model,
+                    'messages' => [
+                        ['role' => 'system', 'content' => 'You are an expert MCQ generator. Create high-quality multiple-choice questions with correct answers.'],
+                        ['role' => 'user', 'content' => $prompt],
+                    ],
+                ]);
+
+        if (!$response->successful()) {
+            return response()->json([
+                'error' => 'OpenAI API failed',
+                'details' => $response->json(),
+            ], $response->status());
+        }
+
+        $rawText = $response['choices'][0]['message']['content'];
+
+        if (preg_match('/```json\s*(.*?)\s*```/is', $rawText, $matches)) {
+            $jsonString = $matches[1];
+        } else {
+            $jsonString = $rawText;
+        }
+
+        return response()->json([
+            'status' => true,
+            'status_code' => 200,
+            'message' => 'Multiple Choice Questions generated successfully.',
+            'mcqs' => json_decode($jsonString),
+        ], 200);
+    }
+
     public function generate_mcq_from_pdf(Request $request)
     {
         // Validate input
@@ -6352,7 +6652,7 @@ class ApiController extends Controller
                 return response()->json([
                     'status' => false,
                     'status_code' => 404,
-                    // 'message' => 'No settings found.',
+                    'message' => 'No settings found.',
                     'data' => [],
                 ], 200);
             }
@@ -6398,7 +6698,7 @@ class ApiController extends Controller
             return response()->json([
                 'status' => true,
                 'status_code' => 200,
-                // 'message' => 'settings retrieved successfully.',
+                'message' => 'settings retrieved successfully.',
                 'data' => $settings,
             ], 200);
         } catch (\Exception $e) {
@@ -7328,7 +7628,195 @@ class ApiController extends Controller
     }
     // Course bundle ended
 
+// Chat assistant API
+    function ask_to_assistant(Request $request)
+    {
+        $message = $request->input('message');
+        $thread_id = $request->input('thread_id');
 
+        if($thread_id) {
+            $this->continueThread($message, $thread_id);
+        } else {
+            $thread_id = $this->create_thread($message);
+        }
+        
+        $run_id = $this->run_assistant($thread_id);
+        $run_status = $this->check_run_status($thread_id, $run_id);
+        $answer = $this->get_response($thread_id);
+
+        if ($run_status == 'completed') {
+            $response = [
+                'status' => true,
+                'status_code' => 200,
+                'message' => 'Response from the assistant',
+                'data' => [
+                    'thread_id' => $thread_id,
+                    'answer' => $answer
+                ]
+            ];
+        } else {
+            $response = [
+                'status' => false,
+                'status_code' => 500,
+                'message' => 'Failed to get response from the assistant',
+                'data' => []
+            ];
+        }
+
+        return $response;
+    }
+
+
+    function create_thread($message)
+    {
+        $apiKey = get_settings('open_ai_secret_key');
+
+        $threadPayload = json_encode([
+            "messages" => [
+                [
+                    "role" => "user",
+                    "content" => $message
+                ]
+            ]
+        ]);
+
+        $ch = curl_init('https://api.openai.com/v1/threads');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $threadPayload,
+            CURLOPT_HTTPHEADER => [
+                "Authorization: Bearer $apiKey",
+                "Content-Type: application/json",
+                "OpenAI-Beta: assistants=v2"
+            ]
+        ]);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $response = json_decode($response, true);
+
+        return $response['id'] ?? null;
+    }
+
+
+    function continueThread($userMessage, $threadId)
+    {
+        $apiKey = get_settings('open_ai_secret_key');
+
+        $messagePayload = json_encode([
+            "role" => "user",
+            "content" => $userMessage
+        ]);
+
+        $ch = curl_init("https://api.openai.com/v1/threads/$threadId/messages");
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $messagePayload,
+            CURLOPT_HTTPHEADER => [
+                "Authorization: Bearer $apiKey",
+                "Content-Type: application/json",
+                "OpenAI-Beta: assistants=v2"
+            ]
+        ]);
+
+        $messageResponse = curl_exec($ch);
+        curl_close($ch);
+    }
+
+
+    function run_assistant($thread_id)
+    {
+        $apiKey = get_settings('open_ai_secret_key');
+        $ai_assistant = json_decode(get_settings('openai_assistant') ?? '[]', true);
+
+        $assistantId = $ai_assistant['assistant_id'] ?? ''; // Default assistant ID if not set
+        $threadId = $thread_id;
+        $runPayload = json_encode([
+            "assistant_id" => $assistantId
+        ]);
+        $ch = curl_init("https://api.openai.com/v1/threads/$threadId/runs");
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $runPayload,
+            CURLOPT_HTTPHEADER => [
+                "Authorization: Bearer $apiKey",
+                "Content-Type: application/json",
+                "OpenAI-Beta: assistants=v2"
+            ]
+        ]);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+        $response = json_decode($response, true);
+
+        return $response['id'] ?? null;
+    }
+
+
+    function check_run_status($threadId, $runId){
+        $apiKey = get_settings('open_ai_secret_key');
+        sleep(2); // Wait 2 seconds
+        
+        do {
+            // Make API call first
+            $ch = curl_init("https://api.openai.com/v1/threads/$threadId/runs/$runId");
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => [
+                    "Authorization: Bearer $apiKey",
+                    "OpenAI-Beta: assistants=v2"
+                ]
+            ]);
+        
+            $response = curl_exec($ch);
+            curl_close($ch);
+    
+            $responseArray = json_decode($response, true);
+            $status = $responseArray['status'] ?? '';
+    
+    
+            // If still running or queued, wait before next check
+            if (in_array($status, ['queued', 'in_progress'])) {
+                sleep(1); // Wait 2 seconds
+            }
+    
+        } while (in_array($status, ['queued', 'in_progress']));
+    
+        return $status;
+    }
+
+
+    function get_response($threadId){
+        $apiKey = get_settings('open_ai_secret_key');
+        $ch = curl_init("https://api.openai.com/v1/threads/$threadId/messages");
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                "Authorization: Bearer $apiKey",
+                "OpenAI-Beta: assistants=v2"
+            ]
+        ]);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $messages = json_decode($response, true)['data'] ?? [];
+        // Return the last assistant message
+        foreach ($messages as $message) {
+            if ($message['role'] === 'assistant') {
+                return $message['content'][0]['text']['value'];
+            }
+        }
+
+        return 'No response from the assistant.';
+    }
+    
+
+    // Chat assistant API ended
     public function membership()
     {
         // Retrieve membership details (e.g., general information about the membership)
@@ -7464,6 +7952,20 @@ class ApiController extends Controller
     }
 
 
+    public function download_invocie($invoiceId = "")
+    {
+        // Retrieve invoice data (replace with actual data fetching logic)
+        $invoice = Payment_history::find($invoiceId);
+        $user = User::find(7);
+
+        // Render the Blade file as a view
+        $pdf = PDF::loadView('frontend.default.student.purchase_history.invoice_react', ['invoice' => $invoice, 'user' => $user]);
+
+        // Return the PDF as a downloadable response
+        return $pdf->download("course_invoice_{$invoiceId}.pdf");
+
+    }
+
     public function video_cipher_by_video_id(Request $request)
     {
         // Get the authenticated user (if any)
@@ -7532,6 +8034,29 @@ class ApiController extends Controller
 
     }
 
+    public function download_certificate($identifier)
+    {
+        // Get the authenticated user (if any)
+        $user = auth('api')->user();
+        $user_id = $user ? $user->id : null;
+
+        if (!empty($user_id)) {
+            $certificate = Certificate::where('identifier', $identifier);
+
+            if ($certificate->count() > 0) {
+                $qr_code_content_value = route('certificate', ['identifier' => $identifier]);
+                $qrcode = QrCode::size(300)->generate($qr_code_content_value);
+
+                $page_data['certificate'] = $certificate->first();
+                $page_data['qrcode'] = $qrcode;
+                return view('curriculum.certificate.download', $page_data);
+            } else {
+                return response()->json(['error' => 'Certificate not found.'], 400);
+            }
+        }
+
+        return response()->json(['error' => 'Please log in first.'], 400);
+    }
 
     public function payment2(Request $request)
     {

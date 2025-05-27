@@ -661,7 +661,6 @@ if (!function_exists('sub_categories')) {
     }
 }
 
-
 if (!function_exists('course_details_by_id')) {
     // Get sub categories
     function course_details_by_id($user_id = "", $course_id = "")
@@ -669,17 +668,16 @@ if (!function_exists('course_details_by_id')) {
         $course_details = get_course_by_id($course_id);
 
         $response = course_data_by_details($course_details);
-         if(!empty($user_id)) {
-            $response->sections = sections($course_id, $user_id);
-        } else {
-            $response->sections = sections($course_id);
-        }
+        $response->sections = sections($course_id);
         $response->reviews = review($course_id, $user_id,"course");
         $response->is_wishlisted = is_added_to_wishlist($user_id, $course_id);
         $response->is_purchased = is_purchased($user_id, $course_id);
+        $response->is_subscribed = is_subscribed($user_id);
         $response->liveClass = live_class_schedules($course_id);
         $response->is_cart = is_cart_item($user_id, $course_id);
         $response->duration = get_total_duration_of_lesson_by_course_id($course_id);
+        $response->completion = course_progress($course_id, $user_id);
+        $response->certificate = get_certificate($course_id, $user_id, $response->completion);
         // $response->lessons = get_lessons('course', $course_id)->count() . ' Lessons';
         // $response->includes = array(
         //     get_total_duration_of_lesson_by_course_id($course_id) . ' On demand videos',
@@ -691,6 +689,82 @@ if (!function_exists('course_details_by_id')) {
     }
 }
 
+if (!function_exists('is_subscribed')) {
+    function is_subscribed($user_id = 0)
+    {
+        if ($user_id <= 0) {
+            return false; // Invalid user ID
+        }
+
+        // Check direct subscription
+        $query = DB::table('subscription_package_enrollments')
+            ->where('user_id', $user_id)
+            ->where('status', 1)
+            ->latest('id') // Fetch the latest subscription
+            ->first();
+
+        if ($query && $query->expiry_date >= time()) {
+            return true;
+        }
+
+        // Check organization subscription
+        $organization_id = check_organisation_id($user_id);
+
+        if (!$organization_id) {
+            return false; // No organization ID found
+        }
+
+        $query2 = DB::table('subscription_package_enrollments')
+            ->where('user_id', $organization_id)
+            ->where('status', 1)
+            ->latest('id') // Fetch the latest subscription
+            ->first();
+
+        if ($query2 && $query2->expiry_date >= time()) {
+            // Check if the user is part of a team in the organization
+            $check_in_team = DB::table('teams')
+                ->whereJsonContains('member_ids', (string)$user_id)
+                ->exists();
+
+            return $check_in_team;
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('check_user_organisation_id')) {
+    function check_organisation_id($user_id = 0)
+    {
+        // Check subscription status
+        if ($user_id > 0) {
+            $organization_id = DB::table('users')->where('id', $user_id)->value('organization_id');
+
+            return $organization_id;
+        }
+    }
+}
+
+if (!function_exists('get_certificate')) {
+    function get_certificate($course_id, $user_id, $completion)
+    {
+        $certificate = App\Models\Certificate::where('course_id', $course_id)->where('user_id', $user_id);
+
+        if($certificate->count() == 0 && $completion >= 100){
+            $certificate_data['user_id']    = $user_id;
+            $certificate_data['course_id']  = $course_id;
+            $certificate_data['identifier'] = random(12);
+            $certificate_data['created_at'] = date('Y-m-d H:i:s');
+            App\Models\Certificate::insert($certificate_data);
+
+            return route('course.certificate', ['identifier' => $certificate_data['identifier']]);
+        }else {
+            return route('course.certificate', ['identifier' => $certificate->value('identifier')]);
+        }
+
+        return null;
+    }
+}
 
 if (!function_exists('course_related_category_course_for_course_details')) {
     function course_related_category_course_for_course_details($course_id = "")
@@ -1173,7 +1247,7 @@ function section_wise_lessons($section_id = "", $user_id = "")
         $response[$key]['attachment_type'] = $lesson->attachment_type;
         $response[$key]['audio'] = $lesson->audio ? $lesson->audio : "";
         $response[$key]['audio_url'] = $lesson->audio ? asset($lesson->audio) : "";
-        
+
         $response[$key]['summary'] = remove_js(htmlspecialchars_decode_($lesson->summary));
         if ($user_id > 0) {
             $response[$key]['is_completed'] = lesson_progress_api($lesson->id, $user_id);

@@ -47,6 +47,20 @@
             accept="video/*">
     </div>
 
+    <div class="fpb-7 mb-3 col">
+        <label class="form-label ol-form-label" for="thumbnail_video_1">{{ get_phrase('Video Thumbnail') }}</label>
+        @if (!empty($business_organization_page_setting['thumbnail_video_1']))
+            <img src="{{ asset($business_organization_page_setting['thumbnail_video_1']) }}" alt="Thumbnail_video_1" class="img-fluid mb-3"
+                style="width: 200px; height: 150px;">
+
+            {{-- <video controls class="mb-2" style="width: 200px; height: 150px;">
+                <source src="{{ asset($business_organization_page_setting['thumbnail_video_1']) }}" type="video/mp4">
+                {{ get_phrase('Your browser does not support the video tag.') }}
+            </video> --}}
+        @endif
+        <input type="file" name="thumbnail_video_1" id="thumbnail_video_1" class="form-control ol-form-control" accept="image/*">
+    </div>
+
     <!-- Why Partner Section -->
     <div class="fpb-7 mb-3">
         <!--  Title -->
@@ -173,7 +187,7 @@
                     class="required">:</span></label>
             <textarea type="text" name="enterPrise_subtitle1" id="enterPrise_subtitle1" class="form-control ol-form-control">{{ $business_organization_page_setting['enterPrise']['subtitle1'] ?? '' }}</textarea>
         </div>
-       
+
         <div class="fpb-7 mb-3">
             <label class="form-label ol-form-label" for="enterPrise_subtitle">{{ get_phrase('subtitle 2') }}<span
                     class="required">*</span></label>
@@ -298,7 +312,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="pt-4">
+                                    {{-- <div class="pt-4">
                                         @if ($key == 0)
                                             <button type="button" class="btn ol-btn-light ol-icon-btn mt-2"
                                                 name="button" data-bs-toggle="tooltip"
@@ -312,7 +326,7 @@
                                                 <i class="fi-rr-minus-small"></i>
                                             </button>
                                         @endif
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         @endforeach
@@ -332,12 +346,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="pt-4">
+                {{-- <div class="pt-4">
                     <button type="button" class="btn ol-btn-light ol-icon-btn mt-2" name="button"
                         data-bs-toggle="tooltip" title="{{ get_phrase('Remove') }}" onclick="removecompany1(this)">
                         <i class="fi-rr-minus-small"></i>
                     </button>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
