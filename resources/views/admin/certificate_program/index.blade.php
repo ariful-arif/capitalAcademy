@@ -225,6 +225,16 @@
                                                                     @endif
                                                                     <li>
                                                                         <a class="dropdown-item"
+                                                                            onclick="ajaxModal('{{ route('view', ['path' => 'admin.certificate_program.faq.index', 'certificate_program_id' => $row->id]) }}', '{{ get_phrase('Certificate FAQ') }}', 'modal-lg')"
+                                                                            href="javascript:void(0)">{{ get_phrase('Certificate FAQ') }}</a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item"
+                                                                            onclick="ajaxModal('{{ route('view', ['path' => 'admin.certificate_program.skill.index', 'certificate_program_id' => $row->id]) }}', '{{ get_phrase('Certificate Skills') }}', 'modal-lg')"
+                                                                            href="javascript:void(0)">{{ get_phrase('Set of Skills') }}</a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item"
                                                                             onclick="confirmModal('{{ route('admin.certificate_program.delete', $row->id) }}')"
                                                                             href="javascript:void(0)">{{ get_phrase('Delete Certificate') }}</a>
                                                                     </li>

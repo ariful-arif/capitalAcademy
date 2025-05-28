@@ -589,6 +589,12 @@ if (!function_exists('get_photo')) {
             } else {
                 return url('public/uploads/events/event_category_logo/placeholder/placeholder.png');
             }
+        }elseif ($type == 'course_bundle') {
+            if (file_exists('public/' . $identifier) && $identifier != "") {
+                return url('public/' . $identifier);
+            } else {
+                return url('public/uploads/courseBundle/placeholder/placeholder.png');
+            }
         }
     }
 }
@@ -668,7 +674,11 @@ if (!function_exists('course_details_by_id')) {
         $course_details = get_course_by_id($course_id);
 
         $response = course_data_by_details($course_details);
-        $response->sections = sections($course_id);
+        if(!empty($user_id)) {
+            $response->sections = sections($course_id, $user_id);
+        } else {
+            $response->sections = sections($course_id);
+        }
         $response->reviews = review($course_id, $user_id,"course");
         $response->is_wishlisted = is_added_to_wishlist($user_id, $course_id);
         $response->is_purchased = is_purchased($user_id, $course_id);
@@ -758,11 +768,11 @@ if (!function_exists('get_certificate')) {
             App\Models\Certificate::insert($certificate_data);
 
             return route('course.certificate', ['identifier' => $certificate_data['identifier']]);
-        }else {
+        }elseif($certificate->count() > 0 && $completion >= 100) {
             return route('course.certificate', ['identifier' => $certificate->value('identifier')]);
+        } else {
+            return null;
         }
-
-        return null;
     }
 }
 

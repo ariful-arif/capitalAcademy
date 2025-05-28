@@ -67,10 +67,10 @@
                                 <input type="number" class="form-control ol-form-control" name="subscription_limit" id="subscription_limit" value="{{ $course_bundle->subscription_limit }}" required>
                             </div>
 
-                            <div class="fpb-7 mb-3">
-                                <label for="banner" class="form-label ol-form-label">{{ get_phrase('Thumbnail') }}</label>
+                           <div class="fpb-7 mb-3">
+                                <label for="thumbnail" class="form-label ol-form-label">{{ get_phrase('Thumbnail') }}</label>
                                 <div class="col-sm-10">
-                                    <input type="file" name="banner" class="form-control ol-form-control" id="banner" />
+                                    <input type="file" name="thumbnail" class="form-control ol-form-control" id="thumbnail" />
                                 </div>
                             </div>
 

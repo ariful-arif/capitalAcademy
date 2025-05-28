@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@push('title', get_phrase('Edit Subscription Package'))
+@push('title', get_phrase('Create Membership Package'))
 
 @section('content')
     <div class="row mb-5">
@@ -9,23 +9,23 @@
                     <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap flex-md-nowrap">
                         <h4 class="title fs-16px">
                             <i class="fi-rr-settings-sliders me-2"></i>
-                            {{ get_phrase('Update Membership Package') }}
+                            {{ get_phrase('Add new Membership Package') }}
                         </h4>
                     </div>
                 </div>
             </div>
             <div class="ol-card p-3">
                 <div class="ol-card-body">
-                    <form action="{{ route('admin.membership_package.update', $membership_package->id) }}" method="post"
+                    <form action="{{ route('admin.membership.package_update', $membership_package->id) }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-6 pb-2">
                                 <div class="eForm-layouts">
-                                    <!-- Title -->
+                                    <!-- Package Name -->
                                     <div class="fpb-7 mb-3">
                                         <label class="form-label ol-form-label"
-                                            for="title">{{ get_phrase('Title') }}<span
+                                            for="title">{{ get_phrase('Package Title') }}<span
                                                 class="text-danger ms-1">*</span></label>
                                         <input type="text" name="title"
                                             value="{{ $membership_package->title }}"
@@ -35,12 +35,12 @@
 
                                     <div class="fpb-7 mb-3">
                                         <label class="form-label ol-form-label"
-                                            for="subtitle_1">{{ get_phrase('Sub Title') }}<span
+                                            for="subtitle_1">{{ get_phrase('Package Title') }}<span
                                                 class="text-danger ms-1">*</span></label>
                                         <input type="text" name="subtitle_1"
                                             value="{{ $membership_package->subtitle_1 }}"
                                             class="form-control ol-form-control"
-                                            placeholder="{{ get_phrase('Enter Package Sub Title') }}" required>
+                                            placeholder="{{ get_phrase('Enter Package Subtitle') }}" required>
                                     </div>
 
                                     <!-- Short Description -->
@@ -50,7 +50,7 @@
                                         <textarea name="subtitle_2" placeholder="{{ get_phrase('Enter Short Description') }}"
                                             class="form-control ol-form-control" rows="5">{!! $membership_package->subtitle_2 !!}</textarea>
                                     </div>
-
+                                    
                                     <!-- Package Type -->
                                     <div class="fpb-7 mb-3">
                                         <label for="type"
@@ -63,28 +63,28 @@
                                                 {{ 'Monthly' }}</option>
                                             <option value="Annual"
                                                 {{ old('type', $membership_package->type) == 'Annual' ? 'selected' : '' }}>
-                                                {{ 'Annual' }}</option>
+                                                {{ 'Annualy' }}</option>
                                         </select>
                                     </div>
 
                                     <!-- Package Period -->
                                     <div class="fpb-7 mb-3">
                                         <label for="period"
-                                            class="form-label ol-form-label">{{ get_phrase('Package Duration') }}</label>
+                                            class="form-label ol-form-label">{{ get_phrase('Package Period') }}</label>
                                         <input type="number" name="period" class="form-control ol-form-control"
                                             id="period" value="{{ $membership_package->period }}"
                                             min="1" step=""
-                                            placeholder="{{ get_phrase('Enter your package duration') }}">
+                                            placeholder="{{ get_phrase('Enter your package period') }}">
                                         <small>{{ 'Monthly * 3 or Yearly * 1' }}</small>
-                                    </div> 
-
+                                    </div>
+                                    <!-- Status -->
                                     <div class="fpb-7 mb-2">
                                         <label for="course_status"
                                             class="form-label ol-form-label">{{ get_phrase('Create as') }}
                                             <span class="text-danger ms-1">*</span></label>
                                         <div class="eRadios">
                                             <div class="form-check">
-                                                <input type="radio" value="active" name="status"
+                                                <input type="radio" value="1" name="status"
                                                     class="form-check-input eRadioSuccess" id="status_active" required
                                                     {{ old('status', $membership_package->status) == 1 ? 'checked' : '' }}>
                                                 <label for="status_active"
@@ -92,7 +92,7 @@
                                             </div>
 
                                             <div class="form-check">
-                                                <input type="radio" value="inactive" name="status"
+                                                <input type="radio" value="0" name="status"
                                                     class="form-check-input eRadioDark" id="status_inactive" required
                                                     {{ old('status', $membership_package->status) == 0 ? 'checked' : '' }}>
                                                 <label for="status_inactive"
@@ -106,14 +106,8 @@
                             <div class="col-md-6">
                                 <div class="eForm-layouts">
 
-
-
-
-
                                     <!-- Pricing Type -->
                                     <div class="fpb-7 mb-3">
-
-
                                         <!-- Paid Section -->
                                         <div class="paid-section" id="paid-section">
                                             <div class="fpb-7 mb-3">
@@ -132,26 +126,32 @@
                                             <div class="fpb-7">
                                                 <div class="">
                                                     <label for="info"
-                                                        class="form-label ol-form-label">{{ get_phrase('Info') }}</label>
+                                                        class="form-label ol-form-label">{{ get_phrase('Features') }}</label>
                                                     <div class="">
                                                         <div id = "faq_area">
                                                             @php
-                                                                $infos = is_string($membership_package->info)
-                                                                    ? json_decode($membership_package->info, true)
-                                                                    : $membership_package->info;
+                                                                $features = is_string($membership_package->features)
+                                                                    ? json_decode($membership_package->features, true)
+                                                                    : $membership_package->features;
                                                             @endphp
-                                                            @if (is_array($infos) && count($infos) > 0)
-                                                                @foreach ($infos as $key => $info)
+                                                            @if (is_array($features) && count($features) > 0)
+                                                                @foreach ($features as $key => $feature)
                                                                     <div class="d-flex mt-2">
                                                                         <div class="flex-grow-1 pe-3">
                                                                             <div class="form-group">
                                                                                 <input type="text"
-                                                                                    value="{{ $info ?? '' }}"
-                                                                                    class="form-control ol-form-control"
-                                                                                    name="info[]"
+                                                                                    value="{{ $feature['title'] ?? '' }}"
+                                                                                    class="form-control ol-form-control mb-2"
+                                                                                    name="feature[]"
                                                                                     id="faqs{{ $key ?? '' }}"
-                                                                                    placeholder="{{ get_phrase('Add Info') }}">
-                                                                                {{-- <textarea name="faq_description[]" rows="2" class="form-control ol-form-control mt-2" placeholder="{{get_phrase('Answer')}}">{{$faq['description'] ?? ''}}</textarea> --}}
+                                                                                    placeholder="{{ get_phrase('Add feature') }}">
+
+                                                                                <input type="text"
+                                                                                    value="{{ $feature['description'] ?? '' }}"
+                                                                                    class="form-control ol-form-control"
+                                                                                    name="feature[]"
+                                                                                    id="faqs{{ $key ?? '' }}"
+                                                                                    placeholder="{{ get_phrase('Add subfeature') }}">
                                                                             </div>
                                                                         </div>
                                                                         <div class="">
@@ -181,11 +181,13 @@
                                                                 <div class="d-flex mt-2">
                                                                     <div class="flex-grow-1 pe-3">
                                                                         <div class="form-group">
-                                                                            <input type="text"
-                                                                                class="form-control ol-form-control"
-                                                                                name="info[]" id="faqs"
-                                                                                placeholder="{{ get_phrase('Add Info') }}">
-                                                                            {{-- <textarea name="faq_description[]" rows="2" class="form-control ol-form-control mt-2" placeholder="{{get_phrase('Answer')}}"></textarea> --}}
+                                                                            <input type="text" class="form-control ol-form-control mb-2"
+                                                                                name="feature[]" id="faqs"
+                                                                                placeholder="{{ get_phrase('Add feature') }}">
+                                                                                
+                                                                            <input type="text" class="form-control ol-form-control"
+                                                                                name="subfeature[]" id="faqs"
+                                                                                placeholder="{{ get_phrase('Add subfeature') }}">
                                                                         </div>
                                                                     </div>
                                                                     <div class="">
@@ -202,10 +204,13 @@
                                                                 <div class="d-flex mt-2">
                                                                     <div class="flex-grow-1 pe-3">
                                                                         <div class="form-group">
-                                                                            <input type="text"
-                                                                                class="form-control ol-form-control"
-                                                                                name="info[]"
-                                                                                placeholder="{{ get_phrase('Add Info') }}">
+                                                                            <input type="text" class="form-control ol-form-control mb-2"
+                                                                                name="feature[]"
+                                                                                placeholder="{{ get_phrase('Add feature') }}">
+                                                                            
+                                                                            <input type="text" class="form-control ol-form-control mb-2"
+                                                                                name="subfeature[]"
+                                                                                placeholder="{{ get_phrase('Add subfeature') }}">
                                                                             {{-- <textarea name="faq_description[]" rows="2" class="form-control ol-form-control mt-2" placeholder="{{get_phrase('Answer')}}"></textarea> --}}
                                                                         </div>
                                                                     </div>
@@ -263,39 +268,6 @@
             jQuery(faqElem).parent().parent().remove();
         }
 
-        // Image Preview for Certificate Template
-        document.getElementById('banner').addEventListener('change', function(event) {
-            let file = event.target.files[0];
-            if (file) {
-                let reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('previewImage').src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Initialize Select2
-        $(document).ready(function() {
-            $('.ol-select2').select2({
-                placeholder: "Select your banner",
-                allowClear: true
-            });
-        });
-
-        // function appendOutcome() {
-        //   jQuery('#outcomes_area').append(blank_outcome);
-        // }
-        // function removeOutcome(outcomeElem) {
-        //   jQuery(outcomeElem).parent().parent().remove();
-        // }
-
-        // function appendRequirement() {
-        //   jQuery('#requirement_area').append(blank_requirement);
-        // }
-        // function removeRequirement(requirementElem) {
-        //   jQuery(requirementElem).parent().parent().remove();
-        // }
     </script>
 
 @endpush

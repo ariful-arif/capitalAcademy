@@ -79,6 +79,8 @@ use App\Models\BundlePayment;
 use App\Models\Membership;
 use App\Models\MembershipPackage;
 use App\Models\MembershipSubscription;
+use App\Models\CertificateProgramFaq;
+use App\Models\CertificateProgramSkill;
 use PDF;
 use App\Models\Certificate;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -3725,8 +3727,118 @@ class ApiController extends Controller
             ], 500);
         }
     }
+    public function ask_expart_list(Request $request)
+    {
+        try {
+            if (!auth('api')->check()) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 401,
+                    'message' => 'Unauthorized. Please log in first.',
+                ], 401);
+            }
 
+            $validator = Validator::make($request->all(), [
+                'receiver_id' => 'required|exists:users,id',
+            ]);
 
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 422,
+                    'message' => 'Validation errors occurred.',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $user_id = auth('api')->user()->id;
+            $receiver_id = $request->receiver_id;
+
+            // Check for existing thread
+            $thread = MessageThread::where(function ($query) use ($user_id, $receiver_id) {
+                $query->where('contact_one', $user_id)->where('contact_two', $receiver_id);
+            })->orWhere(function ($query) use ($user_id, $receiver_id) {
+                $query->where('contact_one', $receiver_id)->where('contact_two', $user_id);
+            })->first();
+
+            // Create new thread if not exists
+            if (!$thread) {
+                $thread = MessageThread::create([
+                    'code' => Str::random(25),
+                    'contact_one' => $user_id,
+                    'contact_two' => $receiver_id,
+                ]);
+            }
+
+            // Get user details
+            $contactOne = User::find($thread->contact_one);
+            $contactTwo = User::find($thread->contact_two);
+
+            $thread->contact_one_user = [
+                'id' => $contactOne->id ?? null,
+                'name' => $contactOne->name ?? 'Deleted User',
+                'photo' => isset($contactOne->photo) ? get_photo('user_image', $contactOne->photo) : null,
+                'role' => $contactOne->role ?? 'Deleted User'
+            ];
+            $thread->contact_two_user = [
+                'id' => $contactTwo->id ?? null,
+                'name' => $contactTwo->name ?? 'Deleted User',
+                'photo' => isset($contactTwo->photo) ? get_photo('user_image', $contactTwo->photo) : null,
+                'role' => $contactTwo->role ?? 'Deleted User'
+            ];
+
+            // Get messages for this thread
+            $messages = Message::where('thread_id', $thread->id)
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            foreach ($messages as $message) {
+                $message->type = $message->message ? 'text' : 'file';
+                $message->sender = $message->sender_id == $user_id ? 'me' : 'you';
+
+                $fileData = [];
+
+                if ($message->type === 'file') {
+                    $files = MediaFile::where('chat_id', $message->id)->get();
+                    foreach ($files as $file) {
+                        $fileData[] = [
+                            'type' => $file->file_type,
+                            'media' => url('public/uploads/message/' . $thread->code . '/' . $file->file_name),
+                        ];
+                    }
+                }
+
+                $message->files = $fileData;
+            }
+
+            // $last_message = $messages->last();
+            // $thread->last_message = $last_message ? [
+            //     'id' => $last_message->id,
+            //     'sender' => $last_message->sender,
+            //     'message' => $last_message->message ?? 'Media file',
+            //     'type' => $last_message->type,
+            //     'created_at' => $last_message->created_at,
+            //     'is_read' => $last_message->is_read,
+            // ] : null;
+
+            return response()->json([
+                'status' => true,
+                'status_code' => 200,
+                'message' => 'Chat retrieved successfully.',
+                'data' => [
+                    'chat_thread' => $thread,
+                    'conversation' => $messages,
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 500,
+                'message' => 'An unexpected error occurred.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
     public function chat_save(Request $request)
     {
 
@@ -4123,65 +4235,16 @@ class ApiController extends Controller
             $certificateDetails['total_courses'] = $totalCourses;
             $certificateDetails['total_lessons'] = $totalLessons;
 
-            $certificateDetails['faq'] = [
-                [
-                    "title" => "What prerequisites do I need for this course?",
-                    "description" => "Basic knowledge of HTML, CSS, and WordPress would be beneficial. Familiarity with Bootstrap framework is also helpful but not mandatory."
-                ],
-                [
-                    "title" => "Do I need to know PHP to take this course?",
-                    "description" => "While some basic understanding of PHP would be advantageous, this course focuses primarily on integrating Bootstrap with WordPress themes. Basic PHP concepts will be explained as needed."
-                ],
-                [
-                    "title" => "What version of Bootstrap does this course cover?",
-                    "description" => "This course covers Bootstrap 5, the latest stable version at the time of creation. However, the principles taught are generally applicable to newer versions as well."
-                ],
-                [
-                    "title" => "Will this course teach me how to create custom WordPress themes from scratch?",
-                    "description" => "Yes, by the end of this course, you will have the knowledge and skills to develop custom WordPress themes using Bootstrap, tailored to your specific needs."
-                ],
-                [
-                    "title" => "Can I use the skills learned in this course to customize existing WordPress themes?",
-                    "description" => "Absolutely! The techniques taught in this course are applicable to both creating themes from scratch and customizing existing themes to better suit your requirements."
-                ],
-                [
-                    "title" => "Do I need to have a WordPress website already set up to take this course?",
-                    "description" => "It's recommended to have a basic understanding of WordPress, including how to set up a WordPress site and install themes. However, detailed instructions will be provided on how to set up a local WordPress environment for development purposes."
-                ]
-            ];
 
-            $certificateDetails['skilled'] = [
-                'accounting' => [
-                    'name' => 'Accounting',
-                    'percentage' => 50,
-                    'description' => "Identify the key accounting standards commonly encountered by financial analysts and explain the impact on financial statements and financial models.Identify key items on the financial statements and describe the interrelationship between all the components."
-                ],
-                'business' => [
-                    'name' => 'Business',
-                    'percentage' => 10,
-                    'description' => "Identify the key accounting standards commonly encountered by financial analysts and explain the impact on financial statements and financial models.Identify key items on the financial statements and describe the interrelationship between all the components."
-                ],
-                'finance' => [
-                    'name' => 'finance',
-                    'percentage' => 5,
-                    'description' => "Identify the key accounting standards commonly encountered by financial analysts and explain the impact on financial statements and financial models.Identify key items on the financial statements and describe the interrelationship between all the components."
-                ],
-                'management' => [
-                    'name' => 'management',
-                    'percentage' => 20,
-                    'description' => "Identify the key accounting standards commonly encountered by financial analysts and explain the impact on financial statements and financial models.Identify key items on the financial statements and describe the interrelationship between all the components."
-                ],
-                'marketing' => [
-                    'name' => 'marketing',
-                    'percentage' => 5,
-                    'description' => "Identify the key accounting standards commonly encountered by financial analysts and explain the impact on financial statements and financial models.Identify key items on the financial statements and describe the interrelationship between all the components."
-                ],
-                'project_management' => [
-                    'name' => 'project_management',
-                    'percentage' => 10,
-                    'description' => "Identify the key accounting standards commonly encountered by financial analysts and explain the impact on financial statements and financial models.Identify key items on the financial statements and describe the interrelationship between all the components."
-                ],
-            ];
+
+            $certificateDetails['faq'] = CertificateProgramFaq::select('title', 'description')->where('certificate_program_id', $certificate_id)->get()->toArray();
+            $certificateDetails_skills = CertificateProgramSkill::select('name', 'percentage', 'description')->where('certificate_program_id', $certificate_id)->get();
+            $skilled = [];
+            foreach ($certificateDetails_skills as $certificateDetails_skill) {
+                $skilled[slugify($certificateDetails_skill->name)] = $certificateDetails_skill;
+            }
+            $certificateDetails['skilled'] = $skilled;
+
             $user_1 = get_user_info(2);
             $user_1->photo = get_photo('user_image', $user_1->photo);
             $user_2 = get_user_info(3);
@@ -4214,7 +4277,6 @@ class ApiController extends Controller
                 'message' => 'Certificate details retrieved successfully',
                 'data' => $certificateDetails,
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -4224,7 +4286,7 @@ class ApiController extends Controller
             ], 500);
         }
     }
-
+    
     public function final_exam_question(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -7417,6 +7479,7 @@ class ApiController extends Controller
     }
 
     // Course bundle start
+    // Course bundle start
     function course_bundles(Request $request)
     {
         // Get course ids for specific instructor
@@ -7428,6 +7491,14 @@ class ApiController extends Controller
 
 
         $query = CourseBundle::query();
+        // Search
+        if ($request->filled('search')) {
+            $query->where(function ($query) use ($request) {
+                $query->where('title', 'like', '%' . $request->search . '%')
+                    ->orWhere('short_description', 'like', '%' . $request->search . '%');
+            });
+        }
+
 
         // Filter by category ID if provided
         if ($request->filled('bundle_category_id')) {
@@ -7459,7 +7530,12 @@ class ApiController extends Controller
 
         $bundles_with_courses = $bundles->getCollection()->transform(function ($bundle) {
             $course_ids_arr = json_decode($bundle->course_ids ?? '[]', true);
-            $bundle['courses'] = Course::select(['id', 'title', 'slug', 'short_description', 'thumbnail', 'is_paid', 'discounted_price', 'discount_flag', 'price'])->whereIn('id', $course_ids_arr)->get();
+            $bundle['thumbnail'] = get_photo('course_bundle', $bundle->thumbnail);
+            $bundle['courses'] = Course::select(['id', 'title', 'slug', 'short_description', 'thumbnail', 'is_paid', 'discounted_price', 'discount_flag', 'price'])->whereIn('id', $course_ids_arr)->get()->map(function ($course) {
+                // Transform the course thumbnail
+                $course->thumbnail = get_photo('course_thumbnail', $course->thumbnail);
+                return $course;
+            });
             return $bundle;
         });
 
@@ -7486,13 +7562,29 @@ class ApiController extends Controller
 
         $data = CourseBundle::find($id);
 
+        $data['thumbnail'] = get_photo('course_bundle', $data['thumbnail']);
+
         $course_ids_arr = json_decode($data->course_ids ?? '[]', true);
         $courses = Course::select(['id', 'user_id', 'title', 'slug', 'short_description', 'thumbnail', 'is_paid', 'discounted_price', 'discount_flag', 'price'])->whereIn('id', $course_ids_arr);
         $instructor_ids = $courses->pluck('user_id');
 
-        $data['bundle_ratings'] = BundleRating::with(['user'])->where('bundle_id', $id)->get();
-        $data['instructors'] = User::whereIn('id', $instructor_ids)->get();
-        $data['courses'] = $courses->get();
+        $data['bundle_ratings'] = BundleRating::with(['user'])->where('bundle_id', $id)->get()->map(function ($rating) {
+            // Check if the related user exists and transform the photo field
+            if ($rating->user) {
+                $rating->user->photo = get_photo('user_image', $rating->user->photo);
+            }
+            return $rating;
+        });
+        $data['instructors'] = User::whereIn('id', $instructor_ids)->get()->map(function ($instructor) {
+            // Transform the photo field for each instructor
+            $instructor->photo = get_photo('user_image', $instructor->photo);
+            return $instructor;
+        });
+        $data['courses'] = $courses->get()->map(function ($course) {
+            // Transform the course thumbnail
+            $course->thumbnail = get_photo('course_thumbnail', $course->thumbnail);
+            return $course;
+        });
         $data['faqs'] = json_decode(get_frontend_settings('website_faqs') ?? '[]', true);
 
 
@@ -7628,18 +7720,18 @@ class ApiController extends Controller
     }
     // Course bundle ended
 
-// Chat assistant API
+    // Chat assistant API
     function ask_to_assistant(Request $request)
     {
         $message = $request->input('message');
         $thread_id = $request->input('thread_id');
 
-        if($thread_id) {
+        if ($thread_id) {
             $this->continueThread($message, $thread_id);
         } else {
             $thread_id = $this->create_thread($message);
         }
-        
+
         $run_id = $this->run_assistant($thread_id);
         $run_status = $this->check_run_status($thread_id, $run_id);
         $answer = $this->get_response($thread_id);
@@ -7757,10 +7849,11 @@ class ApiController extends Controller
     }
 
 
-    function check_run_status($threadId, $runId){
+    function check_run_status($threadId, $runId)
+    {
         $apiKey = get_settings('open_ai_secret_key');
         sleep(2); // Wait 2 seconds
-        
+
         do {
             // Make API call first
             $ch = curl_init("https://api.openai.com/v1/threads/$threadId/runs/$runId");
@@ -7771,26 +7864,27 @@ class ApiController extends Controller
                     "OpenAI-Beta: assistants=v2"
                 ]
             ]);
-        
+
             $response = curl_exec($ch);
             curl_close($ch);
-    
+
             $responseArray = json_decode($response, true);
             $status = $responseArray['status'] ?? '';
-    
-    
+
+
             // If still running or queued, wait before next check
             if (in_array($status, ['queued', 'in_progress'])) {
                 sleep(1); // Wait 2 seconds
             }
-    
+
         } while (in_array($status, ['queued', 'in_progress']));
-    
+
         return $status;
     }
 
 
-    function get_response($threadId){
+    function get_response($threadId)
+    {
         $apiKey = get_settings('open_ai_secret_key');
         $ch = curl_init("https://api.openai.com/v1/threads/$threadId/messages");
         curl_setopt_array($ch, [
@@ -7814,9 +7908,11 @@ class ApiController extends Controller
 
         return 'No response from the assistant.';
     }
-    
+
 
     // Chat assistant API ended
+
+
     public function membership()
     {
         // Retrieve membership details (e.g., general information about the membership)

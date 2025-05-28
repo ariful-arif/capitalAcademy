@@ -119,6 +119,7 @@ Route::post('/newslatter_subscribe', [ApiController::class, 'newslatter_subscrib
 Route::post('/contact_us', [ApiController::class, 'contact_us']);
 
 Route::get('/chat_list', [ApiController::class, 'chat_list']);
+Route::get('/ask_expart_list', [ApiController::class, 'ask_expart_list']);
 Route::post('/chat_save', [ApiController::class, 'chat_save']);
 
 Route::get('/courseLevels', [ApiController::class, 'courseLevels']);

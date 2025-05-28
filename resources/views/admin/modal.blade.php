@@ -114,20 +114,24 @@
         $("#confirmModal").modal('show');
 
         if (elem != false) {
-            $.ajax({
-                url: url,
-                success: function(response) {
-                    response = JSON.parse(response);
-                    //For redirect to another url
-                    if (typeof response.success != "undefined") {
-                        window.location.href = response.success;
+            $('#confirmModal .confirm-btn').attr('href', '#');
+            $('#confirmModal .confirm-btn').off('click').on('click', function(e) {
+                e.preventDefault(); // Prevent default href behavior
+                $.ajax({
+                    url: url,
+                    success: function(response) {
+                        if (typeof JSON.parse(response).success == "undefined") {
+                            location.reload();
+                        }
+                        distributeServerResponse(response);
                     }
-                    distributeServerResponse(response);
-                }
+                });
+
+                $("#confirmModal").modal('hide');
             });
         } else {
             $('#confirmModal .confirm-btn').attr('href', url);
-            $('#confirmModal .confirm-btn').removeAttr('onclick');
+            $('#confirmModal .confirm-btn').off('click'); // Remove previous click handler if any
         }
     }
 </script>

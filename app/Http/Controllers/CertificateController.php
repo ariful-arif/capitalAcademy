@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\CertificateProgram;
+use App\Models\CertificateProgramSkill;
+use App\Models\CertificateProgramFaq;
 use App\Models\FileUploader;
 use Illuminate\Http\Request;
 
@@ -191,4 +193,126 @@ class CertificateController extends Controller
         return redirect()->route('admin.certificate_program')
             ->with('success', get_phrase('Certificate program deleted successfully'));
     }
+
+    // Certificate faq started
+    function certificate_faq_store(Request $request, $certificate_program_id){
+        $validated = $request->validate([
+            'question' => 'required|max:255',
+        ]);
+
+        $data['certificate_program_id'] = $certificate_program_id;
+        $data['title']               = $request->question;
+        $data['description']                 = $request->answer;
+        $data['created_at']             = date('Y-m-d H:i:s');
+        $data['updated_at']             = date('Y-m-d H:i:s');
+
+        CertificateProgramFaq::insert($data);
+
+        return json_encode([
+            'success' => get_phrase('FAQ added successfully'),
+            'html' => [
+                'elem' => '#ajaxModal .modal-body',
+                'content' => view('admin.certificate_program.faq.index', ['certificate_program_id' => $certificate_program_id])->render()
+            ]
+        ]);
+    }
+
+    function certificate_faq_update(Request $request, $id){
+        $current_data = CertificateProgramFaq::find($id);
+
+        $validated = $request->validate([
+            'question' => 'required|max:255',
+        ]);
+
+        $data['title']               = $request->question;
+        $data['description']                 = $request->answer;
+        $data['updated_at']             = date('Y-m-d H:i:s');
+
+        CertificateProgramFaq::where('id', $id)->update($data);
+
+        return json_encode([
+            'success' => get_phrase('FAQ updated successfully'),
+            'html' => [
+                'elem' => '#ajaxModal .modal-body',
+                'content' => view('admin.certificate_program.faq.index', ['certificate_program_id' => $current_data->certificate_program_id])->render()
+            ]
+        ]);
+    }
+
+    function certificate_faq_delete($id){
+        $current_data = CertificateProgramFaq::find($id);
+        CertificateProgramFaq::where('id', $id)->delete();
+
+        return json_encode([
+            'success' => get_phrase('FAQ deleted successfully'),
+            'html' => [
+                'elem' => '#ajaxModal .modal-body',
+                'content' => view('admin.certificate_program.faq.index', ['certificate_program_id' => $current_data->certificate_program_id])->render()
+            ]
+        ]);
+    }
+    // Certificate faq ended
+
+    // Certificate skill started
+    function certificate_skill_store(Request $request, $certificate_program_id){
+        $validated = $request->validate([
+            'name' => 'required|max:255',
+            'percentage' => 'required|numeric|min:0|max:100',
+        ]);
+
+        $data['certificate_program_id'] = $certificate_program_id;
+        $data['name']               = $request->name;
+        $data['percentage']         = $request->percentage;
+        $data['description']        = $request->description;
+        $data['created_at']         = date('Y-m-d H:i:s');
+        $data['updated_at']         = date('Y-m-d H:i:s');
+
+        CertificateProgramSkill::insert($data);
+
+        return json_encode([
+            'success' => get_phrase('Skill added successfully'),
+            'html' => [
+                'elem' => '#ajaxModal .modal-body',
+                'content' => view('admin.certificate_program.skill.index', ['certificate_program_id' => $certificate_program_id])->render()
+            ]
+        ]);
+    }
+
+    function certificate_skill_update(Request $request, $id){
+        $current_data = CertificateProgramSkill::find($id);
+
+        $validated = $request->validate([
+            'name' => 'required|max:255',
+            'percentage' => 'required|numeric|min:0|max:100',
+        ]);
+
+        $data['name']               = $request->name;
+        $data['percentage']         = $request->percentage;
+        $data['description']        = $request->description;
+        $data['updated_at']             = date('Y-m-d H:i:s');
+
+        CertificateProgramSkill::where('id', $id)->update($data);
+
+        return json_encode([
+            'success' => get_phrase('Skill updated successfully'),
+            'html' => [
+                'elem' => '#ajaxModal .modal-body',
+                'content' => view('admin.certificate_program.skill.index', ['certificate_program_id' => $current_data->certificate_program_id])->render()
+            ]
+        ]);
+    }
+
+    function certificate_skill_delete($id){
+        $current_data = CertificateProgramSkill::find($id);
+        CertificateProgramSkill::where('id', $id)->delete();
+
+        return json_encode([
+            'success' => get_phrase('Skill deleted successfully'),
+            'html' => [
+                'elem' => '#ajaxModal .modal-body',
+                'content' => view('admin.certificate_program.skill.index', ['certificate_program_id' => $current_data->certificate_program_id])->render()
+            ]
+        ]);
+    }
+    // Certificate skill ended
 }

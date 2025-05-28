@@ -61,10 +61,11 @@
                                 <label class="form-label ol-form-label" for="subscription_limit">{{ get_phrase('Subscription renew days') }}</label>
                                 <input type="number" class="form-control ol-form-control" name="subscription_limit" id="subscription_limit" placeholder="{{ get_phrase('Enter subscription renew days') }}" required>
                             </div>
-                            <div class="fpb-7 mb-3">
-                                <label class="form-label
-                                    ol-form-label" for="thumbnail">{{ get_phrase('Thumbnail') }}</label>
-                                <input type="file" name="thumbnail" class="form-control ol-form-control" id="thumbnail" accept="image/*" />
+                           <div class="fpb-7 mb-3">
+                                <label for="thumbnail" class="form-label ol-form-label">{{ get_phrase('Thumbnail') }}</label>
+                                <div class="col-sm-10">
+                                    <input type="file" name="thumbnail" class="form-control ol-form-control" id="thumbnail" />
+                                </div>
                             </div>
                             
                             <div class="fpb-7 mb-3">

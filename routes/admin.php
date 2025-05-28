@@ -566,6 +566,24 @@ Route::name('admin.')->prefix('admin')->middleware('admin')->group(function () {
         Route::post('certificate_program/update/{id}', 'update')->name('certificate_program.update');
         Route::get('certificate-program/delete/{id}', 'delete')
             ->name('certificate_program.delete');
+
+            // Certificate faq started
+        Route::post('certificate-faq/store/{certificate_program_id}', 'certificate_faq_store')
+            ->name('certificate_faq.store');
+        Route::post('certificate-faq/update/{id}', 'certificate_faq_update')
+            ->name('certificate_faq.update');
+        Route::get('certificate-faq/delete/{id}', 'certificate_faq_delete')
+            ->name('certificate_faq.delete');
+        // Certificate faq emded
+
+        // Certificate skills started
+        Route::post('certificate-skill/store/{certificate_program_id}', 'certificate_skill_store')
+            ->name('certificate_skill.store');
+        Route::post('certificate-skill/update/{id}', 'certificate_skill_update')
+            ->name('certificate_skill.update');
+        Route::get('certificate-skill/delete/{id}', 'certificate_skill_delete')
+            ->name('certificate_skill.delete');
+        // Certificate skills emded
     });
     //    Subscription route
     Route::controller(SubscriptionPackageController::class)->group(function () {
@@ -599,9 +617,14 @@ Route::name('admin.')->prefix('admin')->middleware('admin')->group(function () {
 
     });
 
-     // Membership route
+    // Membership route
     Route::controller(MembershipController::class)->group(function () {
         Route::get('/membership-settings', 'membership_settings')->name('membership.settings');
+        Route::get('/membership-package/create', 'package_create')->name('membership.package_create');
+        Route::post('/membership-package/store', 'package_store')->name('membership.package_store');
+        Route::get('/membership-package/edit/{id}', 'package_edit')->name('membership.package_edit');
+        Route::post('/membership-package/update/{id}', 'package_update')->name('membership.package_update');
+        Route::get('/membership-package/delete/{id}', 'package_delete')->name('membership.package_delete');
         Route::post('/membership-settings-update', 'membership_settings_update')->name('membership.settings.update');
         Route::get('/membership-subscriptions', 'membership_subscriptions')->name('membership.subscriptions');
     });

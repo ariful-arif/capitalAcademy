@@ -29,6 +29,8 @@ class GoogleAuthController extends Controller
         'name' => $googleUser->getName(),
         'google_id' => $googleUser->getId(),
         'photo' => $googleUser->getAvatar(),
+        'role' => "student",
+        'status' => 1,
         'password' => bcrypt($rawPassword),
     ]);
 

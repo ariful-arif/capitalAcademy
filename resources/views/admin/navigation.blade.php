@@ -574,6 +574,36 @@
                 </li>
             @endif
 
+            @if (has_permission('admin.membership.settings') ||
+                    has_permission('admin.membership.package_create') ||
+                    has_permission('admin.membership.package_edit') ||
+                    has_permission('admin.membership.subscriptions'))
+                <li
+                    class="sidebar-first-li first-li-have-sub {{ $current_route == 'admin.membership.settings' || $current_route == 'admin.membership.package_create' || $current_route == 'admin.membership.package_edit' || $current_route == 'admin.membership.subscriptions' ? 'active' : '' }}">
+                    <a href="javascript:void(0);">
+                        <span class="icon fi fi-rr-blog-text"></span>
+                        <div class="text">
+                            <span>{{ get_phrase('Membership Settings') }}</span>
+                        </div>
+                    </a>
+                    <ul class="first-sub-menu">
+                        <li class="first-sub-menu-title fs-14px mb-18px">{{ get_phrase('Membership Settings') }}</li>
+                        @if (has_permission('admin.membership.settings'))
+                            <li class="sidebar-second-li {{ $current_route == 'admin.membership.settings' ? 'active' : '' }}">
+                                <a
+                                    href="{{ route('admin.membership.settings') }}">{{ get_phrase('Membership Settings') }}</a>
+                            </li>
+                        @endif
+                        @if (has_permission('admin.membership.subscriptions'))
+                            <li class="sidebar-second-li {{ $current_route == 'admin.membership.subscriptions' ? 'active' : '' }}">
+                                <a
+                                    href="{{ route('admin.membership.subscriptions') }}">{{ get_phrase('Subscription list') }}</a>
+                            </li>
+                        @endif
+                    </ul>
+                </li>
+            @endif
+
 
         </ul>
     </nav>
