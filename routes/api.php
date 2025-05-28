@@ -158,7 +158,7 @@ Route::get('my_certificate', [ApiController::class, 'my_certificate']);
 
 Route::get('final_exam_question', [ApiController::class, 'final_exam_question']);
 Route::post('final_exam_answer', [ApiController::class, 'final_exam_answer']);
-Route::post('final_exam_achieve', [ApiController::class, 'final_exam_achieve']);
+Route::get('final_exam_achieve', [ApiController::class, 'final_exam_achieve']);
 Route::post('certificate_achieve', [ApiController::class, 'certificate_achieve']);
 
 Route::controller(ApiController::class)->group(function () {

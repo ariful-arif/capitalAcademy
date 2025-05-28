@@ -22,114 +22,107 @@
                             <div class="col-md-6 pb-2">
                                 <div class="eForm-layouts">
                                     <div class="fpb-7 mb-3">
-                                        <label class="form-label ol-form-label"
-                                            for="title">{{ get_phrase('Title') }}<span
-                                                class="text-danger ms-1">*</span></label>
-                                        <input type="text" name = "title" class="form-control ol-form-control"
-                                            placeholder="{{ get_phrase('Enter Certificate Title') }}" required>
+                                        <label class="form-label ol-form-label" for="title">{{ get_phrase('Title') }}<span class="text-danger ms-1">*</span></label>
+                                        <input type="text" name = "title" class="form-control ol-form-control" placeholder="{{ get_phrase('Enter Certificate Title') }}" required>
                                     </div>
                                     <div class="fpb-7 mb-3">
-                                        <label class="form-label ol-form-label"
-                                            for="short_description">{{ get_phrase('Short Description') }}</label>
-                                        <textarea name="short_description" placeholder="{{ get_phrase('Enter Short Description') }}"
-                                            class="form-control ol-form-control" rows="5"></textarea>
+                                        <label class="form-label ol-form-label" for="short_description">{{ get_phrase('Short Description') }}</label>
+                                        <textarea name="short_description" placeholder="{{ get_phrase('Enter Short Description') }}" class="form-control ol-form-control" rows="5"></textarea>
                                     </div>
                                     <div class="fpb-7 mb-3">
-                                        <label class="form-label ol-form-label"
-                                            for="description">{{ get_phrase('Description') }}</label>
-                                        <textarea name="description" placeholder="{{ get_phrase('Enter Description') }}"
-                                            class="form-control ol-form-control text_editor"></textarea>
+                                        <label class="form-label ol-form-label" for="description">{{ get_phrase('Description') }}</label>
+                                        <textarea name="description" placeholder="{{ get_phrase('Enter Description') }}" class="form-control ol-form-control text_editor"></textarea>
                                     </div>
                                     <div class="fpb-7 mb-3">
-                                        <label class="form-label ol-form-label"
-                                            for="title">{{ get_phrase('Certicificete Given Course') }}<span
-                                                class="text-danger ms-1">*</span></label>
-                                        <input type="number" name = "certificated_course_count" class="form-control ol-form-control"
-                                            placeholder="{{ get_phrase('Enter Certificate Course amount') }}" required>
+                                        <label class="form-label ol-form-label" for="title">{{ get_phrase('Certicificete Given Course') }}<span class="text-danger ms-1">*</span></label>
+                                        <input type="number" name="certificated_course_count" class="form-control ol-form-control" placeholder="{{ get_phrase('Enter Certificate Course amount') }}" required>
                                     </div>
                                     <div class="fpb-7 mb-3">
                                         <label class="form-label ol-form-label" for="final_pdf">{{ get_phrase('Final exam pdf') }}</label>
-                                        <input type="file" name="final_pdf" class="form-control ol-form-control"
-                                            id="final_pdf" />
+                                        <input type="file" name="final_pdf" class="form-control ol-form-control" id="final_pdf" />
+                                    </div>
+                                    <div class="fpb-7 mb-3">
+                                        <label class="form-label ol-form-label" for="pass_mark_percentage">{{ get_phrase('Percentage of pass mark') }}<span class="text-danger ms-1">*</span></label>
+                                        <input type="number" name="pass_mark_percentage" id="pass_mark_percentage" class="form-control ol-form-control" min="0" max="100" placeholder="{{ get_phrase('Enter percentage of pass mark') }}" required>
+                                    </div>
+
+                                    <hr class="my-3">
+                                    <h6 class="mb-3">{{get_phrase('Program Overview')}}</h6>
+
+                                    <div class="fpb-7 mb-3">
+                                        <label class="form-label ol-form-label" for="program_overview">{{ get_phrase('Overview') }}<span class="text-danger ms-1">*</span></label>
+                                        <textarea name="program_overview" id="program_overview" class="form-control ol-form-control"></textarea>
+                                    </div>
+
+                                    <div class="fpb-7 mb-3">
+                                        <label class="form-label ol-form-label" for="interactive_exercise">{{ get_phrase('Number of interactive exercise') }}<span class="text-danger ms-1">*</span></label>
+                                        <input type="number" name="interactive_exercise" id="interactive_exercise" class="form-control ol-form-control" min="0" placeholder="{{ get_phrase('Enter number of interactive exercise') }}" required>
+                                    </div>
+
+                                    <div class="fpb-7 mb-3">
+                                        <label class="form-label ol-form-label" for="certificate_type">{{ get_phrase('Type of certificate') }}<span class="text-danger ms-1">*</span></label>
+                                        <input type="text" name="certificate_type" id="certificate_type" class="form-control ol-form-control" placeholder="{{ get_phrase('Certificate type') }}" required>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="fpb-7 mb-3 ">
-                                    <label for="course_status"
-                                        class="col-sm-2 col-form-label ol-form-label">{{ get_phrase('Create as') }}
+                                    <label for="course_status" class="col-sm-2 col-form-label ol-form-label">{{ get_phrase('Create as') }}
                                         <span class="text-danger ms-1">*</span></label>
                                     <div class="eRadios">
                                         <div class="form-check">
-                                            <input type="radio" value="active" name="status"
-                                                class="form-check-input eRadioSuccess" id="status_active" required checked>
-                                            <label for="status_active"
-                                                class="form-check-label">{{ get_phrase('Active') }}</label>
+                                            <input type="radio" value="active" name="status" class="form-check-input eRadioSuccess" id="status_active" required checked>
+                                            <label for="status_active" class="form-check-label">{{ get_phrase('Active') }}</label>
                                         </div>
                                         <div class="form-check">
-                                            <input type="radio" value="private" name="status"
-                                                class="form-check-input eRadioPrimary" id="status_private" required>
-                                            <label for="status_private"
-                                                class="form-check-label">{{ get_phrase('Private') }}</label>
+                                            <input type="radio" value="private" name="status" class="form-check-input eRadioPrimary" id="status_private" required>
+                                            <label for="status_private" class="form-check-label">{{ get_phrase('Private') }}</label>
                                         </div>
                                         <div class="form-check">
-                                            <input type="radio" value="inactive" name="status"
-                                                class="form-check-input eRadioDark" id="status_inactive" required>
-                                            <label for="status_inactive"
-                                                class="form-check-label">{{ get_phrase('Inactive') }}</label>
+                                            <input type="radio" value="inactive" name="status" class="form-check-input eRadioDark" id="status_inactive" required>
+                                            <label for="status_inactive" class="form-check-label">{{ get_phrase('Inactive') }}</label>
                                         </div>
 
                                     </div>
                                 </div>
                                 <div class="fpb-7 mb-3">
-                                    <label class="form-label ol-form-label"
-                                        for="multiple_user_id">{{ get_phrase('Certificate Program Courses') }}<span
-                                            class="required text-danger">*</span>
+                                    <label class="form-label ol-form-label" for="multiple_user_id">{{ get_phrase('Certificate Program Courses') }}<span class="required text-danger">*</span>
                                     </label>
-                                    <select class="ol-select2 select2-hidden-accessible" name="course_ids[]"
-                                        multiple="multiple" required data-placeholder="Select certificate course">
+                                    <select class="ol-select2 select2-hidden-accessible" name="course_ids[]" multiple="multiple" required data-placeholder="Select certificate course">
                                         {{-- <option value="" disabled>{{ get_phrase('Select courses') }}</option> --}}
-                                        <option value=""  disabled>{{ get_phrase('Select certificate course') }}</option>
+                                        <option value="" disabled>{{ get_phrase('Select certificate course') }}</option>
                                         @foreach (App\Models\Course::where('status', 'active')->where('user_id', auth()->user()->id)->orderBy('title', 'desc')->get() as $course)
                                             <option value="{{ $course->id }}">{{ $course->title }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="fpb-7 mb-3">
-                                    <label for="logo"
-                                        class="form-label ol-form-label">{{ get_phrase('Logo') }}</label>
-                                    <input type="file" name="logo" class="form-control ol-form-control"
-                                        id="logo" accept="image/*" />
+                                    <label for="logo" class="form-label ol-form-label">{{ get_phrase('Logo') }}</label>
+                                    <input type="file" name="logo" class="form-control ol-form-control" id="logo" accept="image/*" />
                                 </div>
 
                                 <div class="fpb-7 mb-3">
-                                    <label for="thumbnail"
-                                        class="form-label ol-form-label">{{ get_phrase('Thumbnail') }}</label>
-                                    <input type="file" name="thumbnail" class="form-control ol-form-control"
-                                        id="thumbnail" accept="image/*" />
+                                    <label for="thumbnail" class="form-label ol-form-label">{{ get_phrase('Thumbnail') }}</label>
+                                    <input type="file" name="thumbnail" class="form-control ol-form-control" id="thumbnail" accept="image/*" />
                                 </div>
 
                                 <p class="title text-14px mb-3">{{ get_phrase('Certificate template') }}</p>
                                 <div class="ol-card-body">
                                     <div class="form-group text-start mb-3">
                                         <div class="">
-                                            <img id="previewImage" class="my-2" height="200px"
-                                                src="{{ asset('uploads/certificate-template/placeholder/placeholder.png') }}"
-                                                alt="Preview">
+                                            <img id="previewImage" class="my-2" height="200px" src="{{ asset('uploads/certificate-template/placeholder/placeholder.png') }}" alt="Preview">
                                         </div>
                                     </div>
                                     <div class="form-group mb-3">
                                         <label class="form-label ol-form-label" for="certificate_template">
                                             {{ get_phrase('Upload your certificate template') }}
                                         </label>
-                                        <input type="file" class="form-control" name="certificate_template"
-                                            id="certificate_template" accept="image/*">
+                                        <input type="file" class="form-control" name="certificate_template" id="certificate_template" accept="image/*">
                                     </div>
                                 </div>
                             </div>
                             <div class="pt-2">
-                                <button type="submit"
-                                    class="btn ol-btn-primary float-end">{{ get_phrase('Submit') }}</button>
+                                <button type="submit" class="btn ol-btn-primary float-end">{{ get_phrase('Submit') }}</button>
                             </div>
                         </div>
                     </form>

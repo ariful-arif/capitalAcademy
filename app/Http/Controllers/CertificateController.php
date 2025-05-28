@@ -61,6 +61,10 @@ class CertificateController extends Controller
         $data['description']       = $request->description;
         $data['certificated_course_count']       = $request->certificated_course_count;
         $data['course_ids'] = json_encode($request->course_ids);
+        $data['pass_mark_percentage'] = $request->pass_mark_percentage;
+        $data['program_overview'] = $request->program_overview;
+        $data['interactive_exercise'] = $request->interactive_exercise;
+        $data['certificate_type'] = $request->certificate_type;
         $data['created_at']  = date('Y-m-d H:i:s');
         $data['updated_at']  = date('Y-m-d H:i:s');
 
@@ -113,6 +117,10 @@ class CertificateController extends Controller
         $data['description']        = $request->description;
         $data['certificated_course_count']        = $request->certificated_course_count;
         $data['course_ids']         = json_encode($request->course_ids);
+        $data['pass_mark_percentage'] = $request->pass_mark_percentage;
+        $data['program_overview'] = $request->program_overview;
+        $data['interactive_exercise'] = $request->interactive_exercise;
+        $data['certificate_type'] = $request->certificate_type;
         $data['updated_at']         = now();
 
         // Handle Thumbnail Upload (if new file is uploaded)

@@ -1,16 +1,14 @@
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
     </IfModule>
-    
+
     <IfModule mod_headers.c>
-    <FilesMatch ".*\.(pdf|jpg|png|mp4|mp3|json|txt|zip|doc|docx|xlsx|ppt)$">
-        Header set Access-Control-Allow-Origin "*"
-    </FilesMatch>
+        <FilesMatch "\.(pdf|jpg|png|mp4|mp3|json|txt|zip|doc|docx|xlsx|ppt)$">
+            Header set Access-Control-Allow-Origin "*"
+        </FilesMatch>
     </IfModule>
-
-
-    
 
     RewriteEngine On
 
@@ -28,3 +26,4 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+

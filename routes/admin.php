@@ -40,6 +40,7 @@ use App\Http\Controllers\NewsroomController;
 use App\Http\Controllers\SubscriptionPackageController;
 use App\Http\Controllers\Admin\CourseBundleController;
 use App\Http\Controllers\Admin\MembershipController;
+use App\Http\Controllers\Admin\CourseSkillController;
 use App\Models\Newsroom;
 use Illuminate\Support\Facades\Route;
 
@@ -81,7 +82,11 @@ Route::name('admin.')->prefix('admin')->middleware('admin')->group(function () {
     Route::get('course/delete/{id}', [CourseController::class, 'delete'])->name('course.delete');
     Route::get('course/draft/{id}', [CourseController::class, 'draft'])->name('course.draft');
     Route::post('course/approval/{id}', [CourseController::class, 'approval'])->name('course.approval');
-
+// Course skills started
+    Route::post('course-skill/store/{course_id}', [CourseSkillController::class, 'course_skill_store'])->name('course_skill.store');
+    Route::post('course-skill/update/{id}', [CourseSkillController::class, 'course_skill_update'])->name('course_skill.update');
+    Route::get('course-skill/delete/{id}', [CourseSkillController::class, 'course_skill_delete'])->name('course_skill.delete');
+    // Course skills emded
     //invoice
     Route::get('invoice/{id?}', [InvoiceController::class, 'invoice'])->name('invoice');
 

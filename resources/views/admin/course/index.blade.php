@@ -360,7 +360,8 @@
                                                                 </p>
                                                             @elseif($row->discount_flag == 1)
                                                                 <p>{{ currency($row->discounted_price) }}
-                                                                    <del>{{ currency($row->price) }}</del></p>
+                                                                    <del>{{ currency($row->price) }}</del>
+                                                                </p>
                                                             @else
                                                                 <p>{{ currency($row->price) }}</p>
                                                             @endif
@@ -417,9 +418,15 @@
                                                                 @endif
                                                                 <li>
                                                                     <a class="dropdown-item"
+                                                                        onclick="ajaxModal('{{ route('view', ['path' => 'admin.course.skill.index', 'course_id' => $row->id]) }}', '{{ get_phrase('Course Skills') }}', 'modal-lg')"
+                                                                        href="javascript:void(0)">{{ get_phrase('Set of Skills') }}</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a class="dropdown-item"
                                                                         onclick="confirmModal('{{ route('admin.course.delete', $row->id) }}')"
                                                                         href="javascript:void(0)">{{ get_phrase('Delete Course') }}</a>
                                                                 </li>
+
                                                             </ul>
                                                         </div>
                                                     </td>

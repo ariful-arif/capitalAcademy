@@ -11,8 +11,10 @@ class CertificateProgram extends Model
     public $timestamps = true; // Enable automatic timestamps (created_at, updated_at)
     protected $casts = [
         'final_question' => 'array',
+        // In app/Models/Certificate.php
+        'course_ids' => 'array',
     ];
-    protected $fillable = [
+ protected $fillable = [
         'title',
         'slug',
         'user_id',
@@ -26,6 +28,10 @@ class CertificateProgram extends Model
         'logo',
         'thumbnail',
         'certificate_template',
+        'pass_mark_percentage',
+        'program_overview',
+        'interactive_exercise',
+        'certificate_type',
         'created_at',
         'updated_at',
     ];

@@ -60,6 +60,29 @@
                                             id="final_pdf"  />
                                     </div>
 
+                                    <div class="fpb-7 mb-3">
+                                        <label class="form-label ol-form-label" for="pass_mark_percentage">{{ get_phrase('Percentage of pass mark') }}<span class="text-danger ms-1">*</span></label>
+                                        <input type="number" value="{{$certificate_programs->pass_mark_percentage}}" name="pass_mark_percentage" id="pass_mark_percentage" class="form-control ol-form-control" min="0" max="100" placeholder="{{ get_phrase('Enter percentage of pass mark') }}" required>
+                                    </div>
+
+                                    <hr class="my-3">
+                                    <h6 class="mb-3">{{get_phrase('Program Overview')}}</h6>
+
+                                    <div class="fpb-7 mb-3">
+                                        <label class="form-label ol-form-label" for="program_overview">{{ get_phrase('Overview') }}<span class="text-danger ms-1">*</span></label>
+                                        <textarea name="program_overview" id="program_overview" class="form-control ol-form-control">{{$certificate_programs->program_overview}}</textarea>
+                                    </div>
+
+                                    <div class="fpb-7 mb-3">
+                                        <label class="form-label ol-form-label" for="interactive_exercise">{{ get_phrase('Number of interactive exercise') }}<span class="text-danger ms-1">*</span></label>
+                                        <input type="number" value="{{$certificate_programs->interactive_exercise}}" name="interactive_exercise" id="interactive_exercise" class="form-control ol-form-control" min="0" placeholder="{{ get_phrase('Enter number of interactive exercise') }}" required>
+                                    </div>
+
+                                    <div class="fpb-7 mb-3">
+                                        <label class="form-label ol-form-label" for="certificate_type">{{ get_phrase('Type of certificate') }}<span class="text-danger ms-1">*</span></label>
+                                        <input type="text" value="{{$certificate_programs->certificate_type}}" name="certificate_type" id="certificate_type" class="form-control ol-form-control" placeholder="{{ get_phrase('Certificate type') }}" required>
+                                    </div>
+
                                 </div>
                             </div>
 

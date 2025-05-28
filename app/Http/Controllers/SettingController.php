@@ -149,7 +149,7 @@ class SettingController extends Controller
                 Session::flash('success', get_phrase('Banner image update successfully'));
             }
         }
-        if ($request->type == 'footer_video' || $request->type == 'banner_video' || $request->type == 'home_page_body_video') {
+      if ($request->type == 'footer_video' || $request->type == 'banner_video' || $request->type == 'banner_video_dark' || $request->type == 'banner_video_light' || $request->type == 'body_video_dark' || $request->type == 'body_video_light' || $request->type == 'home_page_body_video') {
             if (isset($request->{$request->type}) && $request->{$request->type} != '') {
                 $video = $request->{$request->type}->extension();
 
@@ -162,6 +162,32 @@ class SettingController extends Controller
                 FrontendSetting::where('key', $request->type)->update(['value' => $video_path]);
 
                 Session::flash('success', get_phrase(ucwords(str_replace('_', ' ', $request->type)) . ' updated successfully'));
+            }
+        }
+
+        if ($request->type == 'banner_video_thumbnail') {
+            array_shift($data);
+
+            if (isset($request->banner_video_thumbnail) && $request->banner_video_thumbnail != '') {
+
+                $data = "uploads/frontend_videos/" . nice_file_name('banner_video_thumbnail', $request->banner_video_thumbnail->extension());
+                FileUploader::upload($request->banner_video_thumbnail, $data, 400, null, 200, 200);
+
+                FrontendSetting::where('key', $request->type)->update(['value' => $data]);
+                Session::flash('success', get_phrase('Banner video thumbnail update successfully'));
+            }
+        }
+
+        if ($request->type == 'body_video_thumbnail') {
+            array_shift($data);
+
+            if (isset($request->body_video_thumbnail) && $request->body_video_thumbnail != '') {
+
+                $data = "uploads/frontend_videos/" . nice_file_name('body_video_thumbnail', $request->body_video_thumbnail->extension());
+                FileUploader::upload($request->body_video_thumbnail, $data, 400, null, 200, 200);
+
+                FrontendSetting::where('key', $request->type)->update(['value' => $data]);
+                Session::flash('success', get_phrase('Body video thumbnail update successfully'));
             }
         }
 
