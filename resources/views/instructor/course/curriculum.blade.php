@@ -7,7 +7,7 @@
         @if ($sections->count() > 0)
             <a href="#" onclick="ajaxModal('{{ route('modal', ['instructor.course.lesson_type', 'id' => $course_details->id]) }}', '{{ get_phrase('Add new lesson') }}')" class="btn ol-btn-light ol-btn-sm">{{ get_phrase('Add lesson') }}</a>
 
-            <a href="#" onclick="ajaxModal('{{ route('modal', ['instructor.quiz.create', 'id' => $course_details->id]) }}', '{{ get_phrase('Add new quiz') }}')" class="btn ol-btn-light ol-btn-sm">{{ get_phrase('Add quiz') }}</a>
+            {{-- <a href="#" onclick="ajaxModal('{{ route('modal', ['instructor.quiz.create', 'id' => $course_details->id]) }}', '{{ get_phrase('Add new quiz') }}')" class="btn ol-btn-light ol-btn-sm">{{ get_phrase('Add quiz') }}</a> --}}
 
             <a href="#" onclick="ajaxModal('{{ route('modal', ['instructor.course.section_sort', 'id' => $course_details->id]) }}', '{{ get_phrase('Sort sections') }}')" class="btn ol-btn-light ol-btn-sm">{{ get_phrase('Sort Section') }}</a>
         @endif
@@ -69,6 +69,23 @@
                                                 <span class="fi-rr-pencil"></span>
                                             </a>
                                         @endif
+                                         <a href="#" data-bs-toggle="tooltip"
+                                            title="{{ get_phrase('Generate Flashcards') }}"
+                                            onclick="ajaxModal('{{ route('modal', ['admin.course.flash_cards.generate_flashcards', 'id' => $lesson->id]) }}', '{{ get_phrase('Generate Flashcards') }}', 'modal-xl')"
+                                            class="btn btn-outline-gray-small">{{ get_phrase('Flashcards') }}
+                                            {{-- class="edit-delete" --}}
+                                            {{-- <sp class="fi fi-rr-clipboard-list-check"></sp sdfan> --}}
+                                        </a>
+                                        <a href="#" data-bs-toggle="tooltip"
+                                            title="{{ get_phrase('Generate Quiz') }}"
+                                            onclick="ajaxModal('{{ route('modal', ['admin.course.flash_cards.select_quiz_method', 'id' => $lesson->id]) }}', '{{ get_phrase('Select quiz method') }}')"
+                                            class="btn btn-outline-gray-small">{{ get_phrase('Quiz') }}
+                                        </a>
+                                        <a href="#" data-bs-toggle="tooltip"
+                                            title="{{ get_phrase('Generate Summary') }}"
+                                            onclick="ajaxModal('{{ route('modal', ['admin.course.flash_cards.generate_summary', 'id' => $lesson->id]) }}', '{{ get_phrase('Generate Summary') }}', 'modal-xl')"
+                                            class="btn btn-outline-gray-small">{{ get_phrase('Summary') }}
+                                        </a>
 
                                         @if ($lesson->lesson_type != 'quiz')
                                             <a href="#" data-bs-toggle="tooltip" title="{{ get_phrase('Edit lesson') }}" onclick="ajaxModal('{{ route('modal', ['instructor.course.lesson_edit', 'id' => $lesson->id]) }}', '{{ get_phrase('Edit lesson') }}')" class="edit-delete">

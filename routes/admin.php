@@ -589,6 +589,10 @@ Route::name('admin.')->prefix('admin')->middleware('admin')->group(function () {
         Route::get('certificate-skill/delete/{id}', 'certificate_skill_delete')
             ->name('certificate_skill.delete');
         // Certificate skills emded
+        Route::get('certificate-program-builder/{id}', 'certificate_program_builder')
+            ->name('certificate_program_builder');
+        Route::post('certificate-program-builder/update/{id}', 'certificate_program_builder_update')
+            ->name('certificate_program_builder_update');
     });
     //    Subscription route
     Route::controller(SubscriptionPackageController::class)->group(function () {

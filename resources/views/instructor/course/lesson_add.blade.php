@@ -8,12 +8,12 @@
             {{ get_phrase('Video url') . ' [.mp4]' }}
         @elseif ($lesson_type == 'video')
             {{ get_phrase('Video file') }}
-        @elseif ($lesson_type == 'youtube' || $lesson_type == 'academy cloud' || $lesson_type == 'vimeo')
+        @elseif ($lesson_type == 'youtube' || $lesson_type == 'academy cloud' || $lesson_type == 'vimeo' ||  $lesson_type == 'vdocipher')
             {{ ucfirst(get_phrase($lesson_type)) }} {{ get_phrase('Video') }}
         @elseif($lesson_type == 'google_drive_video')
             {{ get_phrase('Google drive video') }}
-        @elseif($lesson_type == 'document')
-            {{ get_phrase('Document file') }}
+        {{-- @elseif($lesson_type == 'document')
+            {{ get_phrase('Document file') }} --}}
         @else
             {{ ucfirst($lesson_type) }}
         @endif
@@ -55,14 +55,16 @@
         @include('amazon_s3_type_lesson_add.php')
     @elseif ($lesson_type == 'google_drive_video')
         @include('instructor.course.google_drive_type_lesson_add')
-    @elseif ($lesson_type == 'document')
+        @elseif ($lesson_type == 'vdocipher')
+        @include('admin.course.vdocipher_type_lesson_add')
+    {{-- @elseif ($lesson_type == 'document')
         @include('instructor.course.document_type_lesson_add')
     @elseif ($lesson_type == 'text')
         @include('instructor.course.text_type_lesson_add')
     @elseif ($lesson_type == 'image')
         @include('instructor.course.image_file_type_lesson_add')
     @elseif ($lesson_type == 'iframe')
-        @include('instructor.course.iframe_type_lesson_add')
+        @include('instructor.course.iframe_type_lesson_add') --}}
     @endif
 
     <div class="form-group mb-3">

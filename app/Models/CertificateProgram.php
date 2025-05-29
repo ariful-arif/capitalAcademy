@@ -11,7 +11,6 @@ class CertificateProgram extends Model
     public $timestamps = true; // Enable automatic timestamps (created_at, updated_at)
     protected $casts = [
         'final_question' => 'array',
-        // In app/Models/Certificate.php
         'course_ids' => 'array',
     ];
  protected $fillable = [
@@ -31,8 +30,7 @@ class CertificateProgram extends Model
         'pass_mark_percentage',
         'program_overview',
         'interactive_exercise',
+        'certificate_builder_content',
         'certificate_type',
-        'created_at',
-        'updated_at',
     ];
 }

@@ -107,6 +107,11 @@ class CurriculumController extends Controller
         // $data['video_type'] = $request->lesson_provider;
         $data['audio'] = $file;
 
+        if ($request->thumbnail) {
+            $data['thumbnail'] = "uploads/lesson_file/thumbnail/" . nice_file_name($request->title, $request->thumbnail->extension());
+            FileUploader::upload($request->thumbnail, $data['thumbnail'], 400, null, 200, 200);
+        }
+
         if ($request->lesson_type == 'text') {
             $data['attachment'] = $request->text_description;
             $data['attachment_type'] = $request->lesson_provider;
@@ -246,6 +251,19 @@ class CurriculumController extends Controller
                 $sec = sprintf('%02d', $duration_formatter[2]);
                 $data['duration'] = $hour . ':' . $min . ':' . $sec;
             }
+        } elseif ($request->lesson_type == 'vdocipher') {
+
+            $data['video_type'] = $request->lesson_provider;
+            $data['lesson_src'] = $request->lesson_src;
+            if (empty($request->duration)) {
+                $data['duration'] = '00:00:00';
+            } else {
+                $duration_formatter = explode(':', $request->duration);
+                $hour = sprintf('%02d', $duration_formatter[0]);
+                $min = sprintf('%02d', $duration_formatter[1]);
+                $sec = sprintf('%02d', $duration_formatter[2]);
+                $data['duration'] = $hour . ':' . $min . ':' . $sec;
+            }
         }
 
         Lesson::insert($data);
@@ -307,6 +325,11 @@ class CurriculumController extends Controller
             $lesson['audio'] = $current_data->audio; // keep old file
         }
 
+        if ($request->thumbnail) {
+            $data['thumbnail'] = "uploads/lesson_file/thumbnail/" . nice_file_name($request->title, $request->thumbnail->extension());
+            FileUploader::upload($request->thumbnail, $data['thumbnail'], 400, null, 200, 200);
+            remove_file($current_data->thumbnail);
+        }
 
         if ($request->lesson_type == 'text') {
             // $lesson['attachment'] = $request->text_description;
@@ -421,6 +444,18 @@ class CurriculumController extends Controller
                 remove_file($current_data->lesson_src);
             }
 
+            if (empty($request->duration)) {
+                $lesson['duration'] = '00:00:00';
+            } else {
+                $duration_formatter = explode(':', $request->duration);
+                $hour = sprintf('%02d', $duration_formatter[0]);
+                $min = sprintf('%02d', $duration_formatter[1]);
+                $sec = sprintf('%02d', $duration_formatter[2]);
+                $lesson['duration'] = $hour . ':' . $min . ':' . $sec;
+            }
+        }elseif ($request->lesson_type == 'vdocipher') {
+
+            $lesson['lesson_src'] = $request->lesson_src;
             if (empty($request->duration)) {
                 $lesson['duration'] = '00:00:00';
             } else {

@@ -323,4 +323,17 @@ class CertificateController extends Controller
         ]);
     }
     // Certificate skill ended
+       // Certificate progrsm builder
+    function certificate_program_builder($id){
+        $page_data['certificate_program'] = CertificateProgram::find($id);
+        $page_data['default_content'] = view('admin.certificate_program.builder_content_default')->render();
+        return view('admin.certificate_program.builder', $page_data);
+    }
+    function certificate_program_builder_update(Request $request, $id){
+        $certificate_program = CertificateProgram::find($id);
+        $certificate_program->certificate_builder_content = $request->certificate_builder_content;
+        $certificate_program->save();
+    }
+
+    // Certificate progrsm builder ended
 }

@@ -15,7 +15,15 @@
         {{ get_phrase('Analyzing') }}....</small>
     <input type="text" name="duration" id="duration" class="form-control ol-form-control" value="00:00:00" readonly>
 </div>
-
+<div class="form-group mb-2">
+    <label class="form-label ol-form-label">{{ get_phrase('Thumbnail') }}<small>({{ get_phrase('The image size should be') }})</small> </label>
+    <div class="input-group">
+        <div class="custom-file w-100">
+            <input type="file" class="form-control ol-form-control" id="thumbnail" name="thumbnail"
+                onchange="changeTitleOfImageUploader(this)">
+        </div>
+    </div>
+</div>
 {{-- <div class="form-group mb-2">
     <label class="form-label ol-form-label">{{ get_phrase('Audio file') }}</label>
     <input type="text" id="video_url" onblur="ajax_get_video_details(this.value)" name="lesson_src" class="form-control ol-form-control">

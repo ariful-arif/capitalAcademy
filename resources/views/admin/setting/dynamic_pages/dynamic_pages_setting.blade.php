@@ -95,6 +95,14 @@
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="ethics-tab" data-bs-toggle="tab"
+                                    data-bs-target="#ethics" type="button" role="tab"
+                                    aria-controls="ethics" aria-selected="false">
+                                    {{ get_phrase('Ethics Page Settings') }}
+                                    <span></span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="professional_conduct-tab" data-bs-toggle="tab"
                                     data-bs-target="#professional_conduct" type="button" role="tab"
                                     aria-controls="professional_conduct" aria-selected="false">
@@ -126,6 +134,7 @@
                                     <span></span>
                                 </button>
                             </li>
+
 
                         </ul>
                         <div class="tab-content eNav-Tabs-content" id="myTabContent">
@@ -166,6 +175,10 @@
                             <div class="tab-pane fade" id="full_code_of_ethics" role="tabpanel"
                                 aria-labelledby="full_code_of_ethics-tab">
                                 @include('admin.setting.dynamic_pages.full_code_of_ethics_page_setting')
+                            </div>
+                            <div class="tab-pane fade" id="ethics" role="tabpanel"
+                                aria-labelledby="ethics-tab">
+                                @include('admin.setting.dynamic_pages.ethics_page_setting')
                             </div>
                             <div class="tab-pane fade" id="professional_conduct" role="tabpanel"
                                 aria-labelledby="professional_conduct-tab">
@@ -227,6 +240,11 @@
         let whyStudentGet1 = jQuery('#blank_whyStudentGet').html();
         let offerUniversity1 = jQuery('#blank_offerUniversity').html();
         let collaboration1 = jQuery('#blank_collaboration').html();
+        let ethicalExcellence1 = jQuery('#blank_ethicalExcellence').html();
+        let standProfessionalConduct1 = jQuery('#blank_standProfessionalConduct').html();
+        let honorPledge1 = jQuery('#blank_honorPledge').html();
+        let complaintsAction1 = jQuery('#blank_complaintsAction').html();
+
 
         $(document).ready(function() {
             jQuery('#blank_faq_field').hide();
@@ -259,6 +277,10 @@
             jQuery('#blank_whyStudentGet').hide();
             jQuery('#blank_offerUniversity').hide();
             jQuery('#blank_collaboration').hide();
+            jQuery('#blank_ethicalExcellence').hide();
+            jQuery('#blank_standProfessionalConduct').hide();
+            jQuery('#blank_honorPledge').hide();
+            jQuery('#blank_complaintsAction').hide();
 
             <?php if(isset($_GET['tab'])): ?>
             $('a[href="#<?php echo $_GET['tab']; ?>"]').trigger('click');
@@ -494,6 +516,37 @@
             jQuery('#collaboration_area').append(collaboration1);
         }
         function removecollaboration(faqElem) {
+            jQuery(faqElem).parent().parent().remove();
+        }
+        function ethicalExcellence() {
+            jQuery('#ethicalExcellence_area').append(ethicalExcellence1);
+        }
+
+        function removeethicalExcellence(faqElem) {
+            jQuery(faqElem).parent().parent().remove();
+        }
+
+        function standProfessionalConduct() {
+            jQuery('#standProfessionalConduct_area').append(standProfessionalConduct1);
+        }
+
+        function removestandProfessionalConduct(faqElem) {
+            jQuery(faqElem).parent().parent().remove();
+        }
+
+        function honorPledge() {
+            jQuery('#honorPledge_area').append(honorPledge1);
+        }
+
+        function removehonorPledge(faqElem) {
+            jQuery(faqElem).parent().parent().remove();
+        }
+
+        function complaintsAction() {
+            jQuery('#complaintsAction_area').append(complaintsAction1);
+        }
+
+        function removecomplaintsAction(faqElem) {
             jQuery(faqElem).parent().parent().remove();
         }
 

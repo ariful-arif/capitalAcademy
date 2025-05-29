@@ -33,7 +33,7 @@ class OpenAiController extends Controller
 
     function curl_call_to_generate_image_openai($prompt)
     {
-        $open_ai_secret_key = get_settings('open_ai_secret_key');
+        $chatgpt_api_key = get_settings('chatgpt_api_key');
 
         $curlopt_post = ['prompt' => $prompt, 'model' => 'dall-e-3', 'size' => '1024x1024', 'n' => 1];
         $curlopt_post_url = 'https://api.openai.com/v1/images/generations';
@@ -44,7 +44,7 @@ class OpenAiController extends Controller
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
-            'Authorization: Bearer ' . $open_ai_secret_key,
+            'Authorization: Bearer ' . $chatgpt_api_key,
         ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($curlopt_post));
 
@@ -62,12 +62,12 @@ class OpenAiController extends Controller
 
     function curl_call_to_generate_text_by_openai($instructions, $prompt)
     {
-        $open_ai_secret_key = get_settings('open_ai_secret_key');
-        $open_ai_model = get_settings('open_ai_model');
+        $chatgpt_api_key = get_settings('chatgpt_api_key');
+        $chatgpt_model = get_settings('chatgpt_model');
         $endpoint = "https://api.openai.com/v1/chat/completions";
 
         $data = array(
-            "model" => $open_ai_model,
+            "model" => $chatgpt_model,
             "messages" => array(
                 array(
                     "role" => "system",
@@ -87,7 +87,7 @@ class OpenAiController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             "Content-Type: application/json",
-            "Authorization: Bearer " . $open_ai_secret_key
+            "Authorization: Bearer " . $chatgpt_api_key
         ));
 
         $response = curl_exec($ch);

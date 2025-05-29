@@ -14,6 +14,15 @@
     <label class="form-label ol-form-label">{{ get_phrase('Duration') }}</label>
     <input default-seconds="{{ duration_to_seconds($lessons->duration) }}" class="form-control ol-form-control duration-picker" id="duration" name="duration">
 </div>
+<div class="form-group mb-2">
+    <label class="form-label ol-form-label">{{ get_phrase('Thumbnail') }}<small>({{ get_phrase('The image size should be') }})</small> </label>
+    <div class="input-group">
+        <div class="custom-file w-100">
+            <input type="file" class="form-control ol-form-control" id="thumbnail" name="thumbnail"
+                onchange="changeTitleOfImageUploader(this)">
+        </div>
+    </div>
+</div>
 
 <div class="form-group mb-2">
     <label class="form-label ol-form-label">{{ get_phrase('Caption') }}( {{ get_phrase('.vtt') }})</label>

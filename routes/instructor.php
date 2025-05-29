@@ -21,6 +21,7 @@ use App\Http\Controllers\instructor\OpenAiController;
 use App\Http\Controllers\instructor\TutorBookingController;
 use App\Http\Controllers\instructor\LiveClassController;
 use App\Http\Controllers\instructor\CourseBundleController;
+use App\Http\Controllers\instructor\CourseSkillController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -51,6 +52,11 @@ Route::name('instructor.')->prefix('instructor')->middleware(['instructor'])->gr
         Route::get('course/status/{type}/{id}', 'status')->name('course.status');
 
     });
+    // Course skills started
+    Route::post('course-skill/store/{course_id}', [CourseSkillController::class, 'course_skill_store'])->name('course_skill.store');
+    Route::post('course-skill/update/{id}', [CourseSkillController::class, 'course_skill_update'])->name('course_skill.update');
+    Route::get('course-skill/delete/{id}', [CourseSkillController::class, 'course_skill_delete'])->name('course_skill.delete');
+    // Course skills emded
 
     //Section route
     Route::controller(SectionController::class)->group(function () {

@@ -458,6 +458,9 @@ class DynamicPagesSettingController extends Controller
                 'thumbnail_video' => $request->hasFile('thumbnail_video')
                     ? $this->uploadFile($request->file('thumbnail_video'), 'business_individuals', $existingData['thumbnail_video'] ?? null)
                     : ($existingData['thumbnail_video'] ?? ''),
+                'thumbnail_video_1' => $request->hasFile('thumbnail_video_1')
+                    ? $this->uploadFile($request->file('thumbnail_video_1'), 'business_individuals', $existingData['thumbnail_video_1'] ?? null)
+                    : ($existingData['thumbnail_video_1'] ?? ''),
                 'corporateChoose' => [
                     'title' => $request->input('corporateChoose_title', $existingData['corporateChoose']['title'] ?? ''),
                     // 'subtitle' => $request->input('corporateChoose_subtitle', $existingData['corporateChoose']['subtitle'] ?? []),
@@ -940,6 +943,9 @@ class DynamicPagesSettingController extends Controller
                 'thumbnail_video' => $request->hasFile('thumbnail_video')
                     ? $this->uploadFile($request->file('thumbnail_video'), 'business_individuals', $existingData['thumbnail_video'] ?? null)
                     : ($existingData['thumbnail_video'] ?? ''),
+                'thumbnail_video_1' => $request->hasFile('thumbnail_video_1')
+                    ? $this->uploadFile($request->file('thumbnail_video_1'), 'business_individuals', $existingData['thumbnail_video_1'] ?? null)
+                    : ($existingData['thumbnail_video_1'] ?? ''),
                 'whyStudentGet' => [
                     'title' => $request->input('whyStudentGet_title', $existingData['whyStudentGet']['title'] ?? ''),
                     // 'subtitle' => $request->input('whyStudentGet_subtitle', $existingData['whyStudentGet']['subtitle'] ?? []),
@@ -1008,6 +1014,9 @@ class DynamicPagesSettingController extends Controller
                 'thumbnail_video' => $request->hasFile('thumbnail_video')
                     ? $this->uploadFile($request->file('thumbnail_video'), 'business_individuals', $existingData['thumbnail_video'] ?? null)
                     : ($existingData['thumbnail_video'] ?? ''),
+                'thumbnail_video_1' => $request->hasFile('thumbnail_video_1')
+                    ? $this->uploadFile($request->file('thumbnail_video_1'), 'business_individuals', $existingData['thumbnail_video_1'] ?? null)
+                    : ($existingData['thumbnail_video_1'] ?? ''),
                 'name' => $request->input('name', $existingData['name'] ?? ''),
                 'experience' => $request->input('experience', $existingData['experience'] ?? ''),
                 'offerUniversity' => [
@@ -1064,6 +1073,90 @@ class DynamicPagesSettingController extends Controller
             $dynamicPage->update(['value' => json_encode($data)]);
             // Flash success message
             Session::flash('success', get_phrase('Business University Page updated successfully'));
+            return redirect()->back();
+        }
+        
+        if ($request->type == 'ethics_page') {
+            $dynamicPage = DynamicPage::where('key', 'ethics_page')->first();
+            $existingData = $dynamicPage ? json_decode($dynamicPage->value, true) : [];
+
+
+            // 6. Save back to database
+            $data = [
+                'title' => $request->input('title', $existingData['title'] ?? ''),
+                'subtitle' => $request->input('subtitle', $existingData['subtitle'] ?? ''),
+
+                'ethicalExcellence' => [
+                    'title' => $request->input('ethicalExcellence_title', $existingData['ethicalExcellence']['title'] ?? ''),
+                    'subtitle' => $request->input('ethicalExcellence_subtitle', $existingData['ethicalExcellence']['subtitle'] ?? ''),
+                    'thumbnail' => $request->hasFile('ethicalExcellence_thumbnail')
+                        ? $this->uploadFile($request->file('ethicalExcellence_thumbnail'), 'ethics_page', $existingData['ethicalExcellence']['thumbnail'] ?? null)
+                        : ($existingData['ethicalExcellence']['thumbnail'] ?? ''),
+                    'thumbnail_1' => $request->hasFile('ethicalExcellence_thumbnail_1')
+                        ? $this->uploadFile($request->file('ethicalExcellence_thumbnail_1'), 'ethics_page', $existingData['ethicalExcellence']['thumbnail_1'] ?? null)
+                        : ($existingData['ethicalExcellence']['thumbnail_1'] ?? ''),
+                    'features' => array_filter(
+                        $request->input('ethicalExcellence_features', $existingData['ethicalExcellence']['features'] ?? []),
+                        fn($value) => !is_null($value) && trim($value) !== ''
+                    ),
+                ],
+
+                'standProfessionalConduct' => [
+                    'title' => $request->input('standProfessionalConduct_title', $existingData['standProfessionalConduct']['title'] ?? ''),
+                    'subtitle' => $request->input('standProfessionalConduct_subtitle', $existingData['standProfessionalConduct']['subtitle'] ?? []),
+                    'thumbnail' => $request->hasFile('standProfessionalConduct_thumbnail')
+                        ? $this->uploadFile($request->file('standProfessionalConduct_thumbnail'), 'ethics_page', $existingData['standProfessionalConduct']['thumbnail'] ?? null)
+                        : ($existingData['standProfessionalConduct']['thumbnail'] ?? ''),
+                    'thumbnail_1' => $request->hasFile('standProfessionalConduct_thumbnail_1')
+                        ? $this->uploadFile($request->file('standProfessionalConduct_thumbnail_1'), 'ethics_page', $existingData['standProfessionalConduct']['thumbnail_1'] ?? null)
+                        : ($existingData['standProfessionalConduct']['thumbnail_1'] ?? ''),
+                    'features' => $this->prepareCoreEthicsFeatures(
+                        $request->input('titles', []),
+                        $request->input('subtitles', [])
+                    ),
+
+                ],
+                'honorPledge' => [
+                    'title' => $request->input('honorPledge_title', $existingData['honorPledge']['title'] ?? ''),
+                    'subtitle' => $request->input('honorPledge_subtitle', $existingData['honorPledge']['subtitle'] ?? ''),
+                    'thumbnail' => $request->hasFile('honorPledge_thumbnail')
+                        ? $this->uploadFile($request->file('honorPledge_thumbnail'), 'ethics_page', $existingData['honorPledge']['thumbnail'] ?? null)
+                        : ($existingData['honorPledge']['thumbnail'] ?? ''),
+                    'thumbnail_1' => $request->hasFile('honorPledge_thumbnail_1')
+                        ? $this->uploadFile($request->file('honorPledge_thumbnail_1'), 'ethics_page', $existingData['honorPledge']['thumbnail_1'] ?? null)
+                        : ($existingData['honorPledge']['thumbnail_1'] ?? ''),
+                    'features' => array_filter(
+                        $request->input('honorPledge_features', $existingData['honorPledge']['features'] ?? []),
+                        fn($value) => !is_null($value) && trim($value) !== ''
+                    ),
+                ],
+                'complaintsAction' => [
+                    'title' => $request->input('complaintsAction_title', $existingData['complaintsAction']['title'] ?? ''),
+                    'subtitle' => $request->input('complaintsAction_subtitle', $existingData['complaintsAction']['subtitle'] ?? ''),
+                    'thumbnail' => $request->hasFile('complaintsAction_thumbnail')
+                        ? $this->uploadFile($request->file('complaintsAction_thumbnail'), 'ethics_page', $existingData['complaintsAction']['thumbnail'] ?? null)
+                        : ($existingData['complaintsAction']['thumbnail'] ?? ''),
+                    'thumbnail_1' => $request->hasFile('complaintsAction_thumbnail_1')
+                        ? $this->uploadFile($request->file('complaintsAction_thumbnail_1'), 'ethics_page', $existingData['complaintsAction']['thumbnail_1'] ?? null)
+                        : ($existingData['complaintsAction']['thumbnail_1'] ?? ''),
+                    'features' => $this->prepareFeaturesColor(
+                        $request->input('titles', []),
+                        $request->input('descriptions', []),
+                        $request->input('l_backs_text', []),
+                        $request->input('d_backs_text', []),
+                        $request->file('logos', []),
+                        "ethics_page",
+                        $existingData['complaintsAction']['features'] ?? []
+                    ),
+                ],
+
+            ];
+
+            // Update the database
+            $dynamicPage->update(['value' => json_encode($data)]);
+
+            // Flash success message
+            Session::flash('success', get_phrase('Ethics Page updated successfully'));
             return redirect()->back();
         }
     }

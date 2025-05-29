@@ -82,6 +82,15 @@
                                     &nbsp; <a href = "https://www.youtube.com/watch?v=Wwy9aibAd54" target = "_blank" class="text-12px text-secondary">({{ get_phrase('get Vimeo API key') }} <i class="mdi mdi-open-in-new"></i>)</a></label>
                                 <input type="text" name = "vimeo_api_key" id = "vimeo_api_key" class="form-control ol-form-control" value="{{ get_settings('vimeo_api_key') }}" required>
                             </div>
+                            <div class="fpb-7 mb-3">
+                                <label class="form-label ol-form-label" for="elevenlabs_api_key">{{ get_phrase('Elevenlabs API key') }}<span>*</span></label>
+                                <input type="text" name = "elevenlabs_api_key" id = "elevenlabs_api_key" class="form-control ol-form-control" value="{{ get_settings('elevenlabs_api_key') }}" required>
+                            </div>
+
+                            <div class="fpb-7 mb-3">
+                                <label class="form-label ol-form-label" for="vdocipher_api_secret">{{ get_phrase('VdoCipher API key') }}<span>*</span></label>
+                                <input type="text" name = "vdocipher_api_secret" id = "vdocipher_api_secret" class="form-control ol-form-control" value="{{ get_settings('vdocipher_api_secret') }}" required>
+                            </div>
 
                             <div class="fpb-7 mb-3">
                                 <label for="purchase_code">{{ get_phrase('Purchase code') }}<span class="form-label ol-form-label">*</span></label>

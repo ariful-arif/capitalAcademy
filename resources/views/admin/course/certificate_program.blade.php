@@ -56,7 +56,8 @@
                     ->orderBy('title', 'desc')
                     ->get() as $certificate)
                     <option value="{{ $certificate->id }}"
-                        @if(in_array($course_details->id, json_decode($certificate->course_ids ?? '[]', true))) selected @endif>
+                        {{-- @if(in_array($course_details->id, json_decode($certificate->course_ids ?? '[]', true))) selected @endif> --}}
+                        @if(in_array($course_details->id, $certificate->course_ids ?? [])) selected @endif>
                         {{ $certificate->title }}
                     </option>
                 @endforeach

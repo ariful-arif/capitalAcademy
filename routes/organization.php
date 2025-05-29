@@ -19,10 +19,10 @@ use App\Http\Controllers\instructor\TeamTrainingController;
 use App\Http\Controllers\instructor\OpenAiController;
 use App\Http\Controllers\instructor\TutorBookingController;
 use App\Http\Controllers\instructor\LiveClassController;
-use App\Http\Controllers\organization\DashboardController;
-use App\Http\Controllers\organization\SubscriptionPackageController;
-use App\Http\Controllers\organization\TeamController;
-use App\Http\Controllers\organization\UsersController;
+use App\Http\Controllers\Organization\DashboardController;
+use App\Http\Controllers\Organization\SubscriptionPackageController;
+use App\Http\Controllers\Organization\TeamController;
+use App\Http\Controllers\Organization\UsersController;
 use App\Models\SubscriptionPackageEnrollment;
 use Illuminate\Support\Facades\Route;
 

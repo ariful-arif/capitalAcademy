@@ -169,10 +169,13 @@
                                 </div>
                             </div>
 
-                            <div class="pt-2">
+                           <div class="pt-2">
                                 <button type="submit" class="btn ol-btn-primary float-end">
                                     {{ get_phrase('Update') }}
                                 </button>
+                                <a href="{{route('admin.certificate_program_builder', ['id' => $certificate_programs->id])}}" target="_blank" class="btn ol-btn-primary float-end me-2">
+                                    {{ get_phrase('Edit Layout') }}
+                                </a>
                             </div>
                         </div>
                     </form>

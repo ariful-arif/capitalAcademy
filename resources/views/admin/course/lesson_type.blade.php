@@ -83,6 +83,18 @@
                 </label>
             </div>
 
+            <div class="col">
+                <label class="ol-radiobox-1 d-flex align-items-center justify-content-between flex-wrap"
+                    for="radio-vdocipher">
+                    <div class="title-icon d-flex align-items-center">
+                        <img src="assets/images/icons/video-circle-black-18.svg" alt="">
+                        <p class="title">{{ get_phrase('VdoCipher Video') }}</p>
+                    </div>
+                    <input class="form-check-input form-check-input-radio" type="radio" name="lesson_type"
+                        id="radio-vdocipher" value="vdocipher" @if ($selected_lesson == 'vdocipher') checked @endif>
+                </label>
+            </div>
+
 
             {{-- <div class="col">
                 <label class="ol-radiobox-1 d-flex align-items-center justify-content-between flex-wrap"

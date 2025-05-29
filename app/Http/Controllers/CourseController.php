@@ -223,15 +223,19 @@ class CourseController extends Controller
         // $certificate_ids = $request->certificate_ids;
         $certificateIds = $request->certificate_ids;
         foreach ($certificateIds as $certificateId) {
-            $certificate = CertificateProgram::find($certificateId);
-            if ($certificate) {
-                $existingCourseIds = json_decode($certificate->course_ids, true) ?? [];
-                if (!in_array($course_id, $existingCourseIds)) {
-                    $existingCourseIds[] = $course_id;
-                }
-                $certificate->course_ids = json_encode($existingCourseIds);
-                $certificate->save();
-            }
+           $certificate = CertificateProgram::find($certificateId);
+if ($certificate) {
+    // No need to decode if course_ids is already an array
+    $existingCourseIds = $certificate->course_ids ?? [];
+
+    if (!in_array($course_id, $existingCourseIds)) {
+        $existingCourseIds[] = $course_id;
+    }
+
+    $certificate->course_ids = $existingCourseIds; // Let Laravel handle the encoding
+    $certificate->save();
+}
+
         }
         //for normal form submission
         return redirect(route('admin.course.edit', ['id' => $course_id]))->with('success', get_phrase('Course added successfully'));

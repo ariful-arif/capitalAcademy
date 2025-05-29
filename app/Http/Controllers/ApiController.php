@@ -4244,7 +4244,7 @@ class ApiController extends Controller
             $certificateDetails['five_star_ratting'] = Review::where('certificate_id', $certificate->id)->where('rating', 5)->count();
             $certificateDetails['program_overview'] = $certificate->program_overview;
 
-           
+
             $certificateDetails['core_courses'] = [
                 'count' => $coreCourseCount,
                 'courses' => $coreCourses,
@@ -4436,139 +4436,137 @@ class ApiController extends Controller
     }
 
     // Achieve certificate
-  public function certificate_achieve(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'certificate_id' => 'required'
-    ]);
+    public function certificate_achieve(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'certificate_id' => 'required'
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json([
-            'status' => false,
-            'status_code' => 422,
-            'message' => 'Validation errors occurred.',
-            'errors' => $validator->errors(),
-        ], 200);
-    }
-
-    if (!auth('api')->check()) {
-        return response()->json([
-            'status' => false,
-            'status_code' => 401,
-            'message' => 'Unauthorized. Please log in first.',
-        ], 401);
-    }
-
-    try {
-        $user_id = auth('api')->id();
-        $user = User::find($user_id);
-
-        if (!$user) {
+        if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'status_code' => 404,
-                'message' => 'User not found.',
-            ], 404);
-        }
-
-        $organization_id = $user->organization_id;
-        $team_id = null;
-
-        if ($organization_id) {
-            $teams = Team::where('organization_id', $organization_id)->get();
-            $foundTeam = null;
-
-            foreach ($teams as $team) {
-                $member_ids = is_array($team->member_ids) ? $team->member_ids : json_decode($team->member_ids, true);
-
-                if (is_array($member_ids) && in_array((string) $user_id, $member_ids)) {
-                    $foundTeam = $team;
-                    break;
-                }
-            }
-
-            if (!$foundTeam) {
-                return response()->json([
-                    'status' => false,
-                    'status_code' => 403,
-                    'message' => "User is in an organization but not assigned to any team. Cannot achieve certificate.",
-                ], 403);
-            }
-
-            $team_id = $foundTeam->id;
-        }
-
-        $certificate_id = $request->input('certificate_id');
-        $certificateProgram = CertificateProgram::find($certificate_id);
-
-        if (!$certificateProgram) {
-            return response()->json([
-                'status' => false,
-                'status_code' => 404,
-                'message' => 'Certificate program not found.',
-            ], 404);
-        }
-
-        $download_link = $certificateProgram->certificate_template 
-            ? asset(ltrim($certificateProgram->certificate_template, '/')) 
-            : null;
-
-        // Check if certificate already exists
-        $existingCertificate = MyCertificate::where('user_id', $user_id)
-            ->where('certificate_id', $certificate_id)
-            ->first();
-
-        if ($existingCertificate) {
-            return response()->json([
-                'status' => true,
-                'status_code' => 200,
-                'message' => 'Certificate already achieved.',
-                'download_link' => $download_link,
+                'status_code' => 422,
+                'message' => 'Validation errors occurred.',
+                'errors' => $validator->errors(),
             ], 200);
         }
 
-        // Check if passed final exam
-        $examResult = DB::table('final_exam_results')
-            ->where('user_id', $user_id)
-            ->where('certificate_id', $certificate_id)
-            ->where('result_status', 'pass')
-            ->orderBy('created_at', 'desc')
-            ->first();
-
-        if (!$examResult) {
+        if (!auth('api')->check()) {
             return response()->json([
                 'status' => false,
-                'status_code' => 403,
-                'message' => 'User has not passed the final exam. Cannot issue certificate.',
-            ], 403);
+                'status_code' => 401,
+                'message' => 'Unauthorized. Please log in first.',
+            ], 401);
         }
 
-        // Create certificate
-        MyCertificate::create([
-            'user_id' => $user_id,
-            'organization_id' => $organization_id,
-            'team_id' => $team_id,
-            'certificate_id' => $certificate_id,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        try {
+            $user_id = auth('api')->id();
+            $user = User::find($user_id);
 
-        return response()->json([
-            'status' => true,
-            'status_code' => 200,
-            'message' => 'Certificate achieved successfully!',
-            'download_link' => $download_link,
-        ], 200);
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 404,
+                    'message' => 'User not found.',
+                ], 404);
+            }
 
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => false,
-            'status_code' => 500,
-            'message' => 'An error occurred while processing your request.',
-            'error' => $e->getMessage(),
-        ], 500);
+            $organization_id = $user->organization_id;
+            $team_id = null;
+
+            if ($organization_id) {
+                $teams = Team::where('organization_id', $organization_id)->get();
+                $foundTeam = null;
+
+                foreach ($teams as $team) {
+                    $member_ids = is_array($team->member_ids) ? $team->member_ids : json_decode($team->member_ids, true);
+
+                    if (is_array($member_ids) && in_array((string) $user_id, $member_ids)) {
+                        $foundTeam = $team;
+                        break;
+                    }
+                }
+
+                if (!$foundTeam) {
+                    return response()->json([
+                        'status' => false,
+                        'status_code' => 403,
+                        'message' => "User is in an organization but not assigned to any team. Cannot achieve certificate.",
+                    ], 403);
+                }
+
+                $team_id = $foundTeam->id;
+            }
+
+            $certificate_id = $request->input('certificate_id');
+            $certificateProgram = CertificateProgram::find($certificate_id);
+
+            if (!$certificateProgram) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 404,
+                    'message' => 'Certificate program not found.',
+                ], 404);
+            }
+
+            $download_link =  asset(ltrim($certificateProgram->certificate_template, '/'));
+
+            // Check if certificate already exists
+            $existingCertificate = MyCertificate::where('user_id', $user_id)
+                ->where('certificate_id', $certificate_id)
+                ->first();
+
+            if ($existingCertificate) {
+                return response()->json([
+                    'status' => true,
+                    'status_code' => 200,
+                    'message' => 'Certificate achieved successfully.',
+                    'download_link' => $download_link,
+                ], 200);
+            }
+
+            // Check if passed final exam
+            // $examResult = DB::table('final_exam_results')
+            //     ->where('user_id', $user_id)
+            //     ->where('certificate_id', $certificate_id)
+            //     ->where('result_status', 'pass')
+            //     ->orderBy('created_at', 'desc')
+            //     ->first();
+
+            // if (!$examResult) {
+            //     return response()->json([
+            //         'status' => false,
+            //         'status_code' => 403,
+            //         'message' => 'User has not passed the final exam. Cannot issue certificate.',
+            //     ], 403);
+            // }
+
+            // // Create certificate
+            // MyCertificate::create([
+            //     'user_id' => $user_id,
+            //     'organization_id' => $organization_id,
+            //     'team_id' => $team_id,
+            //     'certificate_id' => $certificate_id,
+            //     'created_at' => now(),
+            //     'updated_at' => now(),
+            // ]);
+
+            return response()->json([
+                'status' => true,
+                'status_code' => 200,
+                'message' => 'Certificate Not issued write now, Please complete all core course and then pass the final exam',
+                // 'download_link' => $download_link,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 500,
+                'message' => 'An error occurred while processing your request.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
-}
 
 
     public function final_exam_achieve(Request $request)
@@ -4756,6 +4754,7 @@ class ApiController extends Controller
             $certificateDetails = [
                 'id' => $certificate->id,
                 'title' => $certificate->title,
+                'exam_duration' => $certificate->exam_duration,
                 'final_question' => $certificate->final_question,
             ];
 
@@ -4776,10 +4775,8 @@ class ApiController extends Controller
             ], 500);
         }
     }
-
     public function final_exam_answer(Request $request)
     {
-        // Ensure the user is authenticated
         if (!auth('api')->check()) {
             return response()->json([
                 'status' => false,
@@ -4789,7 +4786,6 @@ class ApiController extends Controller
         }
 
         try {
-            // Validate input
             $request->validate([
                 'certificate_id' => 'required|integer',
                 'result_marks' => 'required|numeric',
@@ -4797,12 +4793,43 @@ class ApiController extends Controller
                 'question_answers' => 'required|array',
             ]);
 
+            $user_id = auth('api')->id();
+            $user = User::find($user_id);
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 404,
+                    'message' => 'User not found.',
+                ], 404);
+            }
+
+            $organization_id = $user->organization_id;
+            $team_id = null;
+
+            // Try to find team in organization
+            if ($organization_id) {
+                $teams = Team::where('organization_id', $organization_id)->get();
+
+                foreach ($teams as $team) {
+                    $member_ids = is_array($team->member_ids)
+                        ? $team->member_ids
+                        : json_decode($team->member_ids, true);
+
+                    if (is_array($member_ids) && in_array((string) $user_id, $member_ids)) {
+                        $team_id = $team->id;
+                        break;
+                    }
+                }
+
+                // No error if no team is found — team_id remains null
+            }
+
             $certificate_id = $request->certificate_id;
+            $certificate = CertificateProgram::where("status", "active")
+                ->where("id", $certificate_id)
+                ->first();
 
-            // Fetch the certificate with the given ID
-            $certificate = CertificateProgram::where("status", "active")->where("id", $certificate_id)->first();
-
-            // Check if certificate exists
             if (!$certificate) {
                 return response()->json([
                     'status' => false,
@@ -4815,33 +4842,41 @@ class ApiController extends Controller
             $result_marks = $request->input('result_marks');
             $total_marks = $request->input('total_marks');
 
-            // Calculate required pass marks
             $required_marks = ($pass_mark_percentage / 100) * $total_marks;
-
-            // Determine result status
             $result_status = $result_marks >= $required_marks ? 'pass' : 'fail';
 
-            // Prepare data for insertion
-            $data = [
-                'user_id' => auth('api')->id(),
+            $examData = [
+                'user_id' => $user_id,
                 'certificate_id' => $certificate_id,
                 'result_marks' => $result_marks,
                 'total_marks' => $total_marks,
-                'result_status' => $result_status, // Store pass/fail
+                'result_status' => $result_status,
                 'question_answers' => json_encode($request->input('question_answers')),
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
 
-            // Insert into database
-            DB::table('final_exam_results')->insert($data);
+            DB::table('final_exam_results')->insert($examData);
+
+            // Only create certificate if passed
+            if ($result_status === 'pass') {
+                MyCertificate::create([
+                    'user_id' => $user_id,
+                    'organization_id' => $organization_id,
+                    'team_id' => $team_id, // will be null if not found
+                    'certificate_id' => $certificate_id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
 
             return response()->json([
                 'status' => true,
                 'status_code' => 200,
                 'message' => 'Final exam successfully submitted.',
-                'data' => $data,
+                'data' => $examData,
             ], 200);
+
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -4851,6 +4886,7 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
 
 
     // My certificate
@@ -6109,7 +6145,7 @@ class ApiController extends Controller
                     'license_limit' => $existing->license_limit + $metadata->license_limit,
                     'entry_date' => time(),
                     'expiry_date' => $expiryDate,
-                    'status' => 1, // Set current one to active
+                    'status' => 1,
                 ]);
 
             // Set all other enrollments for the user (excluding this one) to inactive
@@ -6127,7 +6163,7 @@ class ApiController extends Controller
             // Insert new enrollment with active status
             DB::table('subscription_package_enrollments')->insert([
                 'user_id' => $metadata->user_id,
-                'subscription_type' => $metadata->package_type,
+                'subscription_type' => $subscription_package->subscription_type,
                 'subscription_package_id' => $metadata->package_id,
                 'license_amount' => $metadata->license_amount,
                 'payment_method' => 'stripe',
@@ -6138,7 +6174,7 @@ class ApiController extends Controller
         }
 
         // If package type is 'team', update user role to 'organization'
-        if ($metadata->package_type === 'team') {
+        if ($subscription_package->subscription_type === 'team') {
             DB::table('users')
                 ->where('id', $metadata->user_id)
                 ->update(['role' => 'organization']);

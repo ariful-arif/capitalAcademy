@@ -26,10 +26,10 @@
 
                         <div class="mb-3">
                             <label class="form-label ol-form-label" for="">{{ get_phrase('Select ai model') }}</label>
-                            <select class="ol-form-control ol-select2" name="open_ai_model">
-                                <option value="gpt-3.5-turbo-0125" @if (get_settings('open_ai_model') == 'gpt-3.5-turbo-0125') selected @endif>gpt-3.5-turbo-0125</option>
-                                <option value="gpt-4-0125-preview" @if (get_settings('open_ai_model') == 'gpt-4-0125-preview') selected @endif>gpt-4-0125-preview</option>
-                                <option value="gpt-4o-mini" @if (get_settings('open_ai_model') == 'gpt-4o-mini') selected @endif>gpt-4o-mini</option>
+                            <select class="ol-form-control ol-select2" name="chatgpt_model">
+                                <option value="gpt-3.5-turbo-0125" @if (get_settings('chatgpt_model') == 'gpt-3.5-turbo-0125') selected @endif>gpt-3.5-turbo-0125</option>
+                                <option value="gpt-4-0125-preview" @if (get_settings('chatgpt_model') == 'gpt-4-0125-preview') selected @endif>gpt-4-0125-preview</option>
+                                <option value="gpt-4o-mini" @if (get_settings('chatgpt_model') == 'gpt-4o-mini') selected @endif>gpt-4o-mini</option>
                             </select>
                         </div>
 
@@ -41,7 +41,7 @@
 
                         <div class="mb-3">
                             <label class="form-label ol-form-label" for="ai_secret_key">{{ get_phrase('Secret key') }}</label>
-                            <input class="form-control ol-form-control" type="text" id="open_ai_secret_key" value="{{ get_settings('open_ai_secret_key') }}" name="open_ai_secret_key"
+                            <input class="form-control ol-form-control" type="text" id="chatgpt_api_key" value="{{ get_settings('chatgpt_api_key') }}" name="chatgpt_api_key"
                                 required="">
                         </div>
 

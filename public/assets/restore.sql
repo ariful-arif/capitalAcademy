@@ -7593,9 +7593,9 @@ INSERT INTO `settings` (`id`, `type`, `description`, `created_at`, `updated_at`)
 (69, 'zoom_web_sdk', 'active', '2025-01-01 06:29:15', '2025-01-01 06:29:15'),
 (70, 'zoom_sdk_client_id', '7M6Wg3sxRP6fRudLqqskYQ', '2025-01-01 06:29:15', '2025-01-01 06:29:15'),
 (71, 'zoom_sdk_client_secret', 'z1NzSPndVwGqmquWnoJgza2i2R4GJOai', '2025-01-01 06:29:15', '2025-01-01 06:29:15'),
-(72, 'open_ai_model', 'gpt-3.5-turbo-0125', '2025-01-01 06:29:15', '2025-01-01 06:29:15'),
+(72, 'chatgpt_model', 'gpt-3.5-turbo-0125', '2025-01-01 06:29:15', '2025-01-01 06:29:15'),
 (73, 'open_ai_max_token', '100', '2025-01-01 06:29:15', '2025-01-01 06:29:15'),
-(74, 'open_ai_secret_key', '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', '2025-01-01 06:29:15', '2025-01-01 06:29:15'),
+(74, 'chatgpt_api_key', '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', '2025-01-01 06:29:15', '2025-01-01 06:29:15'),
 (75, 'device_limitation', '1000000', '2025-01-01 06:29:15', '2025-03-09 05:47:55');
 
 -- --------------------------------------------------------

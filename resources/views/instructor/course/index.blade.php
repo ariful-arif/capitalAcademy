@@ -225,6 +225,7 @@
                                             <tr>
                                                 <th scope="col">#</th>
                                                 <th scope="col">{{ get_phrase('Title') }}</th>
+                                                <th scope="col">{{ get_phrase('Course type') }}</th>
                                                 <th scope="col">{{ get_phrase('Category') }}</th>
                                                 <th scope="col">{{ get_phrase('Lesson & Section') }}</th>
                                                 <th scope="col">{{ get_phrase('Enrolled Student') }}</th>
@@ -269,6 +270,12 @@
                                                                         {{ get_user_info($row->user_id)->email }}</p>
                                                                 </a>
                                                             </div>
+                                                        </div>
+                                                    </td>
+                                                     <td>
+                                                        <div class="sub-title2 text-12px">
+                                                            <a
+                                                                href="{{ route('admin.courses', ['course_type' => $row->certificate_course_type ?? '']) }}">{{ $row->certificate_course_type }}</a>
                                                         </div>
                                                     </td>
                                                     <td>
@@ -325,6 +332,11 @@
                                                                 </li>
                                                                 <li>
                                                                     <a class="dropdown-item" onclick="confirmModal('{{ route('instructor.course.duplicate', $row->id) }}')" href="javascript:void(0)">{{ get_phrase('Duplicate Course') }}</a>
+                                                                </li>
+                                                                 <li>
+                                                                    <a class="dropdown-item"
+                                                                        onclick="ajaxModal('{{ route('view', ['path' => 'instructor.course.skill.index', 'course_id' => $row->id]) }}', '{{ get_phrase('Course Skills') }}', 'modal-lg')"
+                                                                        href="javascript:void(0)">{{ get_phrase('Set of Skills') }}</a>
                                                                 </li>
                                                                 <li>
                                                                     <a class="dropdown-item" onclick="confirmModal('{{ route('instructor.course.delete', $row->id) }}')" href="javascript:void(0)">{{ get_phrase('Delete Course') }}</a>

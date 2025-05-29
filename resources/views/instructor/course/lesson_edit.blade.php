@@ -12,7 +12,7 @@
         <strong class="text-capitalize ms-1">{{ get_phrase('Video url') . ' [.mp4]' }}</strong>
     @elseif ($lessons->lesson_type == 'system-video')
         <strong class="text-capitalize ms-1">{{ get_phrase('Video file') }}</strong>
-    @elseif ($lessons->video_type == 'youtube' || $lessons->video_type == 'vimeo')
+    @elseif ($lessons->video_type == 'youtube' || $lessons->video_type == 'vimeo' || $lessons->video_type == 'vdocipher')
         <strong class="text-capitalize ms-1">{{ get_phrase($lessons->video_type) }} {{ get_phrase('Video') }} </strong>
     @elseif($lessons->lesson_type == 'google_drive_video')
         <strong class="text-capitalize ms-1">{{ get_phrase('Google drive video') }}</strong>
@@ -54,14 +54,16 @@
         @include('instructor.course.html5_type_lesson_edit')
     @elseif ($lessons->lesson_type == 'google_drive')
         @include('instructor.course.google_drive_type_lesson_edit')
-    @elseif ($lessons->lesson_type == 'document_type')
+        @elseif ($lessons->lesson_type == 'vdocipher')
+        @include('admin.course.vdocipher_type_lesson_edit')
+    {{-- @elseif ($lessons->lesson_type == 'document_type')
         @include('instructor.course.document_type_lesson_edit')
     @elseif ($lessons->lesson_type == 'text')
         @include('instructor.course.text_type_lesson_edit')
     @elseif ($lessons->lesson_type == 'image')
         @include('instructor.course.image_file_type_lesson_edit')
     @elseif ($lessons->lesson_type == 'iframe')
-        @include('instructor.course.iframe_type_lesson_edit')
+        @include('instructor.course.iframe_type_lesson_edit') --}}
     @endif
 
     <div class="form-group mb-2">

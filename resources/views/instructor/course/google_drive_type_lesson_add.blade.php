@@ -11,6 +11,15 @@
     <label>{{ get_phrase('Duration') }}</label>
     <input id="duration" name="duration" class="form-control ol-form-control">
 </div>
+<div class="form-group mb-2">
+    <label class="form-label ol-form-label">{{ get_phrase('Thumbnail') }}<small>({{ get_phrase('The image size should be') }})</small> </label>
+    <div class="input-group">
+        <div class="custom-file w-100">
+            <input type="file" class="form-control ol-form-control" id="thumbnail" name="thumbnail"
+                onchange="changeTitleOfImageUploader(this)">
+        </div>
+    </div>
+</div>
 
 <script>
     "use strict";

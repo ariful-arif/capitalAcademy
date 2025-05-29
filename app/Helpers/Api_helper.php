@@ -932,13 +932,14 @@ function get_total_duration_of_lesson_by_course_id($course_id)
             $minute_to_seconds = $time_array[1] * 60;
             $seconds = $time_array[2];
             $total_duration += $hour_to_seconds + $minute_to_seconds + $seconds;
+            // $total_duration += $hour_to_seconds + $minute_to_seconds;
         }
     }
     // return gmdate("H:i:s", $total_duration).' '.get_phrase('hours');
     $hours = floor($total_duration / 3600);
     $minutes = floor(($total_duration % 3600) / 60);
-    $seconds = $total_duration % 60;
-    return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds) . ' ' . get_phrase('hours');
+    // $seconds = $total_duration % 60;
+    return sprintf("%02d:%02d", $hours, $minutes) . ' ' . get_phrase('hours');
 }
 
 

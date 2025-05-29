@@ -1,8 +1,6 @@
 @php
     $lessons = App\Models\Lesson::where('id', $id)->first();
-    $sections = App\Models\Section::where('course_id', $lessons->course_id)
-        ->orderBy('sort')
-        ->get();
+    $sections = App\Models\Section::where('course_id', $lessons->course_id)->orderBy('sort')->get();
     $select_section = App\Models\Section::where('id', $lessons->section_id)->value('title');
 @endphp
 
@@ -12,7 +10,7 @@
         <strong class="text-capitalize ms-1">{{ get_phrase('Video url') . ' [.mp4]' }}</strong>
     @elseif ($lessons->lesson_type == 'system-video')
         <strong class="text-capitalize ms-1">{{ get_phrase('Video file') }}</strong>
-    @elseif ($lessons->video_type == 'youtube' || $lessons->video_type == 'vimeo')
+    @elseif ($lessons->video_type == 'youtube' || $lessons->video_type == 'vimeo' || $lessons->video_type == 'vdocipher')
         <strong class="text-capitalize ms-1">{{ get_phrase($lessons->video_type) }} {{ get_phrase('Video') }} </strong>
     @elseif($lessons->lesson_type == 'google_drive_video')
         <strong class="text-capitalize ms-1">{{ get_phrase('Google drive video') }}</strong>
@@ -31,7 +29,8 @@
     <input type="hidden" name="lesson_type" value="{{ $lessons->lesson_type }}">
     <div class="form-group eForm-group mb-2">
         <label class="form-label ol-form-label">{{ get_phrase('Title') }}</label>
-        <input type="text" name="title" class="form-control ol-form-control" value="{{ $lessons->title }}" required>
+        <input type="text" name="title" class="form-control ol-form-control" value="{{ $lessons->title }}"
+            required>
     </div>
 
     <div class="form-group mb-2">
@@ -62,6 +61,8 @@
         @include('admin.course.image_file_type_lesson_edit')
     @elseif ($lessons->lesson_type == 'iframe')
         @include('admin.course.iframe_type_lesson_edit')
+    @elseif ($lessons->lesson_type == 'vdocipher')
+        @include('admin.course.vdocipher_type_lesson_edit')
     @endif
 
     <div class="form-group mb-2">
@@ -70,7 +71,8 @@
     </div>
 
     <div class="form-group mb-2 d-none">
-        <label class="form-label ol-form-label">{{ get_phrase('Do you want to keep it free as a preview lesson') }} ?</label>
+        <label class="form-label ol-form-label">{{ get_phrase('Do you want to keep it free as a preview lesson') }}
+            ?</label>
         <br>
         <input type="checkbox" name="free_lesson" id="free_lesson" value="1">
         <label for="free_lesson">{{ get_phrase('Mark as free lesson') }}</label>

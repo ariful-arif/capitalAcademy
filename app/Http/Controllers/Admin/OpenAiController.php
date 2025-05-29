@@ -19,9 +19,9 @@ class OpenAiController extends Controller
     function settings_update(Request $request)
     {
         $validated = $request->validate([
-            'open_ai_model' => 'in:gpt-3.5-turbo-0125,gpt-4-0125-preview,gpt-4o-mini',
+            'chatgpt_model' => 'in:gpt-3.5-turbo-0125,gpt-4-0125-preview,gpt-4o-mini',
             'open_ai_max_token' => 'required|numeric|min:0',
-            'open_ai_secret_key' => 'required|max:255',
+            'chatgpt_api_key' => 'required|max:255',
         ]);
 
         foreach ($request->all() as $type => $value) {
@@ -76,7 +76,7 @@ class OpenAiController extends Controller
             return ['file_ids' => [], 'file_paths' => []];
         }
 
-        $apiKey = get_settings('open_ai_secret_key');
+        $apiKey = get_settings('chatgpt_api_key');
         $fileIds = [];
         $uploaded_paths = [];
 
@@ -111,7 +111,7 @@ class OpenAiController extends Controller
 
     function create_vectore_store($fileIds = array())
     {
-        $apiKey = get_settings('open_ai_secret_key');
+        $apiKey = get_settings('chatgpt_api_key');
 
         $payload = json_encode([
             "file_ids" => $fileIds
@@ -137,8 +137,8 @@ class OpenAiController extends Controller
     }
 
     function create_open_ai_assistant($vectorStoreId, $assistant_name, $instructions){
-        $apiKey = get_settings('open_ai_secret_key');
-        $model = get_settings('open_ai_model');
+        $apiKey = get_settings('chatgpt_api_key');
+        $model = get_settings('chatgpt_model');
 
         $assistantPayload = json_encode([
             "name" => $assistant_name,
@@ -171,7 +171,7 @@ class OpenAiController extends Controller
     }
 
     function update_open_ai_assistant($vector_store_id, $assistant_name, $instructions, $files = []){
-        $apiKey = get_settings('open_ai_secret_key');
+        $apiKey = get_settings('chatgpt_api_key');
         $ai_assistant = json_decode(get_settings('openai_assistant'), true);
 
         foreach($files as $key => $path) {
@@ -222,7 +222,7 @@ class OpenAiController extends Controller
         $ai_assistant = json_decode(get_settings('openai_assistant'), true);
 
         $fileId = $ai_assistant['files']['file_ids'][$request->index]; // Replace with your actual file ID
-        $apiKey = get_settings('open_ai_secret_key');
+        $apiKey = get_settings('chatgpt_api_key');
         
         $ch = curl_init("https://api.openai.com/v1/files/{$fileId}");
         curl_setopt_array($ch, [
@@ -272,7 +272,7 @@ class OpenAiController extends Controller
 
     function curl_call_to_generate_image_openai($prompt)
     {
-        $open_ai_secret_key = get_settings('open_ai_secret_key');
+        $chatgpt_api_key = get_settings('chatgpt_api_key');
 
         $curlopt_post = ['prompt' => $prompt, 'model' => 'dall-e-3', 'size' => '1024x1024', 'n' => 1];
         $curlopt_post_url = 'https://api.openai.com/v1/images/generations';
@@ -283,7 +283,7 @@ class OpenAiController extends Controller
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
-            'Authorization: Bearer ' . $open_ai_secret_key,
+            'Authorization: Bearer ' . $chatgpt_api_key,
         ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($curlopt_post));
 
@@ -301,12 +301,12 @@ class OpenAiController extends Controller
 
     function curl_call_to_generate_text_by_openai($instructions, $prompt)
     {
-        $open_ai_secret_key = get_settings('open_ai_secret_key');
-        $open_ai_model = get_settings('open_ai_model');
+        $chatgpt_api_key = get_settings('chatgpt_api_key');
+        $chatgpt_model = get_settings('chatgpt_model');
         $endpoint = "https://api.openai.com/v1/chat/completions";
 
         $data = array(
-            "model" => $open_ai_model,
+            "model" => $chatgpt_model,
             "messages" => array(
                 array(
                     "role" => "system",
@@ -326,7 +326,7 @@ class OpenAiController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             "Content-Type: application/json",
-            "Authorization: Bearer " . $open_ai_secret_key
+            "Authorization: Bearer " . $chatgpt_api_key
         ));
 
         $response = curl_exec($ch);

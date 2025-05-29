@@ -11,9 +11,9 @@
                 onclick="ajaxModal('{{ route('modal', ['admin.course.lesson_type', 'id' => $course_details->id]) }}', '{{ get_phrase('Add new lesson') }}')"
                 class="btn ol-btn-light ol-btn-sm">{{ get_phrase('Add lesson') }}</a>
 
-            <a href="#"
+            {{-- <a href="#"
                 onclick="ajaxModal('{{ route('modal', ['admin.quiz.create', 'id' => $course_details->id]) }}', '{{ get_phrase('Add new quiz') }}')"
-                class="btn ol-btn-light ol-btn-sm">{{ get_phrase('Add quiz') }}</a>
+                class="btn ol-btn-light ol-btn-sm">{{ get_phrase('Add quiz') }}</a> --}}
 
             <a href="#"
                 onclick="ajaxModal('{{ route('modal', ['admin.course.section_sort', 'id' => $course_details->id]) }}', '{{ get_phrase('Sort sections') }}')"

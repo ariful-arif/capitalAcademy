@@ -28,6 +28,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/refresh', [AuthController::class, 'refreshToken']);
 Route::post('loginViaApi', [AuthController::class, 'loginViaApi']);
 Route::post('generateLoginLink', [AuthController::class, 'generateLoginLink']);
+Route::post('/auth/google-login', [AuthController::class, 'google_login']);
 
 Route::middleware('auth:api')->group(function () {
     Route::get('user', [AuthController::class, 'user']);
