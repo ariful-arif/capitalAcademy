@@ -17,10 +17,10 @@
                 <p class="text-12px fw-400 d-none d-lg-none d-xl-inline-block mt-1">{{ get_phrase('Instructor Panel') }}</p>
             </h1>
         </div>
-        <a href="{{ route('home') }}" target="_blank" class="btn btn-sm p-0 ms-4 ms-md-2 text-14px text-muted">
+        {{-- <a href="{{ route('home') }}" target="_blank" class="btn btn-sm p-0 ms-4 ms-md-2 text-14px text-muted">
             <span>{{ get_phrase('View site') }}</span>
             <i class="fi-rr-arrow-up-right-from-square text-12px text-muted"></i>
-        </a>
+        </a> --}}
     </div>
     <div class="header-content-right d-flex align-items-center justify-content-end">
 
@@ -78,9 +78,9 @@
                         <p class="sub-title fs-12px">{{ ucfirst(auth()->user()->role) }}</p>
                     </div>
                 </div>
-                <ul class="mb-12px pb-12px ol-border-bottom-2">
+                {{-- <ul class="mb-12px pb-12px ol-border-bottom-2">
                     <li class="dropdown-list-1"><a class="dropdown-item-1" href="{{ route('my.profile') }}">{{ get_phrase('My Profile') }}</a></li>
-                </ul>
+                </ul> --}}
                 <ul>
                     <li class="dropdown-list-1"><a class="dropdown-item-1" href="{{ route('logout') }}">{{ get_phrase('Sign Out') }}</a></li>
                 </ul>

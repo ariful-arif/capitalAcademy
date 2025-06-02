@@ -5,7 +5,7 @@ use App\Models\Addon;
 use App\Models\NotificationSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use App\Models\{CartItem, Course, Category, Live_class, Review, User,LikeDislikeReview};
+use App\Models\{CartItem, Course, Category, Live_class, Review, User, LikeDislikeReview};
 
 //Api related
 if (!function_exists('enroll_history')) {
@@ -135,14 +135,16 @@ if (!function_exists('courses')) {
             }
         }
         if (!empty($filters['selected_level']) && $filters['selected_level'] !== 'all') {
-            $query->where('level', $filters['selected_level']);
+            $levels = is_array($filters['selected_level']) ? $filters['selected_level'] : explode(',', $filters['selected_level']);
+            $query->whereIn('level', $levels);
         }
         if (!empty($filters['selected_rating']) && $filters['selected_rating'] !== 'all') {
             $ratings = is_array($filters['selected_rating']) ? $filters['selected_rating'] : explode(',', $filters['selected_rating']);
             $query->whereIn('average_rating', $ratings);
         }
         if (!empty($filters['selected_instructor']) && $filters['selected_instructor'] !== 'all') {
-            $query->where('user_id', $filters['selected_instructor']);
+            $instructors = is_array($filters['selected_instructor']) ? $filters['selected_instructor'] : explode(',', $filters['selected_instructor']);
+            $query->whereIn('user_id', $instructors);
         }
         if (!empty($filters['min_price'])) {
             $query->whereRaw("(CASE WHEN discount_flag = 1 THEN discounted_price ELSE price END) >= ?", [$filters['min_price']]);
@@ -183,8 +185,9 @@ if (!function_exists('courses')) {
         // Format course data
         $filteredCourses = $courses->map(function ($course) {
             $instructor_details = get_user_info($course->user_id);
-            $user = auth('api')->user();
-            $user_id = $user ? $user->id : 0;
+            // $user = auth('api')->user();
+            // $user_id = $user ? $user->id : 0;
+            $user_id = auth('api')->user()->id ?? 0;
             return [
                 'id' => $course->id,
                 'title' => $course->title,
@@ -195,6 +198,7 @@ if (!function_exists('courses')) {
                 'isPaid' => $course->is_paid,
                 'is_wishlisted' => is_added_to_wishlist($user_id, $course->id),
                 'is_purchased' => is_purchased($user_id, $course->id),
+                'is_subscribed' => is_subscribed($user_id),
                 'is_cart' => is_cart_item($user_id, $course->id),
                 'price' => currency($course->price),
                 'isDiscount' => $course->discount_flag,
@@ -410,16 +414,19 @@ if (!function_exists('get_photo')) {
     function get_photo($type, $identifier)
     { // type is the flag to realize whether it is course, category or user image. For course, user image Identifier is id but for category Identifier is image name
         if ($type == 'user_image') {
-            if (file_exists('public/' . $identifier) && $identifier != "") {
+            if (filter_var($identifier, FILTER_VALIDATE_URL)) {
+                // It's a valid URL, return as-is
+                return $identifier;
+            } elseif (file_exists('public/' . $identifier) && $identifier != "") {
                 return url('public/' . $identifier);
             } else {
-                return url('public/assets/upload/users/student/placeholder/placeholder.png');
+                return url('public/uploads/users/student/placeholder/placeholder.png');
             }
         } elseif ($type == 'video_thumbnail') {
             if (file_exists('public/' . $identifier) && $identifier != "") {
                 return url('public/' . $identifier);
             } else {
-                return url('public/assets/upload/users/student/placeholder/placeholder.png');
+                return url('public/upload/users/student/placeholder/placeholder.png');
             }
         } elseif ($type == 'course_thumbnail') {
             if (file_exists('public/' . $identifier) && $identifier != "") {
@@ -589,7 +596,7 @@ if (!function_exists('get_photo')) {
             } else {
                 return url('public/uploads/events/event_category_logo/placeholder/placeholder.png');
             }
-        }elseif ($type == 'course_bundle') {
+        } elseif ($type == 'course_bundle') {
             if (file_exists('public/' . $identifier) && $identifier != "") {
                 return url('public/' . $identifier);
             } else {
@@ -674,12 +681,12 @@ if (!function_exists('course_details_by_id')) {
         $course_details = get_course_by_id($course_id);
 
         $response = course_data_by_details($course_details);
-        if(!empty($user_id)) {
+        if (!empty($user_id)) {
             $response->sections = sections($course_id, $user_id);
         } else {
             $response->sections = sections($course_id);
         }
-        $response->reviews = review($course_id, $user_id,"course");
+        $response->reviews = review($course_id, $user_id, "course");
         $response->is_wishlisted = is_added_to_wishlist($user_id, $course_id);
         $response->is_purchased = is_purchased($user_id, $course_id);
         $response->is_subscribed = is_subscribed($user_id);
@@ -733,7 +740,7 @@ if (!function_exists('is_subscribed')) {
         if ($query2 && $query2->expiry_date >= time()) {
             // Check if the user is part of a team in the organization
             $check_in_team = DB::table('teams')
-                ->whereJsonContains('member_ids', (string)$user_id)
+                ->whereJsonContains('member_ids', (string) $user_id)
                 ->exists();
 
             return $check_in_team;
@@ -760,15 +767,15 @@ if (!function_exists('get_certificate')) {
     {
         $certificate = App\Models\Certificate::where('course_id', $course_id)->where('user_id', $user_id);
 
-        if($certificate->count() == 0 && $completion >= 100){
-            $certificate_data['user_id']    = $user_id;
-            $certificate_data['course_id']  = $course_id;
+        if ($certificate->count() == 0 && $completion >= 100) {
+            $certificate_data['user_id'] = $user_id;
+            $certificate_data['course_id'] = $course_id;
             $certificate_data['identifier'] = random(12);
             $certificate_data['created_at'] = date('Y-m-d H:i:s');
             App\Models\Certificate::insert($certificate_data);
 
             return route('course.certificate', ['identifier' => $certificate_data['identifier']]);
-        }elseif($certificate->count() > 0 && $completion >= 100) {
+        } elseif ($certificate->count() > 0 && $completion >= 100) {
             return route('course.certificate', ['identifier' => $certificate->value('identifier')]);
         } else {
             return null;
@@ -1477,18 +1484,19 @@ if (!function_exists('get_user_info_api')) {
 
 
 if (!function_exists('unique_slug')) {
-function unique_slug($title, $table, $column_name = 'slug', $except_id = null)
+    function unique_slug($title, $table, $column_name = 'slug', $except_id = null)
     {
         $slug = slugify($title);
         $updated_slug = $slug;
         $counter = 1;
 
-        while (\DB::table($table)
-            ->where($column_name, $updated_slug)
-            ->when($except_id, function ($query) use ($except_id) {
-                return $query->where('id', '!=', $except_id);
-            })
-            ->exists()
+        while (
+            \DB::table($table)
+                ->where($column_name, $updated_slug)
+                ->when($except_id, function ($query) use ($except_id) {
+                    return $query->where('id', '!=', $except_id);
+                })
+                ->exists()
         ) {
             $updated_slug = $slug . '-' . $counter;
             $counter++;

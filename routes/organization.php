@@ -8,7 +8,6 @@ use App\Http\Controllers\instructor\BootcampModuleController;
 use App\Http\Controllers\instructor\BootcampResourceController;
 use App\Http\Controllers\instructor\CourseController;
 use App\Http\Controllers\instructor\LessonController;
-use App\Http\Controllers\instructor\MyProfileController;
 use App\Http\Controllers\instructor\PayoutController;
 use App\Http\Controllers\instructor\PayoutSettingsController;
 use App\Http\Controllers\instructor\QuestionController;
@@ -23,6 +22,7 @@ use App\Http\Controllers\Organization\DashboardController;
 use App\Http\Controllers\Organization\SubscriptionPackageController;
 use App\Http\Controllers\Organization\TeamController;
 use App\Http\Controllers\Organization\UsersController;
+use App\Http\Controllers\Organization\MyProfileController;
 use App\Models\SubscriptionPackageEnrollment;
 use Illuminate\Support\Facades\Route;
 
@@ -38,8 +38,8 @@ use Illuminate\Support\Facades\Route;
  */
 
 Route::name('organization.')->prefix('organization')->middleware(['organization'])->group(function () {
-    // dashboard
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // dashboard
 
     Route::controller(UsersController::class)->group(function () {
         Route::get('users', 'index')->name('users');
@@ -69,6 +69,12 @@ Route::name('organization.')->prefix('organization')->middleware(['organization'
     Route::controller(SubscriptionPackageController::class)->group(function () {
         Route::get('subscription', 'index')->name('subscription');
 
+    });
+
+     Route::controller(MyProfileController::class)->group(function () {
+        Route::get('my-profile', 'index')->name('my.profile');
+        Route::post('my-profile/update/{user_id}', 'update')->name('update.profile');
+        Route::post('update-profile-picture', 'update_profile_picture')->name('update.profile.picture');
     });
 
 });

@@ -15,33 +15,35 @@ use Laravel\Passport\PersonalAccessTokenResult;
 use Laravel\Passport\PersonalAccessTokenFactory;
 use Illuminate\Support\Facades\DB;
 
-Route::get('/token-login', function (Request $request) {
-    $tokenString = $request->query('token');
+// Route::get('/token-login', function (Request $request) {
+//     $tokenString = $request->query('token');
 
-    if (!$tokenString) {
-        abort(403, 'Missing token');
-    }
+//     if (!$tokenString) {
+//         abort(403, 'Missing token');
+//     }
 
-    // Validate token
-    $tokenId = explode('|', $tokenString)[0]; // token_id is before the |
-    $token = DB::table('oauth_access_tokens')->where('id', $tokenId)->first();
+//     // Validate token
+//     $tokenId = explode('|', $tokenString)[0]; // token_id is before the |
+//     $token = DB::table('oauth_access_tokens')->where('id', $tokenId)->first();
 
-    if (!$token || $token->revoked) {
-        abort(403, 'Invalid or revoked token');
-    }
+//     if (!$token || $token->revoked) {
+//         abort(403, 'Invalid or revoked token');
+//     }
 
-    $userModel = \App\Models\User::find($token->user_id);
+//     $userModel = User::find($token->user_id);
 
-    if (!$userModel || $userModel->role !== 'admin') {
-        abort(403, 'Unauthorized');
-    }
+//     if (!$userModel || $userModel->role !== 'admin') {
+//         abort(403, 'Unauthorized');
+//     }
 
-    // Log the user in (create session)
-    Auth::login($userModel);
+//     // Log the user in (create session)
+//     Auth::login($userModel);
 
-    // Now redirect to the actual admin dashboard
-    return redirect('/admin/dashboard');
-});
+//     // Now redirect to the actual admin dashboard
+//     return redirect('/admin/dashboard');
+// });
+
+
 
 Route::get('/admin/magic-login/{user}', function (Request $request, $userId) {
     if (! $request->hasValidSignature()) {
@@ -56,10 +58,46 @@ Route::get('/admin/magic-login/{user}', function (Request $request, $userId) {
         abort(403, 'Not authorized.');
     }
 
-    Auth::login($user); // Log in user to web session
+    Auth::login($user);
 
-    return redirect('/admin/dashboard'); // Laravel Blade dashboard
+    return redirect('/admin/dashboard');
 })->name('admin.magic-login.redirect');
+
+Route::get('/instructor/magic-login/{user}', function (Request $request, $userId) {
+    if (! $request->hasValidSignature()) {
+        abort(401, 'Invalid or expired link.');
+    }
+
+    // $user = User::findOrFail($userId);
+    $user = User::where('id', $userId)->firstOrFail();
+
+
+    if ($user->role !== 'instructor') {
+        abort(403, 'Not authorized.');
+    }
+
+    Auth::login($user);
+
+    return redirect('/instructor/dashboard');
+})->name('instructor.magic-login.redirect');
+
+Route::get('/organization/magic-login/{user}', function (Request $request, $userId) {
+    if (! $request->hasValidSignature()) {
+        abort(401, 'Invalid or expired link.');
+    }
+
+    // $user = User::findOrFail($userId);
+    $user = User::where('id', $userId)->firstOrFail();
+
+
+    if ($user->role !== 'organization') {
+        abort(403, 'Not authorized.');
+    }
+
+    Auth::login($user);
+
+    return redirect('/organization/dashboard');
+})->name('organization.magic-login.redirect');
 
 
 //Cache clear route

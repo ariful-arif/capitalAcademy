@@ -3,7 +3,7 @@
     use League\CommonMark\CommonMarkConverter;
 
 $converter = new League\CommonMark\CommonMarkConverter();
-$converted = $converter->convert($lesson->summary)->getContent();
+$converted = $converter->convert($lesson->summary ?? "")->getContent();
 @endphp
 
 <style>
@@ -76,7 +76,7 @@ $converted = $converter->convert($lesson->summary)->getContent();
             <h5 class="mb-0">📝 Edit Summary (HTML View)</h5>
         </div>
         <div class="card-body">
-            <textarea id="summaryTextarea" name="summary" class="form-control" rows="12">{!! old('summary', $lesson->summary) !!}</textarea>
+            <textarea id="summaryTextarea" name="summary" class="form-control" rows="12">{!! old('summary', $lesson->summary ?? "") !!}</textarea>
         </div>
     </div>
 
@@ -89,7 +89,7 @@ $converted = $converter->convert($lesson->summary)->getContent();
         <h5 class="mb-0">👁️ Summary Preview</h5>
     </div>
     <div class="card-body" id="summaryPreview">
-        {!! $lesson->summary !!}
+        {!! $lesson->summary ?? "" !!}
     </div>
 </div>
 

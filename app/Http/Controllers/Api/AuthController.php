@@ -86,68 +86,69 @@ class AuthController extends Controller
         }
     }
 
-    public function loginViaApi(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
+    // public function loginViaApi(Request $request)
+    // {
+    //     $credentials = $request->only('email', 'password');
 
-        if (Auth::guard('web')->attempt($credentials)) {
-            $user = Auth::guard('web')->user();
+    //     if (Auth::guard('web')->attempt($credentials)) {
+    //         $user = Auth::guard('web')->user();
 
-            if ($user->role === 'admin') {
-                $request->session()->regenerate();
+    //         if ($user->role === 'admin') {
+    //             $request->session()->regenerate();
 
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Admin login successful',
-                    'redirect' => url('/admin/dashboard'),
-                    'session_id' => session()->getId(),
-                ]);
-            } else {
-                Auth::logout();
-                return response()->json([
-                    'status' => false,
-                    'message' => 'User is not an admin.',
-                ], 403);
-            }
-        }
+    //             return response()->json([
+    //                 'status' => true,
+    //                 'message' => 'Admin login successful',
+    //                 'redirect' => url('/admin/dashboard'),
+    //                 'session_id' => session()->getId(),
+    //             ]);
+    //         } else {
+    //             Auth::logout();
+    //             return response()->json([
+    //                 'status' => false,
+    //                 'message' => 'User is not an admin.',
+    //             ], 403);
+    //         }
+    //     }
 
-        return response()->json([
-            'status' => false,
-            'message' => 'Invalid credentials.',
-        ], 401);
-    }
+    //     return response()->json([
+    //         'status' => false,
+    //         'message' => 'Invalid credentials.',
+    //     ], 401);
+    // }
 
-    public function generateLoginLink(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
+    // public function generateLoginLink(Request $request)
+    // {
+    //     $request->validate([
+    //         'email' => 'required|email',
+    //         'password' => 'required|string',
+    //     ]);
 
-        $user = User::where('email', $request->email)->first();
+    //     $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid credentials',
-            ], 401);
-        }
+    //     if (!$user || !Hash::check($request->password, $user->password)) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Invalid credentials',
+    //         ], 401);
+    //     }
 
-        if ($user->role !== 'admin') {
-            return response()->json([
-                'status' => false,
-                'message' => 'User is not an admin.',
-            ], 403);
-        }
+    //     if ($user->role !== 'admin') {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'User is not an admin.',
+    //         ], 403);
+    //     }
 
-        // Permanent signed URL (no expiration)
-        $url = URL::signedRoute('admin.magic-login.redirect', ['user' => $user->id]);
+    //     // Permanent signed URL (no expiration)
+    //     $url = URL::signedRoute('admin.magic-login.redirect', ['user' => $user->id]);
 
-        return response()->json([
-            'status' => true,
-            'login_link' => $url,
-        ]);
-    }
+    //     return response()->json([
+    //         'status' => true,
+    //         'login_link' => $url,
+    //     ]);
+    // }
+
 
     public function login(Request $request)
     {
@@ -237,19 +238,19 @@ class AuthController extends Controller
                         ], 401);
                     }
 
-                    if ($user->role !== 'admin') {
+                    if ($user->role !== 'instructor') {
                         return response()->json([
                             'status' => false,
-                            'message' => 'User is not an admin.',
+                            'message' => 'User is not an instructor.',
                         ], 403);
                     }
 
                     // Permanent signed URL (no expiration)
-                    $url = URL::signedRoute('admin.magic-login.redirect', ['user' => $user->id]);
+                    $url = URL::signedRoute('instructor.magic-login.redirect', ['user' => $user->id]);
                     return response()->json([
                         'status' => true,
                         'status_code' => 200,
-                        'message' => 'Admin login successful.',
+                        'message' => 'Instructor login successful.',
                         'redirect_url' => $url,
                         'data' => [
                             'token_type' => $data['token_type'],
@@ -308,7 +309,44 @@ class AuthController extends Controller
             ], 500);
         }
     }
+    public function organization_redirect_link(Request $request)
+    {
+        try {
+            // Step 1: Validation
+            $user = auth('api')->user();
 
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'status_code' => 401,
+                    'message' => 'Unauthorized access. Invalid or missing token.',
+                    'data' => []
+                ], 401);
+            }
+            $url = URL::signedRoute('organization.magic-login.redirect', ['user' => $user->id]);
+            return response()->json([
+                'status' => true,
+                'status_code' => 200,
+                'message' => 'Login successful.',
+                'redirect_url' => $url,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'status' => $user->status,
+                ],
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 500,
+                'message' => 'An unexpected server error occurred.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     public function refreshToken(Request $request)
     {

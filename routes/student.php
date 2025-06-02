@@ -164,7 +164,7 @@ Route::middleware(['auth'])->group(function () {
 
 //Certificate download
 Route::get('certificate/{identifier}', [HomeController::class, 'download_certificate'])->name('certificate');
-Route::get('get-certificate/{certificate_id}', [HomeController::class, 'download_program_certificate'])->name('get_certificate');
+Route::get('get-certificate/{my_certificate_id}', [HomeController::class, 'download_program_certificate'])->name('get_certificate');
 
 // offline payment
 Route::post('payment/offline/store', [OfflinePaymentController::class, 'store'])->name('payment.offline.store');

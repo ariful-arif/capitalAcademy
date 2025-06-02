@@ -646,6 +646,12 @@ class ApiController extends Controller
             if (!empty($filters['selected_rating']) && $filters['selected_rating'] !== 'all' && !is_array($filters['selected_rating'])) {
                 $filters['selected_rating'] = explode(',', $filters['selected_rating']);
             }
+            if (!empty($filters['selected_level']) && $filters['selected_level'] !== 'all' && !is_array($filters['selected_level'])) {
+                $filters['selected_level'] = explode(',', $filters['selected_level']);
+            }
+            if (!empty($filters['selected_instructor']) && $filters['selected_instructor'] !== 'all' && !is_array($filters['selected_instructor'])) {
+                $filters['selected_instructor'] = explode(',', $filters['selected_instructor']);
+            }
 
             // Get courses with filters
             $result = courses($limit, $page, $filters);
@@ -2205,8 +2211,7 @@ class ApiController extends Controller
             $instructor_id = $request->instructor_id;
 
             // Fetch the instructor with necessary checks
-            $user = User::where('role', 'instructor')
-                ->where('id', $instructor_id)
+            $user = User::where('id', $instructor_id)
                 ->first();
 
             // Check if the user exists and process data
@@ -2241,7 +2246,7 @@ class ApiController extends Controller
                     'total_courses' => $courses['total']
                 ],
             ], 200);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             // Handle validation errors
             return response()->json([
                 'status' => false,
@@ -4161,7 +4166,7 @@ class ApiController extends Controller
             ];
 
             // Fetch course details
-            $courseIds = json_decode($certificate->course_ids, true);
+            $courseIds = $certificate->course_ids;
             $totalLessons = 0;
             $totalCourses = is_array($courseIds) ? count($courseIds) : 0;
 
@@ -4270,8 +4275,6 @@ class ApiController extends Controller
             ], 500);
         }
     }
-
-
 
     public function certificate_review_store(Request $request)
     {
@@ -4509,13 +4512,13 @@ class ApiController extends Controller
                 ], 404);
             }
 
-            $download_link =  asset(ltrim($certificateProgram->certificate_template, '/'));
+
 
             // Check if certificate already exists
             $existingCertificate = MyCertificate::where('user_id', $user_id)
                 ->where('certificate_id', $certificate_id)
                 ->first();
-
+            $download_link = url("/get-certificate/$existingCertificate->id");
             if ($existingCertificate) {
                 return response()->json([
                     'status' => true,
@@ -5626,7 +5629,7 @@ class ApiController extends Controller
                     'courses' => $courses['data'],
                 ],
             ], 200);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             // Handle validation errors
             return response()->json([
                 'status' => false,
@@ -5760,7 +5763,7 @@ class ApiController extends Controller
                     'certificate' => $certificate,
                 ],
             ], 200);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             // Handle validation errors
             return response()->json([
                 'status' => false,
@@ -8022,9 +8025,11 @@ class ApiController extends Controller
                 'title' => $membershipDetails->package_section_title ?? 'Membership Pricing Plan',
                 'plans' => $packages->map(function ($package) {
                     return [
+                        'id' => $package->id,
                         'title' => $package->title,
                         'subtitle_1' => $package->subtitle_1,
                         'subtitle_2' => $package->subtitle_2,
+                        'thumbnail' => asset('/') . $membershipDetails->thumbnail ?? null,
                         'price' => $package->price,
                         'type' => $package->type,
                         'features' => $package->features ? json_decode($package->features, true) : [],

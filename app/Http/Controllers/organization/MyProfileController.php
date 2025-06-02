@@ -1,86 +1,89 @@
 <?php
 
-namespace App\Http\Controllers\instructor;
+namespace App\Http\Controllers\Organization;
 
 use App\Http\Controllers\Controller;
 use App\Models\FileUploader;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-
+use Illuminate\Support\Facades\Auth;
 
 class MyProfileController extends Controller
 {
-    public function manage_profile()
+    public function index()
     {
-        return view('instructor.profile.index');
+        $page_data['user_details'] = User::find(auth()->user()->id);
+        $view_path                 = 'organization.my_profile.index';
+        return view($view_path, $page_data);
     }
-    public function manage_profile_update(Request $request)
+
+    public function update(Request $request, $user_id)
     {
-        if ($request->type == 'general') {
-            $user_data = User::find(auth()->user()->id);
-            $profile['name'] = $request->name;
-            $profile['email'] = $request->email;
-            $profile['phone'] = $request->phone;
-            $profile['website'] = $request->website;
-            $profile['facebook'] = $request->facebook;
-            $profile['twitter'] = $request->twitter;
-            $profile['instagram'] = $request->instagram;
-            $profile['whatsapp'] = $request->whatsapp;
-            $profile['designation'] = $request->designation;
-            $profile['experience'] = $request->experience;
-            // $profile['video_thumbnail']   = $request->video_thumbnail;
-            $profile['video_url'] = $request->video_url;
-            $profile['about'] = $request->about;
-            $profile['linkedin'] = $request->linkedin;
-            $profile['skills'] = $request->skills;
-            $profile['biography'] = $request->biography;
+        $rules = [
+            'name'  => 'required',
+            'email' => 'required|email|unique:users,email,' . $user_id,
+        ];
+        $validator = Validator::make($request->all(), $rules);
 
-            if ($request->hasFile('video_thumbnail')) {
-                // Delete old file if exists
-                if ($user_data->video_thumbnail && file_exists(public_path($user_data->video_thumbnail))) {
-                    unlink(public_path($user_data->video_thumbnail));
-                }
-                // Save new file
-                $profile['video_thumbnail'] = "uploads/users/video_thumbnail/" . nice_file_name($request->name, $request->video_thumbnail->extension());
-                FileUploader::upload($request->video_thumbnail, $profile['video_thumbnail'], 400, null, 200, 200);
-            }
-            if ($request->photo) {
-                if (isset($request->photo) && $request->photo != '') {
-                    $profile['photo'] = "uploads/users/admin/" . nice_file_name($request->title, $request->photo->extension());
-                    FileUploader::upload($request->photo, $profile['photo'], 400, null, 200, 200);
-                }
-            }
-            User::where('id', auth()->user()->id)->update($profile);
-        } else {
-            $old_pass_check = Auth::attempt(['email' => auth()->user()->email, 'password' => $request->current_password]);
-
-            if (!$old_pass_check) {
-                Session::flash('error', get_phrase('Current password wrong.'));
-                return redirect()->back();
-            }
-
-            if ($request->new_password != $request->confirm_password) {
-                Session::flash('error', get_phrase('Confirm password not same'));
-                return redirect()->back();
-            }
-
-            $password = Hash::make($request->new_password);
-            User::where('id', auth()->user()->id)->update(['password' => $password]);
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
         }
-        Session::flash('success', get_phrase('Your changes has been saved.'));
+        $user_data = User::find($user_id);
+
+        $data['name']      = $request->name;
+        $data['email']     = $request->email;
+        $data['phone']     = $request->phone;
+        $data['website']   = $request->website;
+        $data['facebook']  = $request->facebook;
+        $data['twitter']   = $request->twitter;
+        $data['instagram']   = $request->instagram;
+        $data['whatsapp']   = $request->whatsapp;
+        $data['designation'] = $request->designation;
+        $data['experience'] = $request->experience;
+        // $data['video_thumbnail']   = $request->video_thumbnail;
+        $data['video_url']   = $request->video_url;
+        $data['about']   = $request->about;
+        $data['linkedin']  = $request->linkedin;
+        $data['skills']    = $request->skills;
+        $data['biography'] = $request->biography;
+
+        if ($request->hasFile('video_thumbnail')) {
+            // Delete old file if exists
+            if ($user_data->video_thumbnail && file_exists(public_path($user_data->video_thumbnail))) {
+                unlink(public_path($user_data->video_thumbnail));
+            }
+            // Save new file
+            $data['video_thumbnail'] = "uploads/users/video_thumbnail/" . nice_file_name($request->name, $request->video_thumbnail->extension());
+            FileUploader::upload($request->video_thumbnail, $data['video_thumbnail'], 400, null, 200, 200);
+        }
+        // dd($data);
+        // die;
+        User::where('id', $user_id)->update($data);
+        Session::flash('success', get_phrase('Profile updated successfully.'));
         return redirect()->back();
     }
 
-    public function manage_resume()
+    public function update_profile_picture(Request $request)
     {
-        return view('instructor.resume.index');
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg,webp,tiff|max:3072',
+        ]);
+
+        // process file
+        $file      = $request->photo;
+        $file_name = Str::random(20) . '.' . $file->extension();
+        $path      = 'uploads/users/' . auth()->user()->role . '/' . $file_name;
+        FileUploader::upload($file, $path, null, null, 300);
+
+        User::where('id', auth()->user()->id)->update(['photo' => $path]);
+        Session::flash('success', get_phrase('Profile picture updated.'));
+        return redirect()->back();
     }
 
+    
     public function education_add(Request $request)
     {
         // Validate the form data
@@ -128,7 +131,7 @@ class MyProfileController extends Controller
         $user->save();
 
         // Redirect or return a response, e.g., to the resume index page with a success message
-        return redirect()->route('instructor.manage.resume')->with('success', 'Education added successfully.');
+        return redirect()->back()->with('success', 'Education added successfully.');
     }
 
     public function education_update(Request $request, $index)
@@ -177,10 +180,10 @@ class MyProfileController extends Controller
             $user->save();
 
             // Redirect or return a response, e.g., to the resume index page with a success message
-            return redirect()->route('instructor.manage.resume')->with('success', 'Education updated successfully.');
+            return redirect()->back()->with('success', 'Education updated successfully.');
         } else {
             // Handle the case where the specified education index does not exist
-            return redirect()->route('instructor.manage.resume')->with('error', 'Education data not found for the specified index.');
+            return redirect()->back()->with('error', 'Education data not found for the specified index.');
         }
     }
 
@@ -205,9 +208,9 @@ class MyProfileController extends Controller
             $user->educations = json_encode($educations);
             $user->save();
 
-            return redirect()->route('instructor.manage.resume')->with('success', 'Education deleted successfully.');
+            return redirect()->back()->with('success', 'Education deleted successfully.');
         } else {
-            return redirect()->route('instructor.manage.resume')->with('error', 'Education not found.');
+            return redirect()->back()->with('error', 'Education not found.');
         }
     }
 }
