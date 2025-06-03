@@ -72,6 +72,6 @@ class Kernel extends HttpKernel
         'ip.detector'              => \App\Http\Middleware\IpDetectorMiddleware::class,
         'record.exists'            => \App\Http\Middleware\RecordVerification::class,
         'webConfig'                => \App\Http\Middleware\WebConfig::class,
-        'organization'             => \App\Http\Middleware\Organization::class,
+        'organization'             => \App\Http\Middleware\OrganizationMiddleware::class,
     ];
 }

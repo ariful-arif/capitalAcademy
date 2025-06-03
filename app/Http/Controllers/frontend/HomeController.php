@@ -67,8 +67,8 @@ class HomeController extends Controller
 
    public function download_program_certificate($my_certificate_id)
     {
-        $my_certificate = \DB::table('my_certificate')->where('id', $my_certificate_id)->first();
-        $final_exam_result = \DB::table('final_exam_results')->where('user_id', $my_certificate->user_id ?? '')->where('certificate_id', $my_certificate->certificate_id ?? '')->where('result_status','pass')->first();
+        $my_certificate = DB::table('my_certificate')->where('id', $my_certificate_id)->first();
+        $final_exam_result = DB::table('final_exam_results')->where('user_id', $my_certificate->user_id ?? '')->where('certificate_id', $my_certificate->certificate_id ?? '')->where('result_status','pass')->first();
         if(!$final_exam_result){
             echo '
                     <div style="color: #ff5722; font-size: 28px; width: 100%; display: flex; justify-content: center; align-items: center; height: 100vh;">
@@ -78,13 +78,13 @@ class HomeController extends Controller
                 return;
         }
 
-        $certificate_program = CertificateProgram::where('id', $final_exam_result->certificate_id)->firstOrNew();
+        $certificate_program = CertificateProgram::where('id', $my_certificate->certificate_id)->firstOrNew();
         $qr_code_content_value = route('get_certificate', ['my_certificate_id' => $my_certificate_id]);
         $qrcode                = QrCode::size(300)->generate($qr_code_content_value);
 
         $page_data['certificate_program'] = $certificate_program;
-        $page_data['result'] = $final_exam_result;
-        $page_data['student'] = User::find($final_exam_result->user_id);
+        $page_data['result'] = $my_certificate;
+        $page_data['student'] = User::find($my_certificate->user_id);
 
         $page_data['qrcode']      = $qrcode;
         return view('curriculum.certificate_program.download', $page_data);

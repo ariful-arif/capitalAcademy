@@ -69,5 +69,6 @@
             </ul>
         </div>
         <div class="learn-more">{{ get_phrase('Learn more') }} <i class="fa-solid fa-arrow-right-long ms-2"></i></div>
+        <div class="">{{is_purchased_course($course->id) ? get_phrase('Go to course') : get_phrase('no') }} <i class="fa-solid fa-arrow-right-long ms-2"></i></div>
     </a>
 </div>

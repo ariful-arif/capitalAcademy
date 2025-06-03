@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Auth;
 
-class Organization
+class OrganizationMiddleware
 {
     /**
      * Handle an incoming request.

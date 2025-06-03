@@ -49,6 +49,7 @@ use App\Models\EventCategory;
 use App\Http\Controllers\student\PurchaseController;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use App\Mail\GiftedCourseMail;
 // use DB;
 // use DB;
 use Illuminate\Support\Facades\DB;
@@ -4512,12 +4513,18 @@ class ApiController extends Controller
                 ], 404);
             }
 
-
-
             // Check if certificate already exists
             $existingCertificate = MyCertificate::where('user_id', $user_id)
                 ->where('certificate_id', $certificate_id)
                 ->first();
+            if (!$existingCertificate) {
+                return response()->json([
+                    'status' => true,
+                    'status_code' => 200,
+                    'message' => 'Certificate Not earned yet, Please pass the exam first',
+                    'download_link' => "",
+                ], 200);
+            }
             $download_link = url("/get-certificate/$existingCertificate->id");
             if ($existingCertificate) {
                 return response()->json([
@@ -5849,7 +5856,7 @@ class ApiController extends Controller
         }
     }
 
-    public function createCheckoutSession(Request $request)
+    public function createCheckoutSession1(Request $request)
     {
         if (!auth('api')->check()) {
             return response()->json([
@@ -5950,8 +5957,225 @@ class ApiController extends Controller
         return response()->json(['url' => $session->url]);
         // return redirect()->away($session->url);
     }
+    public function createCheckoutSession(Request $request)
+    {
+        if (!auth('api')->check()) {
+            return response()->json([
+                'status' => false,
+                'status_code' => 401,
+                'message' => 'Unauthorized. Please log in first.',
+            ], 401);
+        }
 
-    public function handleStripeSuccess(Request $request)
+        $user = auth('api')->user();
+        $payment_gateway = DB::table('payment_gateways')->where('identifier', 'stripe')->first();
+        $keys = json_decode($payment_gateway->keys, true);
+
+        $stripeSecretKey = $payment_gateway->test_mode == 1
+            ? $keys['secret_key']
+            : $keys['secret_live_key'];
+
+        $cartItems = CartItem::where('user_id', $user->id)->pluck('course_id');
+       if ($cartItems->isEmpty()) {
+    return response()->json([
+        'status' => false,
+        'status_code' => 400,
+        'message' => 'Your cart is empty. Please add courses first.',
+    ], 400);
+}
+        $items_id = $cartItems;
+        $courses = $items_id;
+
+        $gifted_user_id = '';
+        $newlyCreated = false;
+        $generatedPassword = '';
+
+        if ($request->gifted_user_email) {
+            $giftedUser = User::where('role', '!=', 'admin')
+                ->where('email', $request->gifted_user_email)
+                ->first();
+
+            if (!$giftedUser) {
+                // Create new user
+                $generatedPassword = Str::random(10);
+                $giftedUser = User::create([
+                    'name' => isset($request->gifted_user_email)
+                        ? ucwords(str_replace(['.', '_'], ' ', explode('@', $request->gifted_user_email)[0]))
+                        : 'Gifted User',
+                    'email' => $request->gifted_user_email,
+                    'password' => Hash::make($generatedPassword),
+                    'role' => 'student', // or whatever role you use
+                    'status' => 1, 
+                    'email_verified_at' => now(), // Optional
+                ]);
+                $newlyCreated = true;
+            }
+
+            $gifted_user_id = $giftedUser->id;
+
+            $courses = [];
+            foreach ($items_id as $item) {
+                if (Enrollment::where('course_id', $item)->where('user_id', $gifted_user_id)->doesntExist()) {
+                    $courses[] = $item;
+                }
+            }
+
+            if (count($courses) === 0) {
+                return response()->json([
+                    'status' => false,
+                'status_code' => 422,
+                    'message' => 'User already enrolled.'], 422);
+            }
+        }
+
+        $selected_courses = Course::whereIn('id', $courses)->get();
+        $items = [];
+
+        foreach ($selected_courses as $course) {
+            $items[] = [
+                'id' => $course->id,
+                'title' => $course->title,
+                'subtitle' => '',
+                'price' => $course->price,
+                'discount_price' => $course->discount_flag ? $course->discounted_price : 0,
+            ];
+        }
+
+        $products_name = collect($items)->pluck('title')->implode(', ');
+
+        Stripe::setApiKey($stripeSecretKey);
+
+        $session = \Stripe\Checkout\Session::create([
+            'line_items' => [
+                [
+                    'price_data' => [
+                        'product_data' => ['name' => get_phrase('Purchasing') . ' ' . $products_name],
+                        'unit_amount' => round($request->payable * 100, 2),
+                        'currency' => $payment_gateway->currency,
+                    ],
+                    'quantity' => 1,
+                ]
+            ],
+            'mode' => 'payment',
+            'success_url' => route('stripe.success') . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => $request->cancel_url,
+            'metadata' => [
+                'user_id' => $user->id,
+                'cart_id' => implode(',', $items_id->toArray()),
+                'gifted_user_id' => $gifted_user_id,
+                'coupon' => $request->coupon_code ?? '',
+                'coupon_discount' => $request->coupon_discount ?? 0,
+                'tax' => $request->tax ?? 0,
+                'payable_amount' => $request->payable,
+                'success_url' => $request->success_url,
+                'course_ids' => implode(',', $courses),
+                'new_user_email' => $request->gifted_user_email,
+                'new_user_password' => $newlyCreated ? $generatedPassword : '', // pass password if newly created
+            ]
+        ]);
+
+        // Send welcome email if user was just created
+        // if ($newlyCreated) {
+        //     Mail::to($request->gifted_user_email)->send(new GiftedCourseMail(
+        //         $giftedUser,
+        //         $generatedPassword,
+        //         $items
+        //     ));
+        // }
+
+        return response()->json(['url' => $session->url]);
+    }
+public function handleStripeSuccess(Request $request)
+{
+    $payment_gateway = DB::table('payment_gateways')->where('identifier', 'stripe')->first();
+    $keys = json_decode($payment_gateway->keys, true);
+
+    $stripeSecretKey = $payment_gateway->test_mode == 1
+        ? $keys['secret_key']
+        : $keys['secret_live_key'];
+
+    Stripe::setApiKey($stripeSecretKey);
+
+    $session_id = $request->get('session_id');
+    $session = \Stripe\Checkout\Session::retrieve($session_id);
+
+    if ($session->payment_status !== 'paid') {
+        return response()->json(['error' => 'Payment not completed'], 400);
+    }
+
+    $metadata = $session->metadata;
+
+    $course_ids = explode(',', $metadata->course_ids);
+    $cart_ids = explode(',', $metadata->cart_id);
+
+    foreach ($course_ids as $course_id) {
+        $course = Course::find($course_id);
+        $price = $course->price;
+        $discount = $course->discount_flag ? $course->discounted_price : 0;
+
+        $creator = get_course_creator_id($course_id);
+        $payment = [
+            'invoice' => Str::random(20),
+            'course_id' => $course_id,
+            'user_id' => $metadata->gifted_user_id ?? $metadata->user_id,
+            'tax' => $metadata->tax,
+            'amount' => $discount ?: $price,
+            'payment_type' => 'stripe',
+            'coupon' => $metadata->coupon,
+            'session_id' => $session_id,
+        ];
+
+        if ($creator->role === 'admin') {
+            $payment['admin_revenue'] = $metadata->payable_amount;
+        } else {
+            $instructor_revenue = $metadata->payable_amount * (get_settings('instructor_revenue') / 100);
+            $payment['instructor_revenue'] = $instructor_revenue;
+            $payment['admin_revenue'] = $metadata->payable_amount - $instructor_revenue;
+        }
+
+        DB::table('payment_histories')->insert($payment);
+
+        // Enroll
+        DB::table('enrollments')->insert([
+            'course_id' => $course_id,
+            'user_id' => $metadata->gifted_user_id ?: $metadata->user_id,
+            'enrollment_type' => 'paid',
+            'entry_date' => time(),
+            'expiry_date' => $course->expiry_period > 0
+                ? strtotime('+' . ($course->expiry_period * 30) . ' days')
+                : null,
+        ]);
+    }
+
+    // Remove from cart
+    CartItem::where('user_id', $metadata->user_id)->whereIn('course_id', $cart_ids)->delete();
+
+    // Send email if gifted
+    if (!empty($metadata->gifted_user_id)) {
+        $giftedUser = User::find($metadata->gifted_user_id);
+        $courses = Course::whereIn('id', $course_ids)->get();
+
+        $items = $courses->map(function ($course) {
+            return [
+                'id' => $course->id,
+                'title' => $course->title,
+                'subtitle' => '',
+                'price' => $course->price,
+                'discount_price' => $course->discount_flag ? $course->discounted_price : 0,
+            ];
+        })->toArray();
+
+        Mail::to($giftedUser->email)->send(new GiftedCourseMail(
+            $giftedUser,
+            $metadata->new_user_password ?? '', // password only if newly created
+            $items
+        ));
+    }
+
+    return redirect()->away($metadata->success_url);
+}
+
+    public function handleStripeSuccess1(Request $request)
     {
         // Fetch Stripe keys and session
         $payment_gateway = DB::table('payment_gateways')->where('identifier', 'stripe')->first();
@@ -5989,7 +6213,7 @@ class ApiController extends Controller
             $payment = [
                 'invoice' => Str::random(20),
                 'course_id' => $course_id,
-                'user_id' => $metadata->user_id,
+                'user_id' => $metadata->gifted_user_id ?? $metadata->user_id,
                 'tax' => $metadata->tax,
                 'amount' => $discount ?: $price,
                 'payment_type' => 'stripe',

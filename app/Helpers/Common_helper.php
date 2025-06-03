@@ -1251,6 +1251,15 @@ if (!function_exists('is_purchased_bootcamp')) {
         return $purchase;
     }
 }
+// course purchase
+if (!function_exists('is_purchased_course')) {
+    function is_purchased_course($course_id, $user_id = null)
+    {
+        $user_id  = $user_id ?? auth()->user()->id;
+        $purchase = App\Models\Enrollment::where('user_id', $user_id)->where('course_id', $course_id)->count();
+        return $purchase;
+    }
+}
 
 // bootcamp enrolls
 if (!function_exists('bootcamp_enrolls')) {
